@@ -25,20 +25,10 @@ open class GraphConfiguration(val customVariables: Map<String,String> = emptyMap
     @Bean
     open fun neo4jService(): Neo4jService {
         // initialize embedded Neo4j database
-        val neo4jService = Neo4jService(
+        val neo4jService = Neo4jService.getInstance(
                 neo4jUri = neo4jUri,
                 boltConnectorPort = neo4jBoltConnectorPort
         )
-        // register our specific stored procedures...
-        neo4jService.registerProcedures(listOf(
-                apoc.load.Jdbc::class.java,
-                apoc.load.LoadJson::class.java,
-                apoc.date.Date::class.java,
-                apoc.convert.Json::class.java,
-                apoc.convert.Convert::class.java,
-                apoc.text.Strings::class.java,
-                apoc.coll.Coll::class.java
-        ))
         // set static global variables such as sensitive connection values...
         customVariables.forEach {
             neo4jService.setStatic(it.key, it.value) {

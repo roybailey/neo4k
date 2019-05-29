@@ -10,7 +10,7 @@ import java.util.*
 
 class Neo4jServiceTest : BaseTest() {
 
-    val neo4jService: Neo4jService = Neo4jService("file://./target/neo4j/Neo4jServiceTest-{timestamp}", 7987)
+    val neo4jService: Neo4jService = Neo4jService.getInstance("file://./target/neo4j/Neo4jServiceTest-{timestamp}", 7987)
 
     @AfterEach
     fun deleteAllData() {
