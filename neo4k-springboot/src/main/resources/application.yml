@@ -1,0 +1,15 @@
+server:
+  port: 5000
+
+# ===========================================
+# NEO4J DATABASE (see classpath://neo4j.conf for neo4j database settings)
+# ===========================================
+# these properties are not used by Neo4j but are custom properties to activate bolt connector to embedded database
+# when active it means you can access your embedded database from a local Noe4j Browser session
+neo4j:
+  uri: file://./target/neo4j/graph.db
+  reset: keep
+  bolt:
+    connector:
+      port: 7887
+
