@@ -2,6 +2,7 @@ package me.roybailey.neo4k.springboot.config
 
 import me.roybailey.neo4k.api.Neo4jCypher
 import me.roybailey.neo4k.api.Neo4jService
+import me.roybailey.neo4k.api.Neo4jServiceOptions
 import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
@@ -26,9 +27,7 @@ open class GraphConfiguration(val customVariables: Map<String,String> = emptyMap
     open fun neo4jService(): Neo4jService {
         // initialize embedded Neo4j database
         val neo4jService = Neo4jService.getInstance(
-                neo4jUri = neo4jUri,
-                boltConnectorPort = neo4jBoltConnectorPort
-        )
+                Neo4jServiceOptions(neo4jUri = neo4jUri, boltPort = neo4jBoltConnectorPort))
         // set static global variables such as sensitive connection values...
         customVariables.forEach {
             neo4jService.setStatic(it.key, it.value) {

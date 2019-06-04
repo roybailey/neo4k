@@ -3,16 +3,23 @@ package me.roybailey.neo4k.api
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.lang.Thread.sleep
 import java.util.*
 
 
-class Neo4jServiceTest : BaseTest() {
+class Neo4jServiceBoltTest : BaseTest() {
 
-    val neo4jService: Neo4jService = Neo4jService.getInstance("file://./target/neo4j/Neo4jServiceTest-{timestamp}", 7987)
+    private val neo4jService: Neo4jService = Neo4jService.getInstance(
+            Neo4jServiceOptions(
+                    neo4jUri = "bolt://localhost",
+                    boltPort = 7687,
+                    username = "neo4j",
+                    password = "localhost"
+            ))
 
-    @AfterEach
+    @BeforeEach
     fun deleteAllData() {
 
         neo4jService.execute(Neo4jCypher.deleteAllData())
@@ -27,7 +34,7 @@ class Neo4jServiceTest : BaseTest() {
         val countBefore: Long = neo4jService.queryForObject("match (n) return count(n)")!!
         LOG.info { "graph count before bootstrap = $countBefore" }
 
-        val cypher = Neo4jServiceTest::class.java.getResource("/cypher/create-movies.cypher").readText()
+        val cypher = Neo4jServiceBoltTest::class.java.getResource("/cypher/create-movies.cypher").readText()
         neo4jService.execute(cypher) {
             LOG.info { "Loaded Movie Graph Data" }
         }
