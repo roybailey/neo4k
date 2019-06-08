@@ -21,7 +21,7 @@ class Neo4jQueryExecutor(val neo4jService: Neo4jService) {
         neo4jService.execute(query.toQueryString(params), params) {
             var row = -1
             while (it.hasNext())
-                consumer(SimpleQueryResult(++row, it.columns(), it.next()))
+                consumer(SimpleQueryResult(++row, it.keys(), it.single().asMap()))
         }
     }
 

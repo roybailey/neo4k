@@ -1,5 +1,6 @@
-package me.roybailey.neo4k.api
+package me.roybailey.neo4k.embedded
 
+import me.roybailey.neo4k.api.*
 import me.roybailey.neo4k.api.Neo4jCypher.apocGetStatic
 import me.roybailey.neo4k.api.Neo4jCypher.apocSetStatic
 import mu.KotlinLogging
@@ -11,10 +12,11 @@ import org.neo4j.kernel.internal.GraphDatabaseAPI
 import java.io.File
 import java.net.InetAddress
 import java.time.Instant.now
+import java.util.stream.Stream
 
 
 @Suppress("UNCHECKED_CAST")
-open class Neo4jServiceEmbedded(val options: Neo4jServiceOptions) : Neo4jService {
+open class Neo4jEmbeddedService(val options: Neo4jServiceOptions) : Neo4jService {
 
     private val LOG = KotlinLogging.logger {}
     private val instanceSignature = InetAddress.getLocalHost().canonicalHostName + "-" + hashCode()
@@ -77,7 +79,7 @@ open class Neo4jServiceEmbedded(val options: Neo4jServiceOptions) : Neo4jService
     }
 
 
-    override fun toString(): String = "Neo4jServiceEmbedded{ options=$options, neo4jDatabaseFolder=$neo4jDatabaseFolder }"
+    override fun toString(): String = "Neo4jEmbeddedService{ options=$options, neo4jDatabaseFolder=$neo4jDatabaseFolder }"
 
 
     override fun shutdown() {
@@ -116,7 +118,7 @@ open class Neo4jServiceEmbedded(val options: Neo4jServiceOptions) : Neo4jService
             LOG.info { it.next() }
         }
         execute(apocGetStatic(key), emptyMap()) {
-            val savedValue = it.next().getValue("value")
+            val savedValue = it.single()["value"] ?: error("static parameter not saved!")
             verification(savedValue)
         }
         return this
@@ -126,8 +128,27 @@ open class Neo4jServiceEmbedded(val options: Neo4jServiceOptions) : Neo4jService
     override fun execute(cypher: String, params: Map<String, Any>, code: Neo4jResultMapper): Neo4jService {
         graphDb.beginTx().run {
             try {
-                code(graphDb.execute(cypher, params))
+                val result = graphDb.execute(cypher, params)
                 success()
+                code(object: Neo4jServiceStatementResult {
+                    override fun address(): String = neo4jDatabaseFolder.toString()
+                    override fun statement(): String = cypher
+                    override fun parameters(): Map<String,Any> = params
+
+                    override fun hasNext(): Boolean= result.hasNext()
+                    override fun next(): Neo4jServiceRecord = Neo4jEmbeddedRecord(result.next())
+
+                    override fun keys(): List<String> = result.columns()
+                    override fun single(): Neo4jServiceRecord = Neo4jEmbeddedRecord(result.next())
+                    override fun list(): List<Neo4jServiceRecord> {
+                        val list = mutableListOf<Neo4jEmbeddedRecord>()
+                        while(result.hasNext()) {
+                            list.add(Neo4jEmbeddedRecord(result.next()))
+                        }
+                        return list
+                    }
+                    override fun stream(): Stream<Neo4jServiceRecord> = list().stream()
+                })
             } catch (err: Exception) {
                 // don't throw errors on cypher drop commands
                 if (options.ignoreErrorOnDrop && cypher.trim().startsWith("drop", ignoreCase = true) &&

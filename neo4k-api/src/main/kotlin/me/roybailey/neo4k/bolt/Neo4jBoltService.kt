@@ -1,5 +1,6 @@
-package me.roybailey.neo4k.api
+package me.roybailey.neo4k.bolt
 
+import me.roybailey.neo4k.api.*
 import me.roybailey.neo4k.api.Neo4jCypher.apocGetStatic
 import me.roybailey.neo4k.api.Neo4jCypher.apocSetStatic
 import mu.KotlinLogging
@@ -8,10 +9,11 @@ import org.neo4j.driver.v1.Driver
 import org.neo4j.driver.v1.GraphDatabase
 import java.lang.RuntimeException
 import java.net.InetAddress
+import java.util.stream.Stream
 
 
 @Suppress("UNCHECKED_CAST")
-open class Neo4jServiceBolt(val options: Neo4jServiceOptions) : Neo4jService {
+open class Neo4jBoltService(val options: Neo4jServiceOptions) : Neo4jService {
 
     private val LOG = KotlinLogging.logger {}
     private val instanceSignature = InetAddress.getLocalHost().canonicalHostName + "-" + hashCode()
@@ -40,7 +42,7 @@ open class Neo4jServiceBolt(val options: Neo4jServiceOptions) : Neo4jService {
         })
     }
 
-    override fun toString(): String = "Neo4jServiceBolt{ options=$options }"
+    override fun toString(): String = "Neo4jBoltService{ options=$options }"
 
 
     override fun shutdown() {
@@ -83,7 +85,7 @@ open class Neo4jServiceBolt(val options: Neo4jServiceOptions) : Neo4jService {
             }
         }
         unregisteredProcedures.forEach { LOG.error { "Stored Procedure not found using classname or package name $it" } }
-        if(!options.ignoreProcedureNotFound && unregisteredProcedures.size > 0) {
+        if (!options.ignoreProcedureNotFound && unregisteredProcedures.size > 0) {
             throw RuntimeException("Stored procedures not found $unregisteredProcedures")
         }
         return this
@@ -96,7 +98,7 @@ open class Neo4jServiceBolt(val options: Neo4jServiceOptions) : Neo4jService {
             LOG.info { it.next() }
         }
         execute(apocGetStatic(key), emptyMap()) {
-            val savedValue = it.next().getValue("value")
+            val savedValue = it.single()["value"] ?: error("static parameter not saved!")
             verification(savedValue)
         }
         return this
@@ -104,11 +106,22 @@ open class Neo4jServiceBolt(val options: Neo4jServiceOptions) : Neo4jService {
 
 
     override fun execute(cypher: String, params: Map<String, Any>, code: Neo4jResultMapper): Neo4jService {
-
         driver.session().let { session ->
             session.writeTransaction { tx ->
                 val result = tx.run(cypher, params)
-                // todo code()
+                code(object: Neo4jServiceStatementResult {
+                    override fun address(): String = options.neo4jUri
+                    override fun statement(): String = cypher
+                    override fun parameters(): Map<String,Any> = params
+
+                    override fun hasNext(): Boolean= result.hasNext()
+                    override fun next(): Neo4jServiceRecord = Neo4jBoltRecord(result.next())
+
+                    override fun keys(): List<String> = result.keys()
+                    override fun single(): Neo4jServiceRecord = Neo4jBoltRecord(result.single())
+                    override fun list(): List<Neo4jServiceRecord> = result.list().map { Neo4jBoltRecord(it) }
+                    override fun stream(): Stream<Neo4jServiceRecord> = list().stream()
+                })
             }
         }
         return this
@@ -117,14 +130,9 @@ open class Neo4jServiceBolt(val options: Neo4jServiceOptions) : Neo4jService {
 
     override fun query(cypher: String, params: Map<String, Any>): List<Map<String, Any>> {
         val result = mutableListOf<Map<String, Any>>()
-        driver.session().let { session ->
-            session.writeTransaction { tx ->
-                val srs = tx.run(cypher, params)
-                while (srs.hasNext()) {
-                    val record = srs.next()
-                    result.add(record.asMap())
-                }
-            }
+        execute(cypher, params) {
+            if(it.hasNext())
+                result.add(it.next().asMap())
         }
         return result.toList()
     }
@@ -132,13 +140,9 @@ open class Neo4jServiceBolt(val options: Neo4jServiceOptions) : Neo4jService {
 
     override fun <T> queryForObject(cypher: String, params: Map<String, Any>): T? {
         var result: T? = null
-        driver.session().let { session ->
-            session.writeTransaction { tx ->
-                val srs = tx.run(cypher, params)
-                if (srs.hasNext()) {
-                    result = srs.next().asMap().entries.first().value as T
-                }
-            }
+        execute(cypher, params) {
+            if(it.hasNext())
+                result = it.next().asMap().entries.first().value as T
         }
         return result
     }

@@ -3,6 +3,8 @@ package me.roybailey.neo4k.api
 
 object Neo4jCypher {
 
+    fun toNeo4j(cypher:String, dollar:String = "__") = cypher.replace(dollar, "$")
+
     // warning!!! deletes all data
     fun deleteAllData() = "match (n) optional match (n)-[r]-() delete r,n"
 

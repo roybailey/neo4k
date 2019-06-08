@@ -16,14 +16,15 @@ class GraphBootstrap(
 
     fun initializeGraph() {
 
-        val now = Instant.now()
+        val initializeTime = Instant.now()
 
         val cypher = QueryStatement.loadStatements("/cypher/create-movies.cypher")[0].statement
         session.execute(cypher, mutableMapOf()) {
             LOG.info { it }
         }
 
-        val count:Long? = session.queryForObject("match (n) return count(n)", mutableMapOf())
+        val count: Long? = session.queryForObject("match (n) return count(n)", mutableMapOf())
+        LOG.info { "Loaded Graph Data $count in ${(Instant.now().toEpochMilli() - initializeTime.toEpochMilli())} millis" }
         println("Loaded Graph Data $count")
     }
 }

@@ -1,14 +1,38 @@
 package me.roybailey.neo4k.api
 
-import org.neo4j.graphdb.Result
+import me.roybailey.neo4k.bolt.Neo4jBoltService
+import me.roybailey.neo4k.embedded.Neo4jEmbeddedService
 import org.neo4j.procedure.Name
 import org.neo4j.procedure.UserFunction
 import java.util.*
+import java.util.stream.Stream
 
+interface Neo4jServiceRecord {
+    fun keys(): List<String>
+    fun values(): List<Any>
+    fun containsKey(lookup: String): Boolean
+    fun index(lookup: String): Int
+    operator fun get(key: String): Any
+    operator fun get(index: Int): Any
+    fun size(): Int
+    fun asMap(): Map<String, Any>
+    fun fields(): List<Pair<String, Any>>
+}
 
-typealias Neo4jResultMapper = (result: Result) -> Unit
+interface Neo4jServiceStatementResult : Iterator<Neo4jServiceRecord> {
 
-val nullNeo4jResultMapper = { _: Result -> }
+    fun address(): String
+    fun statement(): String
+    fun parameters(): Map<String, Any>
+    fun single(): Neo4jServiceRecord
+    fun keys(): List<String>
+    fun list(): List<Neo4jServiceRecord>
+    fun stream(): Stream<Neo4jServiceRecord>
+}
+
+typealias Neo4jResultMapper = (record: Neo4jServiceStatementResult) -> Unit
+
+val nullNeo4jResultMapper = { _: Neo4jServiceStatementResult -> }
 
 data class Neo4jServiceOptions(
         val neo4jUri: String,
@@ -19,7 +43,7 @@ data class Neo4jServiceOptions(
         val ignoreErrorOnDrop: Boolean = true,
         val ignoreProcedureNotFound: Boolean = true
 ) {
-    val mode : String = neo4jUri.toLowerCase().substring(0,4)
+    val mode: String = neo4jUri.toLowerCase().substring(0, 4)
 }
 
 interface Neo4jService {
@@ -35,9 +59,9 @@ interface Neo4jService {
     companion object {
 
         fun getInstance(options: Neo4jServiceOptions): Neo4jService {
-            val neo4jService = when(options.mode) {
-                "bolt" -> Neo4jServiceBolt(options)
-                else -> Neo4jServiceEmbedded(options)
+            val neo4jService = when (options.mode) {
+                "bolt" -> Neo4jBoltService(options)
+                else -> Neo4jEmbeddedService(options)
             }
             neo4jService.registerProcedures(options.neo4jProcedures)
             return neo4jService
