@@ -35,6 +35,7 @@ class Neo4jBoltTest(neo4jUri: String, username: String, password: String) {
                 val movie = (record["m"] as Value).asNode()
                 val director = (record["d"] as Value).asNode()
                 LOG.info { "movieId=${movie.id()} directorId=${director.id()}" }
+                LOG.info { "movie.labels=${movie.labels()} director.labels=${director.labels()}" }
 
                 if (!mapDirectors.containsKey(director.id().toString()))
                     mapDirectors[director.id().toString()] = PersonResult(director.id(),

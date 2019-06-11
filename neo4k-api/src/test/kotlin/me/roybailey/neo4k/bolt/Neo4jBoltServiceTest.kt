@@ -12,7 +12,7 @@ class Neo4jBoltServiceTest : BaseNeo4jServiceTest() {
     override fun createNeo4jService(): Neo4jService = Neo4jService.getInstance(
             Neo4jServiceOptions(
                     neo4jUri = "bolt://localhost",
-                    boltPort = 7687,
+                    boltPort = 7987,
                     username = "neo4j",
                     password = "localhost"
             ))

@@ -19,7 +19,7 @@ private val LOG = KotlinLogging.logger("Neo4jBoltTest")
  */
 class Neo4jEmbeddedTest(
         neo4jUri: String,
-        boltPort: Int = 7987,
+        boltPort: Int = 7988,
         neo4jConfiguration: String = "/neo4j.conf") {
 
     lateinit var graphDb: GraphDatabaseService
@@ -71,6 +71,7 @@ class Neo4jEmbeddedTest(
                 val movie = (record["m"] as Node)
                 val director = (record["d"] as Node)
                 LOG.info { "movieId=${movie.id} directorId=${director.id}" }
+                LOG.info { "movie.labels=${movie.labels} director.labels=${director.labels}" }
 
                 if (!mapDirectors.containsKey(director.id.toString()))
                     mapDirectors[director.id.toString()] = PersonResult(director.id,

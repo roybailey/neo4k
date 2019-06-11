@@ -16,7 +16,7 @@ class Neo4jEmbeddedServiceTest : BaseNeo4jServiceTest() {
         Neo4jService.getInstance(
                 Neo4jServiceOptions(
                         neo4jUri = "file://./target/neo4j/Neo4jEmbeddedServiceTest-{timestamp}",
-                        boltPort = 7987
+                        boltPort = 7988
                 ))
 
 }
