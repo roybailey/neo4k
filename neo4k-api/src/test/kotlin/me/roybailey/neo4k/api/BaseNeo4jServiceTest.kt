@@ -21,7 +21,7 @@ abstract class BaseNeo4jServiceTest : BaseTest() {
 
     @AfterEach
     fun shutdownDatabase() {
-        deleteAllData()
+        //deleteAllData()
         neo4jService.shutdown()
     }
 
@@ -63,16 +63,64 @@ abstract class BaseNeo4jServiceTest : BaseTest() {
     }
 
     @Test
+    fun `should query movie graph results`() {
+
+        loadMovieData()
+
+        val query = Neo4jCypher.toNeo4j("""
+                match (m:Movie)
+                optional match (m)-[:ACTED_IN]-(actor:Person)
+                return m.title as title, m.released as released, collect(actor.name) as actors
+        """.trimIndent())
+
+        data class MovieResult(val title: String, val released: Long, val actors: List<String>)
+        val records = mutableListOf<MovieResult>()
+
+        neo4jService.execute(query, mapOf(Pair("name", "Kevin Bacon"))) { result ->
+            while (result.hasNext()) {
+                result.next()
+                        .also { LOG.info { it } }
+                        .also {
+                            records.add(MovieResult(
+                                    it["title"].toString(),
+                                    it["released"] as Long,
+                                    it["actors"] as List<String>))
+                        }
+            }
+        }
+        records.forEach { LOG.info { it } }
+        Assertions.assertThat(records.size).isEqualTo(38)
+    }
+
+    @Test
     fun `should query movie graph objects`() {
 
         loadMovieData()
 
-        val query = Neo4jCypher.toNeo4j("MATCH (bacon:Person {name:__name})-[*1..2]-(hollywood) RETURN DISTINCT hollywood")
+        val query = "match (m:Movie)-[:DIRECTED]-(d:Person) return m, d"
 
-        neo4jService.execute(query, mapOf(Pair("name", "Kevin Bacon"))) { result ->
-            val records = mutableListOf<Neo4jServiceRecord>()
+        data class PersonResult(val name: String, val born: Long)
+        data class MovieResult(val title: String, val released: Long, val actors: List<PersonResult>, val directors: List<PersonResult>)
+        val records = mutableListOf<MovieResult>()
+
+        neo4jService.execute(query) { result ->
             while (result.hasNext()) {
-                result.next().also { records.add(it) }.also { LOG.info { it } }
+                result.next()
+                        .also { LOG.info { it } }
+                        .also {
+
+                            val actors = mutableListOf<PersonResult>()
+                            val directors = mutableListOf<PersonResult>()
+
+                            val actor = PersonResult(it["name"].toString(), it["born"] as Long)
+                            actors.add(actor)
+
+                            val director = PersonResult(it["name"].toString(), it["born"] as Long)
+                            directors.add(director)
+
+                            val movie = MovieResult(it["title"].toString(), it["released"] as Long, actors, directors)
+                            records.add(movie)
+                        }
             }
             Assertions.assertThat(records.size).isEqualTo(24)
         }
