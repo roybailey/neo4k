@@ -1,5 +1,6 @@
 package me.roybailey.neo4k.bolt
 
+import me.roybailey.neo4k.api.Neo4jCypher
 import mu.KotlinLogging
 import org.neo4j.driver.v1.AuthTokens
 import org.neo4j.driver.v1.GraphDatabase
@@ -16,6 +17,12 @@ class Neo4jBoltTest(neo4jUri: String, username: String, password: String) {
 
     init {
         LOG.info { "Created Neo4j session $driver" }
+
+        driver.session().run(Neo4jCypher.deleteAllData())
+        val cypher = Neo4jBoltTest::class.java.getResource("/cypher/create-movies.cypher").readText()
+        driver.session().writeTransaction { tx -> tx.run(cypher) }
+        val total = driver.session().run("match (m) return count(m) as total").single().get("total").asLong()
+        LOG.info { "Loaded movie database $total" }
     }
 
     fun session(): Session = driver.session()
@@ -32,6 +39,20 @@ class Neo4jBoltTest(neo4jUri: String, username: String, password: String) {
             while (statementResult.hasNext()) {
                 val record = statementResult.next()
                 LOG.info { record.fields() }
+                LOG.info { record.get("m")::class.qualifiedName } // org.neo4j.driver.internal.value.NodeValue
+                LOG.info { record.get("m").asObject()::class.qualifiedName } // org.neo4j.driver.internal.InternalNode
+                Neo4jBoltRecord(record).run {
+                    LOG.info { "Neo4jBoltRecord" }
+                    LOG.info { this["m"]::class.qualifiedName }
+                    LOG.info { this[0]::class.qualifiedName }
+                    LOG.info { this.asMap() }
+                    LOG.info { this.fields() }
+                    LOG.info { this.index("m") }
+                    LOG.info { this.keys() }
+                    LOG.info { this.size() }
+                    LOG.info { this.values() }
+                    LOG.info { "--------------" }
+                }
                 val movie = (record["m"] as Value).asNode()
                 val director = (record["d"] as Value).asNode()
                 LOG.info { "movieId=${movie.id()} directorId=${director.id()}" }

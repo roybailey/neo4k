@@ -19,6 +19,24 @@ interface Neo4jServiceRecord {
     fun fields(): List<Pair<String, Any>>
 }
 
+class Neo4jMapRecord(val template: Map<String, Any>, vararg more:Pair<String,Any>) : Neo4jServiceRecord {
+
+    val record:Map<String,Any>
+    init {
+        record = mutableMapOf<String,Any>().also { it.putAll(template) }.also { it.putAll(more) }.toMap()
+    }
+
+    override fun keys(): List<String> = record.entries.map { it.key }
+    override fun values(): List<Any> = record.entries.map { it.value }
+    override fun containsKey(lookup: String): Boolean = record.containsKey(lookup)
+    override fun index(lookup: String): Int = keys().indexOf(lookup)
+    override fun get(key: String): Any = record.getOrDefault(key, Unit)
+    override fun get(index: Int): Any = fields()[index].second
+    override fun size(): Int = record.size
+    override fun asMap(): Map<String, Any> = record
+    override fun fields(): List<Pair<String, Any>> = record.entries.map { Pair(it.key, it.value) }
+}
+
 interface Neo4jServiceStatementResult : Iterator<Neo4jServiceRecord> {
 
     fun address(): String

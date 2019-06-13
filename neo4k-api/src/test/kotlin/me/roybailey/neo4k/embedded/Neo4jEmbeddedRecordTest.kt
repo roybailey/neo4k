@@ -9,7 +9,7 @@ class Neo4jEmbeddedRecordTest: BaseNeo4jRecordTest() {
     @Test
     fun testNeo4jEmbeddedRecord() {
 
-        val testData = getNeo4jRecord()
+        val testData = createNeo4jDataRecord()
         assertNeo4jRecord(Neo4jEmbeddedRecord(testData.asMap()), testData)
     }
 

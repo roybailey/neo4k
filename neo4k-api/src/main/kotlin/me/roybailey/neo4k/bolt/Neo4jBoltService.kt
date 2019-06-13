@@ -20,7 +20,7 @@ open class Neo4jBoltService(val options: Neo4jServiceOptions) : Neo4jService {
 
     private val neo4jConfiguration = Neo4jService::class.java.getResource("/neo4j.conf")
 
-    lateinit var driver: Driver
+    private var driver: Driver
 
     init {
         LOG.info("########### ########## ########## ########## ##########")
@@ -29,8 +29,8 @@ open class Neo4jBoltService(val options: Neo4jServiceOptions) : Neo4jService {
 
         LOG.info("Created Neo4j Database from: $neo4jConfiguration")
 
-
-        driver = GraphDatabase.driver(options.neo4jUri, AuthTokens.basic(options.username, options.password))
+        val neo4jUri = if (options.neo4jUri.substring(7).contains(":")) options.neo4jUri else options.neo4jUri + ":" + options.boltPort
+        driver = GraphDatabase.driver(neo4jUri, AuthTokens.basic(options.username, options.password))
 
         // Registers a shutdown hook for the Neo4j instance so that it
         // shuts down nicely when the VM exits (even if you "Ctrl-C" the
@@ -109,12 +109,12 @@ open class Neo4jBoltService(val options: Neo4jServiceOptions) : Neo4jService {
         driver.session().let { session ->
             session.writeTransaction { tx ->
                 val result = tx.run(cypher, params)
-                code(object: Neo4jServiceStatementResult {
+                code(object : Neo4jServiceStatementResult {
                     override fun address(): String = options.neo4jUri
                     override fun statement(): String = cypher
-                    override fun parameters(): Map<String,Any> = params
+                    override fun parameters(): Map<String, Any> = params
 
-                    override fun hasNext(): Boolean= result.hasNext()
+                    override fun hasNext(): Boolean = result.hasNext()
                     override fun next(): Neo4jServiceRecord = Neo4jBoltRecord(result.next())
 
                     override fun keys(): List<String> = result.keys()
@@ -131,7 +131,7 @@ open class Neo4jBoltService(val options: Neo4jServiceOptions) : Neo4jService {
     override fun query(cypher: String, params: Map<String, Any>): List<Map<String, Any>> {
         val result = mutableListOf<Map<String, Any>>()
         execute(cypher, params) {
-            if(it.hasNext())
+            if (it.hasNext())
                 result.add(it.next().asMap())
         }
         return result.toList()
@@ -141,7 +141,7 @@ open class Neo4jBoltService(val options: Neo4jServiceOptions) : Neo4jService {
     override fun <T> queryForObject(cypher: String, params: Map<String, Any>): T? {
         var result: T? = null
         execute(cypher, params) {
-            if(it.hasNext())
+            if (it.hasNext())
                 result = it.next().asMap().entries.first().value as T
         }
         return result

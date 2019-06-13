@@ -7,9 +7,9 @@ Neo4j wrapper for Kotlin
 
 * Create a Kotlin friendly wrapper for accessing Neo4j
 * Support Neo4j Embedded and Bolt drivers directly
-* Same interface works with Embedded or Bolt instances
+* Same neo4j interface working with Embedded or Bolt drivers
 * No other frameworks (no Spring or neo4j-ogm)
-* Simple mapping to kotlin data classes (MyBatis like inspiration)
+* Simple mapping to clean kotlin data classes (MyBatis like inspiration)
 
 
 ## User Guide

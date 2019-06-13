@@ -21,7 +21,6 @@ abstract class BaseNeo4jServiceTest : BaseTest() {
 
     @AfterEach
     fun shutdownDatabase() {
-        //deleteAllData()
         neo4jService.shutdown()
     }
 
@@ -63,7 +62,7 @@ abstract class BaseNeo4jServiceTest : BaseTest() {
     }
 
     @Test
-    fun `should query movie graph results`() {
+    fun `should process table style results`() {
 
         loadMovieData()
 
@@ -74,9 +73,10 @@ abstract class BaseNeo4jServiceTest : BaseTest() {
         """.trimIndent())
 
         data class MovieResult(val title: String, val released: Long, val actors: List<String>)
+
         val records = mutableListOf<MovieResult>()
 
-        neo4jService.execute(query, mapOf(Pair("name", "Kevin Bacon"))) { result ->
+        neo4jService.execute(query) { result ->
             while (result.hasNext()) {
                 result.next()
                         .also { LOG.info { it } }
@@ -93,36 +93,49 @@ abstract class BaseNeo4jServiceTest : BaseTest() {
     }
 
     @Test
-    fun `should query movie graph objects`() {
+    fun `should process graph style results`() {
 
         loadMovieData()
 
         val query = "match (m:Movie)-[:DIRECTED]-(d:Person) return m, d"
 
-        data class PersonResult(val name: String, val born: Long)
-        data class MovieResult(val title: String, val released: Long, val actors: List<PersonResult>, val directors: List<PersonResult>)
-        val records = mutableListOf<MovieResult>()
+        data class PersonResult(val id: Long, val name: String, val born: Long)
+        data class MovieResult(val id: Long,
+                               val title: String,
+                               val released: Long,
+                               val actors: MutableList<PersonResult>,
+                               val directors: MutableList<PersonResult>)
+
+        val mapMovies = mutableMapOf<Long, MovieResult>()
+        val mapDirectors = mutableMapOf<Long, PersonResult>()
 
         neo4jService.execute(query) { result ->
             while (result.hasNext()) {
                 result.next()
                         .also { LOG.info { it } }
-                        .also {
+                        .also { record ->
 
-                            val actors = mutableListOf<PersonResult>()
-                            val directors = mutableListOf<PersonResult>()
+                            val movie = (record["m"] as Neo4jServiceRecord)
+                            val director = (record["d"] as Neo4jServiceRecord)
+                            LOG.info { "movieId=${movie["id"]} directorId=${director["id"]}" }
+                            LOG.info { "movie.labels=${movie["labels"]} director.labels=${director["labels"]}" }
 
-                            val actor = PersonResult(it["name"].toString(), it["born"] as Long)
-                            actors.add(actor)
+                            if (!mapDirectors.containsKey(director["id"] as Long))
+                                mapDirectors[director["id"] as Long] = PersonResult(director["id"] as Long,
+                                        (director["name"]) as String,
+                                        (director["born"]) as Long)
 
-                            val director = PersonResult(it["name"].toString(), it["born"] as Long)
-                            directors.add(director)
+                            if (!mapMovies.containsKey(movie["id"] as Long))
+                                mapMovies[movie["id"] as Long] = MovieResult(movie["id"] as Long,
+                                        (movie["title"]) as String,
+                                        (movie["released"]) as Long,
+                                        mutableListOf(),
+                                        mutableListOf())
 
-                            val movie = MovieResult(it["title"].toString(), it["released"] as Long, actors, directors)
-                            records.add(movie)
+                            mapMovies[movie["id"] as Long]?.directors?.add(mapDirectors[director["id"] as Long]!!)
                         }
             }
-            Assertions.assertThat(records.size).isEqualTo(24)
+            Assertions.assertThat(mapMovies.size).isEqualTo(24)
         }
     }
 }
