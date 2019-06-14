@@ -4,6 +4,7 @@ import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInfo
 
 
 abstract class BaseNeo4jServiceTest : BaseTest() {
@@ -15,13 +16,15 @@ abstract class BaseNeo4jServiceTest : BaseTest() {
     }
 
     @BeforeEach
-    fun setupDatabase() {
+    fun setupDatabase(testInfo: TestInfo) {
+        LOG.info { "Before ${testInfo.testClass}.${testInfo.testMethod}" }
         deleteAllData()
     }
 
     @AfterEach
-    fun shutdownDatabase() {
+    fun shutdownDatabase(testInfo: TestInfo) {
         neo4jService.shutdown()
+        LOG.info { "After ${testInfo.testClass.get()}.${testInfo.testMethod.get()}" }
     }
 
     private fun deleteAllData() {
@@ -135,7 +138,7 @@ abstract class BaseNeo4jServiceTest : BaseTest() {
                             mapMovies[movie["id"] as Long]?.directors?.add(mapDirectors[director["id"] as Long]!!)
                         }
             }
-            Assertions.assertThat(mapMovies.size).isEqualTo(24)
+            Assertions.assertThat(mapMovies.size).isEqualTo(38)
         }
     }
 }

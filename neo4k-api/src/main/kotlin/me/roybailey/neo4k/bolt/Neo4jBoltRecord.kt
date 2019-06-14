@@ -12,7 +12,7 @@ class Neo4jBoltRecord(val record: Record) : Neo4jServiceRecord {
     companion object {
         fun unwrapValue(data: Value) = when (data.asObject()) {
             is Node -> Neo4jMapRecord(data.asNode().asMap(), "id" to data.asNode().id())
-            else -> data as Any
+            else -> data.asObject() as Any
         }
     }
 

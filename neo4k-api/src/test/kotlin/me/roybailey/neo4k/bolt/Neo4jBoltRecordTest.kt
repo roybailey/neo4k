@@ -78,7 +78,7 @@ class Neo4jBoltRecordTest : BaseNeo4jRecordTest() {
         val testData = createNeo4jDataRecord()
         val record = mockBoltRecord(testData)
         assertNeo4jRecord(Neo4jBoltRecord(record), testData)
-        verify(record).keys()
+        verify(record, atLeast(2)).keys()
     }
 
     @Test
