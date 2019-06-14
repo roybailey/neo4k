@@ -9,8 +9,8 @@ class Neo4jEmbeddedRecord(val record: Map<String, Any>) : Neo4jServiceRecord {
     override fun values(): List<Any> = record.entries.map { unwrapEmbeddedValue(it.value) }
     override fun containsKey(lookup: String): Boolean = record.containsKey(lookup)
     override fun index(lookup: String): Int = keys().indexOf(lookup)
-    override fun get(key: String): Any = unwrapEmbeddedValue(record.getOrDefault(key, Unit))
-    override fun get(index: Int): Any = unwrapEmbeddedValue(fields()[index].second)
+    override fun get(key: String): Any? = record[key]?.let { unwrapEmbeddedValue(it) }
+    override fun get(index: Int): Any? = unwrapEmbeddedValue(fields()[index].second)
     override fun size(): Int = record.size
     override fun asMap(): Map<String, Any> = record
     override fun fields(): List<Pair<String, Any>> = record.entries.map { Pair(it.key, unwrapEmbeddedValue(it.value)) }
@@ -41,7 +41,7 @@ class Neo4jEmbeddedRecord(val record: Map<String, Any>) : Neo4jServiceRecord {
                         override fun removeLabel(label: Label?) = TODO("not implemented")
                         override fun removeProperty(key: String?): Any = TODO("not implemented")
                         override fun getProperties(vararg props: String?): MutableMap<String, Any> = TODO("not implemented")
-                        override fun getProperty(key: String?): Any = createEmbeddedValue(data[key!!])
+                        override fun getProperty(key: String?): Any? = data[key!!]?.let { createEmbeddedValue(it) }
                         override fun getProperty(key: String?, defaultValue: Any?): Any = TODO("not implemented")
                         override fun getSingleRelationship(reltype: RelationshipType?, direction: Direction?): Relationship = TODO("not implemented")
                         override fun getRelationshipTypes(): MutableIterable<RelationshipType> = TODO("not implemented")

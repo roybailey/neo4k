@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInfo
 
 
-class Neo4jEmbeddedRecordTest: BaseNeo4jRecordTest() {
+class EmbeddedRecordTest: BaseNeo4jRecordTest() {
 
     @Test
     fun `should map bolt table result record into Neo4jServiceRecord correctly`() {

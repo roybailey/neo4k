@@ -82,9 +82,9 @@ open class BaseNeo4jRecordTest {
         }
     }
 
-    private fun assertNeo4jServiceRecordValue(key:String, actualValue: Any, expectedValue: Any) {
+    private fun assertNeo4jServiceRecordValue(key:String, actualValue: Any?, expectedValue: Any?) {
         LOG.warn { "Asserting $key actual=$actualValue expected=$expectedValue" }
-        LOG.warn { "Asserting $key actual=${actualValue::class.supertypes} expected=${expectedValue::class.supertypes}" }
+        LOG.warn { "Asserting $key actual=${actualValue!!::class.supertypes} expected=${expectedValue!!::class.supertypes}" }
         when (expectedValue) {
             is Neo4jServiceRecord -> assertThat((actualValue as Neo4jServiceRecord).asMap()).isEqualTo(expectedValue.asMap())
             else -> assertThat(actualValue).isEqualTo(expectedValue)

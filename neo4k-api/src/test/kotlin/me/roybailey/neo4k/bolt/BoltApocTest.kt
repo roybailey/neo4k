@@ -7,7 +7,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 
-class Neo4jBoltServiceTest : BaseNeo4jServiceTest() {
+class BoltApocTest : BaseNeo4jApocTest() {
 
     override fun createNeo4jService(): Neo4jService = Neo4jService.getInstance(
             Neo4jServiceOptions(

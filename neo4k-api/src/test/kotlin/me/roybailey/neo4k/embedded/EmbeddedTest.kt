@@ -102,7 +102,7 @@ class Neo4jEmbeddedTest(
 
 fun main(args: Array<String>) {
 
-    val neo4jUri = if (args.isNotEmpty()) args[0] else "file://./target/neo4j/Neo4jEmbeddedServiceTest"
+    val neo4jUri = if (args.isNotEmpty()) args[0] else "file://./target/neo4j/EmbeddedServiceBasicTest"
     val neo4j = Neo4jEmbeddedTest(neo4jUri = neo4jUri)
     neo4j.sampleObjectQuery()
     neo4j.shutdown()

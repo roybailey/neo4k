@@ -10,12 +10,12 @@ import org.junit.jupiter.api.Test
 import org.neo4j.driver.v1.Record
 
 
-class Neo4jEmbeddedServiceTest : BaseNeo4jServiceTest() {
+class EmbeddedServiceBasicTest : BaseNeo4jServiceBasicTest() {
 
     override fun createNeo4jService(): Neo4jService =
         Neo4jService.getInstance(
                 Neo4jServiceOptions(
-                        neo4jUri = "file://./target/neo4j/Neo4jEmbeddedServiceTest-{timestamp}",
+                        neo4jUri = "file://./target/neo4j/EmbeddedServiceBasicTest-{timestamp}",
                         boltPort = 7988
                 ))
 

@@ -18,8 +18,8 @@ class Neo4jBoltRecord(val record: Record) : Neo4jServiceRecord {
     override fun values(): List<Any> = record.values().map { unwrapBoltValue(it) }
     override fun containsKey(lookup: String): Boolean = record.containsKey(lookup)
     override fun index(lookup: String): Int = record.index(lookup)
-    override fun get(key: String): Any = unwrapBoltValue(record.get(key))
-    override fun get(index: Int): Any = unwrapBoltValue(record.get(index))
+    override fun get(key: String): Any? = unwrapBoltValue(record.get(key))
+    override fun get(index: Int): Any? = unwrapBoltValue(record.get(index))
     override fun size(): Int = record.size()
     override fun asMap(): Map<String, Any> = record.asMap()
     override fun fields(): List<Pair<String, Any>> = record.fields().map { Pair(it.key(), unwrapBoltValue(it.value())) }
@@ -44,7 +44,7 @@ class Neo4jBoltRecord(val record: Record) : Neo4jServiceRecord {
                         override fun asMap(): MutableMap<String, Any> = mutableMapOf<String, Any>().also { it.putAll(data.asMap()) }
                         override fun <T : Any?> asMap(p0: Function<Value, T>?): MutableMap<String, T> = TODO("not implemented")
                         override fun containsKey(key: String?): Boolean = data.containsKey(key!!)
-                        override fun get(key: String?): Value = createBoltValue(data.get(key!!))
+                        override fun get(key: String?): Value = createBoltValue(data.get(key!!)!!)
                         override fun labels(): MutableIterable<String> = TODO("not implemented")
                         override fun keys(): MutableIterable<String> = data.keys().toMutableList()
                     })
@@ -53,28 +53,22 @@ class Neo4jBoltRecord(val record: Record) : Neo4jServiceRecord {
 
         fun unwrapBoltValue(data: Value) = when (data.asObject()) {
             is Node -> Neo4jMapRecord(data.asNode().asMap(), "id" to data.asNode().id())
-            else -> data.asObject() as Any
+            else -> data.asObject()
         }
 
         fun createBoltRecord(record: Neo4jServiceRecord): Record =
             object : Record {
                 override fun values(): MutableList<Value> = record.values().map { createBoltValue(it) }.toMutableList()
-
                 override fun index(key: String?): Int = record.index(key!!)
-
                 override fun size(): Int = record.size()
-
                 override fun asMap(): MutableMap<String, Any> = record.asMap().toMutableMap()
-
                 override fun <T : Any?> asMap(code: Function<Value, T>?): MutableMap<String, T> = TODO("not implemented")
-
                 override fun get(key: String?): Value = record[key!!].run {
                     when (this) {
                         is Neo4jServiceRecord -> createBoltValue(this)
                         else -> Values.value(this)
                     }
                 }
-
                 override fun get(index: Int): Value = record[index].run {
                     when (this) {
                         is Neo4jServiceRecord -> createBoltValue(this)

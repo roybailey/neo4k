@@ -12,8 +12,8 @@ interface Neo4jServiceRecord {
     fun values(): List<Any>
     fun containsKey(lookup: String): Boolean
     fun index(lookup: String): Int
-    operator fun get(key: String): Any
-    operator fun get(index: Int): Any
+    operator fun get(key: String): Any?
+    operator fun get(index: Int): Any?
     fun size(): Int
     fun asMap(): Map<String, Any>
     fun fields(): List<Pair<String, Any>>
@@ -67,9 +67,8 @@ data class Neo4jServiceOptions(
 interface Neo4jService {
 
     fun registerProcedures(toRegister: List<Class<*>>): Neo4jService
-    fun shutdown(): Unit
+    fun shutdown()
     fun isEmbedded(): Boolean
-    fun setStatic(key: String, value: Any, verification: (value: Any) -> Unit): Neo4jService
     fun execute(cypher: String, params: Map<String, Any> = emptyMap(), code: Neo4jResultMapper = nullNeo4jResultMapper): Neo4jService
     fun query(cypher: String, params: Map<String, Any> = emptyMap()): List<Map<String, Any>>
     fun <T> queryForObject(cypher: String, params: Map<String, Any> = emptyMap()): T?

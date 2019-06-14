@@ -1,13 +1,10 @@
 package me.roybailey.neo4k.bolt
 
 import me.roybailey.neo4k.api.*
-import me.roybailey.neo4k.api.Neo4jCypher.apocGetStatic
-import me.roybailey.neo4k.api.Neo4jCypher.apocSetStatic
 import mu.KotlinLogging
 import org.neo4j.driver.v1.AuthTokens
 import org.neo4j.driver.v1.Driver
 import org.neo4j.driver.v1.GraphDatabase
-import java.lang.RuntimeException
 import java.net.InetAddress
 import java.util.stream.Stream
 
@@ -87,19 +84,6 @@ open class Neo4jBoltService(val options: Neo4jServiceOptions) : Neo4jService {
         unregisteredProcedures.forEach { LOG.error { "Stored Procedure not found using classname or package name $it" } }
         if (!options.ignoreProcedureNotFound && unregisteredProcedures.size > 0) {
             throw RuntimeException("Stored procedures not found $unregisteredProcedures")
-        }
-        return this
-    }
-
-
-    override fun setStatic(key: String, value: Any, verification: (value: Any) -> Unit): Neo4jService {
-        // set static global variables such as sensitive connection values...
-        execute(apocSetStatic(key, value.toString()), emptyMap()) {
-            LOG.info { it.next() }
-        }
-        execute(apocGetStatic(key), emptyMap()) {
-            val savedValue = it.single()["value"] ?: error("static parameter not saved!")
-            verification(savedValue)
         }
         return this
     }

@@ -43,8 +43,8 @@ class Neo4jBoltTest(neo4jUri: String, username: String, password: String) {
                 LOG.info { record.get("m").asObject()::class.qualifiedName } // org.neo4j.driver.internal.InternalNode
                 Neo4jBoltRecord(record).run {
                     LOG.info { "Neo4jBoltRecord" }
-                    LOG.info { this["m"]::class.qualifiedName }
-                    LOG.info { this[0]::class.qualifiedName }
+                    LOG.info { this["m"]!!::class.qualifiedName }
+                    LOG.info { this[0]!!::class.qualifiedName }
                     LOG.info { this.asMap() }
                     LOG.info { this.fields() }
                     LOG.info { this.index("m") }

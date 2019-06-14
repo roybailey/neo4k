@@ -1,5 +1,6 @@
 package me.roybailey.neo4k.springboot.config
 
+import me.roybailey.neo4k.api.Neo4jApoc
 import me.roybailey.neo4k.api.Neo4jCypher
 import me.roybailey.neo4k.api.Neo4jService
 import me.roybailey.neo4k.api.Neo4jServiceOptions
@@ -10,7 +11,7 @@ import org.springframework.context.annotation.Configuration
 
 
 @Configuration
-open class GraphConfiguration(val customVariables: Map<String,String> = emptyMap()) {
+open class GraphConfiguration(val customVariables: Map<String, String> = emptyMap()) {
 
     val LOG = KotlinLogging.logger {}
 
@@ -29,12 +30,14 @@ open class GraphConfiguration(val customVariables: Map<String,String> = emptyMap
         val neo4jService = Neo4jService.getInstance(
                 Neo4jServiceOptions(neo4jUri = neo4jUri, boltPort = neo4jBoltConnectorPort))
         // set static global variables such as sensitive connection values...
+        val neo4jApoc = Neo4jApoc(neo4jService)
         customVariables.forEach {
-            neo4jService.setStatic(it.key, it.value) {
-                LOG.info { "Assigned Static Variable $it" }
-            }
+            neo4jApoc.setStatic(it.key, it.value)
+            val savedValue = neo4jApoc.getStatic(it.key)
+            if (it.value != savedValue)
+                LOG.error { "Failed to save apoc static value ${it.key} as ${it.value}" }
         }
-        if("purge".equals(neo4jReset, true)) {
+        if ("purge".equals(neo4jReset, true)) {
             neo4jService.execute(Neo4jCypher.deleteAllData(), emptyMap()) {
                 LOG.info { "NEO4J DATABASE PURGED" }
             }
