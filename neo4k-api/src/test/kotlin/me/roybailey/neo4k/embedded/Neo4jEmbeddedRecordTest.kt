@@ -8,10 +8,19 @@ import org.junit.jupiter.api.TestInfo
 class Neo4jEmbeddedRecordTest: BaseNeo4jRecordTest() {
 
     @Test
-    fun testNeo4jEmbeddedRecord() {
+    fun `should map bolt table result record into Neo4jServiceRecord correctly`() {
 
         val testData = createNeo4jDataRecord()
-        assertNeo4jRecord(Neo4jEmbeddedRecord(testData.asMap()), testData)
+        val record = Neo4jEmbeddedRecord.createEmbeddedRecord(testData)
+        assertNeo4jRecord(Neo4jEmbeddedRecord(record), testData)
+    }
+
+    @Test
+    fun `should map bolt graph result record into Neo4jServiceRecord correctly`() {
+
+        val testData = createNeo4jGraphRecord()
+        val record = Neo4jEmbeddedRecord.createEmbeddedRecord(testData)
+        assertNeo4jRecord(Neo4jEmbeddedRecord(record), testData)
     }
 
 }
