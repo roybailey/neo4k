@@ -31,8 +31,7 @@ interface QueryStatement {
     fun toQueryString(params: QueryParams = defaultParams) = statement
 
     // return string for documentation or script file concatenation
-    fun toScriptString(params: QueryParams = defaultParams)
-            = "\n" + description + "\n" + toQueryString(params)
+    fun toScriptString(params: QueryParams = defaultParams) = "\n" + description + "\n" + toQueryString(params)
 
     companion object {
 
@@ -54,14 +53,11 @@ interface QueryStatement {
             )
         }.toList()
 
-        fun loadStatements(filename: String): List<QueryStatement> {
-            return getQueryScriptStatements(QueryStatement::class.java.getResource(filename).readText())
-        }
 
         /**
          * Breaks a script of multiple statements down using comment lines as delimiters
          */
-        fun getQueryScriptStatements(script: String): List<QueryStatement> {
+        fun extractQueryScriptStatements(script: String): List<QueryStatement> {
 
             if (script.isNullOrEmpty())
                 return emptyList()
@@ -87,6 +83,11 @@ interface QueryStatement {
                             }
                             comment += line
                             comment += "\n"
+                        } else if (line.endsWith(";")) {
+                            statement += line.replace(";", "")
+                            if (statement.isNotEmpty()) {
+                                addStatement()
+                            }
                         } else {
                             // this is a statement
                             statement += line
@@ -96,6 +97,13 @@ interface QueryStatement {
             addStatement()
 
             return target
+        }
+
+
+        fun extractQueryScriptStatements(scripts: Map<String, String>): Map<String, List<QueryStatement>> {
+            val statements = mutableMapOf<String, List<QueryStatement>>()
+            scripts.forEach { (key, value) -> statements[key] = extractQueryScriptStatements(value) }
+            return statements
         }
     }
 }
@@ -108,7 +116,7 @@ data class SimpleQueryStatement(
 ) : QueryStatement
 
 
-typealias QueryData = Map<String,Any?>
+typealias QueryData = Map<String, Any?>
 
 
 interface QueryResult {
