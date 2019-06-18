@@ -143,6 +143,8 @@ open class Neo4jEmbeddedService(val options: Neo4jServiceOptions) : Neo4jService
                     LOG.warn { "Ignoring failed drop error on : $cypher\n${err.message}" }
                 else
                     throw err
+            } finally {
+                this.close()
             }
         }
         return this
@@ -151,14 +153,10 @@ open class Neo4jEmbeddedService(val options: Neo4jServiceOptions) : Neo4jService
 
     override fun query(cypher: String, params: Map<String, Any>): List<Map<String, Any>> {
         val result = mutableListOf<Map<String, Any>>()
-        graphDb.beginTx().run {
-            val srs = graphDb.execute(cypher, params)
-
+        execute(cypher, params) { srs ->
             while (srs.hasNext()) {
-                val record = srs.next()
-                result.add(record)
+                result.add(srs.next().asMap())
             }
-            success()
         }
         return result.toList()
     }
@@ -166,12 +164,10 @@ open class Neo4jEmbeddedService(val options: Neo4jServiceOptions) : Neo4jService
 
     override fun <T> queryForObject(cypher: String, params: Map<String, Any>): T? {
         var result: T? = null
-        graphDb.beginTx().run {
-            val srs = graphDb.execute(cypher, params)
+        execute(cypher, params) {srs ->
             if (srs.hasNext()) {
-                result = srs.next().entries.first().value as T
+                result = srs.next().asMap().entries.first().value as T
             }
-            success()
         }
         return result
     }

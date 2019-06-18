@@ -19,7 +19,7 @@ class GraphBootstrap(
         val initializeTime = Instant.now()
 
         val script = GraphBootstrap::class.java.getResource("/cypher/create-movies.cypher").readText()
-        val cypher = QueryStatement.extractQueryScriptStatements(script)[0].statement
+        val cypher = QueryStatement.parseQueryScriptStatements(script)[0].query
         session.execute(cypher, mutableMapOf()) {
             LOG.info { it }
         }

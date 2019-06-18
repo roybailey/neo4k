@@ -4,7 +4,7 @@ CREATE INDEX ON :Month(value);
 CREATE INDEX ON :Day(value);
 
 // create time tree with day depth
-WITH range(2016, 2020) AS years, range(1,12) AS months
+WITH range($from, $upto) AS years, range(1,12) AS months
 FOREACH(year IN years |
   CREATE (y:Year {value: year})
   FOREACH(month IN months |
