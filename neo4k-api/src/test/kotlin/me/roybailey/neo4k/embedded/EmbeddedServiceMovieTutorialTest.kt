@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test
 import org.neo4j.driver.v1.Record
 
 
-class EmbeddedServiceQueryApiTest : BaseNeo4jServiceQueryApiTest() {
+class EmbeddedServiceMovieTutorialTest : BaseNeo4jServiceMovieTutorialTest() {
 
     override fun createNeo4jService(): Neo4jService =
         Neo4jService.getInstance(
