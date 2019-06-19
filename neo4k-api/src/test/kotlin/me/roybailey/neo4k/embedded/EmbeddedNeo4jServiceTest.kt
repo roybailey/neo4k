@@ -29,3 +29,6 @@ class EmbeddedServiceLoadCsvTest : BaseNeo4jServiceLoadCsvTest(EmbeddedNeo4jServ
 
 
 class EmbeddedServiceApocLoadJdbcTest : BaseServiceApocLoadJdbcTest(EmbeddedNeo4jServiceFactory.createNeo4jService())
+
+
+class EmbeddedServiceNorthwindScriptTest : BaseNeo4jServiceNorthwindScriptTest(EmbeddedNeo4jServiceFactory.createNeo4jService())

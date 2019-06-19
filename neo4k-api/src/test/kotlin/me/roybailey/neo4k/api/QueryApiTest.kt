@@ -38,14 +38,41 @@ class QueryApiTest : BaseTest() {
     fun `test statement parsing`() {
 
         val statements = QueryStatement.parseQueryScriptStatements("""
+
             // query movie by title
             match (m:Movie { title: ${'$'}title }
+
+            // query movie by title since released date
+            match (m:Movie { title: ${'$'}title }
+            where m.released > ${'$'}released
+
+            // Create indexes
+            CREATE INDEX ON :Product(productID);
+            CREATE INDEX ON :Category(categoryID);
         """.trimIndent())
-        assertThat(statements).hasSize(1)
-        assertThat(statements[0].description).isEqualToIgnoringCase("// query movie by title")
-        assertThat(statements[0].query).isEqualToIgnoringCase("match (m:Movie { title: ${'$'}title }")
-        assertThat(statements[0].defaultParams).hasSize(1)
-        assertThat(statements[0].defaultParams).containsKey("title")
+        assertThat(statements).hasSize(4)
+        statements[0].let {
+            assertThat(it.description).isEqualToIgnoringCase("// query movie by title")
+            assertThat(it.query).isEqualToIgnoringCase("match (m:Movie { title: ${'$'}title }")
+            assertThat(it.defaultParams).hasSize(1)
+            assertThat(it.defaultParams).containsKey("title")
+        }
+        statements[1].let {
+            assertThat(it.description).isEqualToIgnoringCase("// query movie by title since released date")
+            assertThat(it.query).isEqualToIgnoringCase("match (m:Movie { title: ${'$'}title }\nwhere m.released > ${'$'}released")
+            assertThat(it.defaultParams).hasSize(2)
+            assertThat(it.defaultParams).containsKeys("title","released")
+        }
+        statements[2].let {
+            assertThat(it.description).isEqualToIgnoringCase("// Create indexes")
+            assertThat(it.query).isEqualToIgnoringCase("CREATE INDEX ON :Product(productID)")
+            assertThat(it.defaultParams).hasSize(0)
+        }
+        statements[3].let {
+            assertThat(it.description).isEqualToIgnoringCase("// Create indexes...2")
+            assertThat(it.query).isEqualToIgnoringCase("CREATE INDEX ON :Category(categoryID)")
+            assertThat(it.defaultParams).hasSize(0)
+        }
     }
 
 

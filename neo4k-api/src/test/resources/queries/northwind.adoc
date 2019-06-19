@@ -1,0 +1,117 @@
+== Northwind Cypher ==
+
+This is an example AsciiDoc of cypher queries to illustrate
+external cypher maintenance with documentation as an alternative
+to embedding into code itself.  You could also use Markdown.
+
+The scripts are taken from each Northwind tutorial.
+This is intended to be both a useful test for, and illustration of,
+external script maintenance and loading.
+
+
+==== `Product Catalog` ====
+
+Northwind sells food products in a few categories, provided by suppliers.
+Let's start by loading the product catalog tables.
+
+The load statements to the right require public internet access.
+LOAD CSV will retrieve a CSV file from a valid URL, applying a Cypher statement
+to each row using a named map (here we're using the name _row_).
+
+The products, categories and suppliers are related through foreign key references.
+Let's promote those to data relationships to realize the graph.
+
+```
+// Load all products
+LOAD CSV WITH HEADERS FROM "http://data.neo4j.com/northwind/products.csv" AS row
+CREATE (n:Product)
+SET n = row,
+  n.unitPrice = toFloat(row.unitPrice),
+  n.unitsInStock = toInteger(row.unitsInStock), n.unitsOnOrder = toInteger(row.unitsOnOrder),
+  n.reorderLevel = toInteger(row.reorderLevel), n.discontinued = (row.discontinued <> "0")
+
+// Load all categories
+LOAD CSV WITH HEADERS FROM "http://data.neo4j.com/northwind/categories.csv" AS row
+CREATE (n:Category)
+SET n = row
+
+// Load all suppliers
+LOAD CSV WITH HEADERS FROM "http://data.neo4j.com/northwind/suppliers.csv" AS row
+CREATE (n:Supplier)
+SET n = row
+
+// Create indexes
+CREATE INDEX ON :Product(productID);
+CREATE INDEX ON :Category(categoryID);
+CREATE INDEX ON :Supplier(supplierID);
+
+// Attach Products to Categories
+MATCH (p:Product),(c:Category)
+WHERE p.categoryID = c.categoryID
+CREATE (p)-[:PART_OF]->(c)
+
+// Attach Products to Suppliers
+MATCH (p:Product),(s:Supplier)
+WHERE p.supplierID = s.supplierID
+CREATE (s)-[:SUPPLIES]->(p)
+```
+
+
+==== `Querying Product Catalog` ====
+
+Lets try some queries using patterns.
+
+```
+// List the product categories provided by each supplier.
+MATCH (s:Supplier)-->(:Product)-->(c:Category)
+RETURN s.companyName as Company, collect(distinct c.categoryName) as Categories
+
+// Find the produce suppliers.
+MATCH (c:Category {categoryName:"Produce"})<--(:Product)<--(s:Supplier)
+RETURN DISTINCT s.companyName as ProduceSuppliers
+```
+
+
+==== `Customer Orders` ====
+
+Northwind customers place orders which may detail multiple products.
+
+```
+// Load customers
+LOAD CSV WITH HEADERS FROM "http://data.neo4j.com/northwind/customers.csv" AS row
+CREATE (n:Customer)
+SET n = row
+
+// Load orders
+LOAD CSV WITH HEADERS FROM "http://data.neo4j.com/northwind/orders.csv" AS row
+CREATE (n:Order)
+SET n = row
+
+// Create Customer and Order indexes
+CREATE INDEX ON :Customer(customerID);
+CREATE INDEX ON :Order(orderID);
+
+// Attach customers with orders
+MATCH (c:Customer),(o:Order)
+WHERE c.customerID = o.customerID
+CREATE (c)-[:PURCHASED]->(o)
+
+// Attach order details to products (join table)
+LOAD CSV WITH HEADERS FROM "http://data.neo4j.com/northwind/order-details.csv" AS row
+MATCH (p:Product), (o:Order)
+WHERE p.productID = row.productID AND o.orderID = row.orderID
+CREATE (o)-[details:ORDERS]->(p)
+SET details = row,
+  details.quantity = toInteger(row.quantity)
+```
+
+
+==== `Query Customer Orders` ====
+
+Query the customer orders
+
+```
+MATCH (cust:Customer)-[:PURCHASED]->(:Order)-[o:ORDERS]->(p:Product),
+      (p)-[:PART_OF]->(c:Category {categoryName:"Produce"})
+RETURN DISTINCT cust.contactName as CustomerName, SUM(o.quantity) AS TotalProductsPurchased
+```

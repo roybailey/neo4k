@@ -31,3 +31,6 @@ class BoltServiceLoadCsvTest : BaseNeo4jServiceLoadCsvTest(BoltNeo4jServiceFacto
 
 
 class BoltServiceApocLoadJdbcTest : BaseServiceApocLoadJdbcTest(BoltNeo4jServiceFactory.createNeo4jService())
+
+
+class BoltServiceNorthwindScriptTest : BaseNeo4jServiceNorthwindScriptTest(BoltNeo4jServiceFactory.createNeo4jService())

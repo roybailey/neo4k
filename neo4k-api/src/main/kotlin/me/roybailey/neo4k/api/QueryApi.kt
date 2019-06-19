@@ -73,15 +73,25 @@ interface QueryStatement {
                 return emptyList()
             val target = mutableListOf<QueryStatement>()
             var comment = ""
-            var statement = ""
+            var prevComment = ""
+            var step = 1
+            var query = ""
             var parameters = mutableMapOf<String, Any>()
             val addStatement: () -> Unit = {
-                target.add(SimpleQueryStatement(
-                        query = statement.trimIndent(),
-                        description = comment.trimIndent(),
-                        defaultParams = parameters))
+                if (comment.trimIndent().isEmpty()) {
+                    comment = "$prevComment...${++step}"
+                } else {
+                    prevComment = comment.trim()
+                    step = 1
+                }
+                if (query.trimIndent().isNotEmpty())
+                    target.add(SimpleQueryStatement(
+                            query = query.trimIndent(),
+                            description = comment.trimIndent(),
+                            defaultParams = parameters.toMap()))
                 comment = ""
-                statement = ""
+                query = ""
+                parameters.clear()
             }
 
             script.split("\n")
@@ -94,19 +104,22 @@ interface QueryStatement {
                                 // this is a comment
                                 endOfQuery = true
                                 isQuery = false
-                                comment += line + "\n"
                             }
                             // end of a query
                             line.endsWith(";") -> endOfQuery = true
                             // this is a query
                             else -> isQuery = true
                         }
-                        if(isQuery) {
-                            statement += line.replace(";", "") + "\n"
-                            parsingOptions.parameterRegex.findAll(line).forEach { parameters[it.value.replace("$","")] = Unit }
+                        // order of the below is important to ensure statements are added before new content is captured
+                        if (isQuery) {
+                            query += line.replace(";", "") + "\n"
+                            parsingOptions.parameterRegex.findAll(line).forEach { parameters[it.value.replace("$", "")] = Unit }
                         }
-                        if (endOfQuery && statement.isNotEmpty()) {
+                        if (endOfQuery) {
                             addStatement()
+                        }
+                        if (!isQuery) {
+                            comment += line + "\n"
                         }
                     }
             addStatement()
@@ -119,7 +132,8 @@ interface QueryStatement {
                 scripts: Map<String, String>,
                 parsingOptions: QueryStatementParsingOptions = QueryStatementParsingOptions()
         ): Map<String, List<QueryStatement>> {
-            val statements = mutableMapOf<String, List<QueryStatement>>()
+            // we want to retain the order of the scripts in the map...
+            val statements = LinkedHashMap<String, List<QueryStatement>>()
             scripts.forEach { (key, value) -> statements[key] = parseQueryScriptStatements(value) }
             return statements
         }
