@@ -11,6 +11,9 @@ import org.neo4j.driver.v1.Value
 private val LOG = KotlinLogging.logger("Neo4jBoltTest")
 
 
+/**
+* Direct driver sample code to investigate query/result structure/performance outside the Neo4jService solution
+*/
 class Neo4jBoltTest(neo4jUri: String, username: String, password: String) {
 
     private val driver = GraphDatabase.driver(neo4jUri, AuthTokens.basic(username, password))

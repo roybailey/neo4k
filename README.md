@@ -11,6 +11,15 @@ Neo4j wrapper for Kotlin
 * No other frameworks (no Spring or neo4j-ogm)
 * Simple mapping to clean kotlin data classes (MyBatis like inspiration)
 
+#### Primary Use-Cases Considered
+
+* Simple way to add neo4j embedded capabilities into a micro-service
+* Neo4j graph hydration, query, drop (simple small analytics) 
+
+#### Use-Cases Definitely NOT Considered
+
+* Large scale or high performance data graph projects
+
 
 ## User Guide
 
@@ -99,6 +108,37 @@ option | description
 1. leave `username` and `password` blank
 
 This should get you connected to your running embedded database and allow you to query it using the browser. 
+
+
+## Developers Guide
+
+You will need to install an instance of Neo4j and run a graph database instance configured on `7987` for the tests to work.
+This is so all the capabilities can be tested against both embedded and bolt driver versions.
+
+* An instance of Neo4j Graph Database (check for compatible version used in project)
+* The Neo4j Graph Database to be available on port `7987`  
+* The h2 database jar installed in the plugins folder  
+
+> Warning : Database will be cleared with every test, hence the project does not use the default port
+
+#### Installing h2 database plugin
+
+Find the neo4j database instance plugins folder e.g.
+
+`cp ~/.m2/repository/com/h2database/h2/1.4.196/h2-1.4.196.jar <neo4j-installation-folder>/plugins` 
+
+If you're using an instance of Neo4j Desktop, goto your graph project and select 'manage' from the graph instance.
+At the top there is an 'Open Folder' button, which will take you to the installation folder and you should find 'plugins'
+folder under there.
+
+Note : if you get an error after adding the h2 jar to the plugins folder, check the neo4j.log file for errors.
+Could be you need an older version of h2 to run on the Neo4j JVM version. 
+
+#### Building the project
+
+* `mvn clean install`
+
+
 
 
 

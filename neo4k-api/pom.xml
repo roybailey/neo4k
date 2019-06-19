@@ -22,6 +22,8 @@
         <neo4j.version>3.5.3</neo4j.version>
         <neo4j-apoc.version>3.5.0.1</neo4j-apoc.version>
         <neo4j-java-driver.version>1.7.2</neo4j-java-driver.version>
+        <!-- h2 for SQL testing -->
+        <h2.version>1.4.197</h2.version>
     </properties>
 
     <dependencies>
@@ -51,6 +53,13 @@
             <groupId>org.neo4j.driver</groupId>
             <artifactId>neo4j-java-driver</artifactId>
             <version>${neo4j-java-driver.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>${h2.version}</version>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>

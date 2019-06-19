@@ -1,8 +1,6 @@
 package me.roybailey.neo4k.embedded
 
-import me.roybailey.neo4k.api.BaseNeo4jServiceTest
 import mu.KotlinLogging
-import org.neo4j.driver.v1.Value
 import org.neo4j.graphdb.GraphDatabaseService
 import org.neo4j.graphdb.Node
 import org.neo4j.graphdb.factory.GraphDatabaseFactory
