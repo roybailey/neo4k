@@ -22,7 +22,10 @@ class EmbeddedServiceMovieTutorialTest : BaseNeo4jServiceMovieTutorialTest(Embed
 class EmbeddedServiceQueryApiTest : BaseNeo4jServiceQueryApiTest(EmbeddedNeo4jServiceFactory.createNeo4jService())
 
 
-class EmbeddedApocTest : BaseNeo4jApocTest(EmbeddedNeo4jServiceFactory.createNeo4jService())
+class EmbeddedServiceApocTest : BaseNeo4jServiceApocTest(EmbeddedNeo4jServiceFactory.createNeo4jService())
 
 
-class EmbeddedApocJdbcImportTest : BaseApocJdbcImportTest(EmbeddedNeo4jServiceFactory.createNeo4jService())
+class EmbeddedServiceLoadCsvTest : BaseNeo4jServiceLoadCsvTest(EmbeddedNeo4jServiceFactory.createNeo4jService())
+
+
+class EmbeddedServiceApocLoadJdbcTest : BaseServiceApocLoadJdbcTest(EmbeddedNeo4jServiceFactory.createNeo4jService())

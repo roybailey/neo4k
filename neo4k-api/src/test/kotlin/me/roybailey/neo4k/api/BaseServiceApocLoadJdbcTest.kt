@@ -1,14 +1,11 @@
 package me.roybailey.neo4k.api
 
-import mu.KotlinLogging
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 
-abstract class BaseApocJdbcImportTest(final override val neo4jService: Neo4jService)
+abstract class BaseServiceApocLoadJdbcTest(final override val neo4jService: Neo4jService)
     : BaseNeo4jServiceTest(neo4jService) {
-
-    private val log = KotlinLogging.logger {}
 
 
     private fun cypherSample() = Neo4jApoc.apocLoadJdbc(
@@ -41,14 +38,14 @@ abstract class BaseApocJdbcImportTest(final override val neo4jService: Neo4jServ
         val results = mutableListOf<Map<String, Any>>()
         neo4jService.execute(cypher, emptyMap()) { rs ->
 
-            log.info { rs.keys() }
+            LOG.info { rs.keys() }
 
             while (rs.hasNext()) {
                 results.add(rs.next().asMap())
             }
         }
         assertThat(results).hasSize(10)
-        results.forEach { log.info { it } }
+        results.forEach { LOG.info { it } }
     }
 
 }

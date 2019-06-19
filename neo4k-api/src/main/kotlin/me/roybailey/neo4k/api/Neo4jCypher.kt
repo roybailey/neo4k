@@ -3,7 +3,7 @@ package me.roybailey.neo4k.api
 
 object Neo4jCypher {
 
-    fun toNeo4j(cypher:String, dollar:String = "__") = cypher.replace(dollar, "$")
+    fun toNeo4j(cypher: String, dollar: String = "__") = cypher.replace(dollar, "$")
 
     // warning!!! deletes all data
     fun deleteAllData() = "match (n) optional match (n)-[r]-() delete r,n"
@@ -17,4 +17,9 @@ object Neo4jCypher {
             RETURN label, SUM(tempCnt) AS total
             ORDER BY label
             """.trimIndent()
+
+    fun loadCsvWithHeaders(fileUrl: String, withLineCypher: String) = """
+        LOAD CSV WITH HEADERS FROM "$fileUrl" AS line WITH line
+        $withLineCypher
+    """.trimIndent()
 }

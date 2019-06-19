@@ -13,7 +13,31 @@ class Neo4jApoc(val neo4j: Neo4jService) {
         // get static data
         fun apocGetStatic(name: String) = "call apoc.static.get('$name')"
 
-        // load JDBC
+        /**
+         * Apoc jdbc load cypher command, e.g.
+         *
+            CALL apoc.load.jdbc('jdbc:h2:mem:test;DB_CLOSE_DELAY=-1',"SELECT * FROM CSVREAD('sample.csv')") YIELD row
+            WITH row
+            RETURN
+            row.PRODUCT as PRODUCT,
+            row.FULLNAME as FULLNAME,
+            row.PRICE as PRICE,
+            row.UNITPRICE as UNITPRICE,
+            apoc.text.toUpperCase(COALESCE(row.CATEGORY, "")) as CATEGORY,
+            row.BRAND as BRAND,
+            row.QUANTITY as QUANTITY,
+            row.DISCOUNT as DISCOUNT
+         */
+        fun apocLoadJdbc(dbUrl: String, sql: String, merge: String) = """
+            CALL apoc.load.jdbc($dbUrl,"$sql") YIELD row
+            WITH row
+            $merge
+        """.trimIndent()
+
+
+        /**
+         * Apoc jdbc batch load cypher command wrapped in periodic commit...
+         */
         fun apocLoadJdbcBatch(
                 apocStaticUrl: String,
                 sql: String,
@@ -27,26 +51,6 @@ class Neo4jApoc(val neo4j: Neo4jService) {
             ","$merge", {batchSize:$batchsize, parallel:$parallel})
         """.trimIndent()
 
-        /**
-         * Example of apoc jdbc load cypher command...
-         *
-            CALL apoc.load.jdbc('jdbc:h2:mem:test;DB_CLOSE_DELAY=-1',"SELECT * FROM CSVREAD('sample.csv')") YIELD row
-            WITH row
-            RETURN
-            row.PRODUCT as PRODUCT,
-            custom.data.encrypt(row.FULLNAME) as FULLNAME,
-            row.PRICE as PRICE,
-            row.UNITPRICE as UNITPRICE,
-            apoc.text.toUpperCase(COALESCE(row.CATEGORY, "")) as CATEGORY,
-            row.BRAND as BRAND,
-            row.QUANTITY as QUANTITY,
-            row.DISCOUNT as DISCOUNT
-         */
-        fun apocLoadJdbc(dbUrl: String, sql: String, merge: String) = """
-            CALL apoc.load.jdbc($dbUrl,"$sql") YIELD row
-            WITH row
-            $merge
-        """.trimIndent()
     }
 
 

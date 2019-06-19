@@ -123,8 +123,9 @@ and therefore the project needs an instance of Neo4j to be running on a specific
 This is so all the capabilities can be tested against both embedded and bolt instances.
 
 * An instance of Neo4j Graph Database (check for compatible version used in project)
-* The Neo4j Graph Database to be available on port `7987` (open `neo4j.properties` or 'Manage' > 'Settings')  
-* The h2 database jar installed in the plugins folder  
+* The Neo4j Graph Database to be available on port `7987` (open `conf/neo4j.conf` or 'Manage' > 'Settings' in your Neo4j Desktop project)  
+* The h2 database jar installed in the plugins folder
+* The setting to restrict import folder access should be commented out  
 
 > Warning : Database will be cleared with every test, hence the project does not use the default port
 
@@ -140,6 +141,30 @@ folder under there.
 
 Note : if you get an error after adding the h2 jar to the plugins folder, check the neo4j.log file for errors.
 Could be you need an older version of h2 to run on the Neo4j JVM version. 
+
+#### Configuring the Neo4j remote instance for testing Bolt support
+
+
+In the remote Neo4j database instance, there are several settings you need to override to allow the tests to pass.
+You do this by editing the `conf/neo4j.conf` in your installation folder,
+or through ___'Manage'___ > ___'Settings'___ in your designated Neo4j Desktop Project.
+
+**Change the bolt port** (recommend changing the others to avoid clashes with default installations you might have elsewhere)
+
+```
+dbms.connector.bolt.listen_address=:7987
+dbms.connector.http.listen_address=:7974
+dbms.connector.https.listen_address=:7973
+```
+
+**Allow import files to be accessed from anywhere** by commenting out the restriction setting.
+
+```
+# This setting constrains all `LOAD CSV` import files to be under the `import` directory. Remove or comment it out to
+# allow files to be loaded from anywhere in the filesystem; this introduces possible security problems. See the
+# `LOAD CSV` section of the manual for details.
+# dbms.directories.import=import
+```
 
 #### Building the project
 

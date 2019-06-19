@@ -24,7 +24,10 @@ class BoltServiceMovieTutorialTest : BaseNeo4jServiceMovieTutorialTest(BoltNeo4j
 class BoltServiceQueryApiTest : BaseNeo4jServiceQueryApiTest(BoltNeo4jServiceFactory.createNeo4jService())
 
 
-class BoltApocTest : BaseNeo4jApocTest(BoltNeo4jServiceFactory.createNeo4jService())
+class BoltServiceApocTest : BaseNeo4jServiceApocTest(BoltNeo4jServiceFactory.createNeo4jService())
 
 
-class BoltApocJdbcImportTest : BaseApocJdbcImportTest(BoltNeo4jServiceFactory.createNeo4jService())
+class BoltServiceLoadCsvTest : BaseNeo4jServiceLoadCsvTest(BoltNeo4jServiceFactory.createNeo4jService())
+
+
+class BoltServiceApocLoadJdbcTest : BaseServiceApocLoadJdbcTest(BoltNeo4jServiceFactory.createNeo4jService())
