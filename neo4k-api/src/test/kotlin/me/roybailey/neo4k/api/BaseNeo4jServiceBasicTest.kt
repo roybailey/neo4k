@@ -5,7 +5,8 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 
-abstract class BaseNeo4jServiceBasicTest : BaseNeo4jServiceTest() {
+abstract class BaseNeo4jServiceBasicTest(override val neo4jService: Neo4jService)
+    : BaseNeo4jServiceTest(neo4jService) {
 
     @Test
     fun `should load movies graph without errors`() {

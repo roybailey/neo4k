@@ -94,7 +94,7 @@ Create a remote bolt instance using the `bolt://` uri
     vak neo4jService = Neo4jService.getInstance(options)
 ```
 
-#### Options for configuring Neo4j Service driver
+#### Options for configuring Neo4j Service adaptor
 
 option | description
 -------|------------
@@ -118,11 +118,12 @@ This should get you connected to your running embedded database and allow you to
 
 ## Developers Guide
 
-You will need to install an instance of Neo4j and run a graph database instance configured on `7987` for the tests to work.
-This is so all the capabilities can be tested against both embedded and bolt driver versions.
+Neo4jService adaptor is intended to standardise across Bolt and Embedded drivers
+and therefore the project needs an instance of Neo4j to be running on a specific port.
+This is so all the capabilities can be tested against both embedded and bolt instances.
 
 * An instance of Neo4j Graph Database (check for compatible version used in project)
-* The Neo4j Graph Database to be available on port `7987`  
+* The Neo4j Graph Database to be available on port `7987` (open `neo4j.properties` or 'Manage' > 'Settings')  
 * The h2 database jar installed in the plugins folder  
 
 > Warning : Database will be cleared with every test, hence the project does not use the default port

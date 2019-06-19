@@ -6,7 +6,8 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 
-abstract class BaseNeo4jServiceQueryApiTest : BaseNeo4jServiceTest() {
+abstract class BaseNeo4jServiceQueryApiTest(final override val neo4jService: Neo4jService)
+    : BaseNeo4jServiceTest(neo4jService) {
 
     @Test
     fun `should load time tree from script files`() {

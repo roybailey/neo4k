@@ -5,15 +5,11 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInfo
 
 
-abstract class BaseNeo4jServiceTest : BaseTest() {
+abstract class BaseNeo4jServiceTest(
+        open val neo4jService: Neo4jService,
+        val testQueries: Neo4jTestQueries = Neo4jTestQueries(neo4jService)
+) : BaseTest() {
 
-    protected val neo4jService = createNeo4jService()
-
-    protected val testQueries = Neo4jTestQueries(neo4jService)
-
-    protected open fun createNeo4jService(): Neo4jService {
-        TODO("Construct your version of Neo4jService in the derived class")
-    }
 
     @BeforeEach
     fun setupDatabase(testInfo: TestInfo) {

@@ -13,26 +13,16 @@ object EmbeddedNeo4jServiceFactory {
 }
 
 
-class EmbeddedServiceBasicTest : BaseNeo4jServiceBasicTest() {
-    override fun createNeo4jService(): Neo4jService = EmbeddedNeo4jServiceFactory.createNeo4jService()
-}
+class EmbeddedServiceBasicTest : BaseNeo4jServiceBasicTest(EmbeddedNeo4jServiceFactory.createNeo4jService())
 
 
-class EmbeddedServiceMovieTutorialTest : BaseNeo4jServiceMovieTutorialTest() {
-    override fun createNeo4jService(): Neo4jService = EmbeddedNeo4jServiceFactory.createNeo4jService()
-}
+class EmbeddedServiceMovieTutorialTest : BaseNeo4jServiceMovieTutorialTest(EmbeddedNeo4jServiceFactory.createNeo4jService())
 
 
-class EmbeddedServiceQueryApiTest : BaseNeo4jServiceQueryApiTest() {
-    override fun createNeo4jService(): Neo4jService = EmbeddedNeo4jServiceFactory.createNeo4jService()
-}
+class EmbeddedServiceQueryApiTest : BaseNeo4jServiceQueryApiTest(EmbeddedNeo4jServiceFactory.createNeo4jService())
 
 
-class EmbeddedApocTest : BaseNeo4jApocTest() {
-    override fun createNeo4jService(): Neo4jService = EmbeddedNeo4jServiceFactory.createNeo4jService()
-}
+class EmbeddedApocTest : BaseNeo4jApocTest(EmbeddedNeo4jServiceFactory.createNeo4jService())
 
 
-class EmbeddedApocJdbcImportTest : BaseApocJdbcImportTest() {
-    override fun createNeo4jService(): Neo4jService = EmbeddedNeo4jServiceFactory.createNeo4jService()
-}
+class EmbeddedApocJdbcImportTest : BaseApocJdbcImportTest(EmbeddedNeo4jServiceFactory.createNeo4jService())

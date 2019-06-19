@@ -15,26 +15,16 @@ object BoltNeo4jServiceFactory {
 }
 
 
-class BoltServiceBasicTest : BaseNeo4jServiceBasicTest() {
-    override fun createNeo4jService(): Neo4jService = BoltNeo4jServiceFactory.createNeo4jService()
-}
+class BoltServiceBasicTest : BaseNeo4jServiceBasicTest(BoltNeo4jServiceFactory.createNeo4jService())
 
 
-class BoltServiceMovieTutorialTest : BaseNeo4jServiceMovieTutorialTest() {
-    override fun createNeo4jService(): Neo4jService = BoltNeo4jServiceFactory.createNeo4jService()
-}
+class BoltServiceMovieTutorialTest : BaseNeo4jServiceMovieTutorialTest(BoltNeo4jServiceFactory.createNeo4jService())
 
 
-class BoltServiceQueryApiTest : BaseNeo4jServiceQueryApiTest() {
-    override fun createNeo4jService(): Neo4jService = BoltNeo4jServiceFactory.createNeo4jService()
-}
+class BoltServiceQueryApiTest : BaseNeo4jServiceQueryApiTest(BoltNeo4jServiceFactory.createNeo4jService())
 
 
-class BoltApocTest : BaseNeo4jApocTest() {
-    override fun createNeo4jService(): Neo4jService = BoltNeo4jServiceFactory.createNeo4jService()
-}
+class BoltApocTest : BaseNeo4jApocTest(BoltNeo4jServiceFactory.createNeo4jService())
 
 
-class BoltApocJdbcImportTest : BaseApocJdbcImportTest() {
-    override fun createNeo4jService(): Neo4jService = BoltNeo4jServiceFactory.createNeo4jService()
-}
+class BoltApocJdbcImportTest : BaseApocJdbcImportTest(BoltNeo4jServiceFactory.createNeo4jService())

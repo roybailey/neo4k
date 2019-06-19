@@ -8,7 +8,8 @@ import org.junit.jupiter.api.Test
 /**
  * These tests use queries from the Neo4j `play: movies` tutorial
  */
-abstract class BaseNeo4jServiceMovieTutorialTest : BaseNeo4jServiceTest() {
+abstract class BaseNeo4jServiceMovieTutorialTest(final override val neo4jService: Neo4jService)
+    : BaseNeo4jServiceTest(neo4jService) {
 
 
     @Test
@@ -29,7 +30,7 @@ abstract class BaseNeo4jServiceMovieTutorialTest : BaseNeo4jServiceTest() {
     }
 
 
-    private fun testMovieTutorialFindExamples(examples : List<QueryStatement>) {
+    private fun testMovieTutorialFindExamples(examples: List<QueryStatement>) {
 
         assertThat(examples).hasSize(4)
 
@@ -63,7 +64,7 @@ abstract class BaseNeo4jServiceMovieTutorialTest : BaseNeo4jServiceTest() {
     }
 
 
-    private fun testMovieTutorialQueryExamples(examples : List<QueryStatement>) {
+    private fun testMovieTutorialQueryExamples(examples: List<QueryStatement>) {
 
         assertThat(examples).hasSize(4)
         val listOfTomHanksMovies = examples[0]
@@ -97,7 +98,7 @@ abstract class BaseNeo4jServiceMovieTutorialTest : BaseNeo4jServiceTest() {
         neo4jService.execute(peopleRelatedToCloudAtlas.query) {
             val records = it.list()
             assertThat(records).hasSize(10)
-            records.forEach {record ->
+            records.forEach { record ->
                 assertThat(record["people.name"]).isNotNull()
                 assertThat(record["Type(relatedTo)"]).isNotNull()
                 assertThat(record["relatedTo"]).isNotNull()
@@ -111,7 +112,7 @@ abstract class BaseNeo4jServiceMovieTutorialTest : BaseNeo4jServiceTest() {
     }
 
 
-    private fun testMovieTutorialSolveExamples(examples : List<QueryStatement>) {
+    private fun testMovieTutorialSolveExamples(examples: List<QueryStatement>) {
 
         assertThat(examples).hasSize(2)
         val moviesActorsFourHopsFromKevinBacon = examples[0]

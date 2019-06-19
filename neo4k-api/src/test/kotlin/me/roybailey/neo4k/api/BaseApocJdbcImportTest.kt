@@ -5,7 +5,8 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 
-abstract class BaseApocJdbcImportTest : BaseNeo4jServiceTest() {
+abstract class BaseApocJdbcImportTest(final override val neo4jService: Neo4jService)
+    : BaseNeo4jServiceTest(neo4jService) {
 
     private val log = KotlinLogging.logger {}
 
@@ -37,17 +38,17 @@ abstract class BaseApocJdbcImportTest : BaseNeo4jServiceTest() {
 
         LOG.info { "Running cypher:\n\n$cypher\n\n" }
 
-        val results = mutableListOf<Map<String,Any>>()
+        val results = mutableListOf<Map<String, Any>>()
         neo4jService.execute(cypher, emptyMap()) { rs ->
 
             log.info { rs.keys() }
-            
-            while(rs.hasNext()) {
+
+            while (rs.hasNext()) {
                 results.add(rs.next().asMap())
             }
         }
         assertThat(results).hasSize(10)
-        results.forEach { log.info { it }}
+        results.forEach { log.info { it } }
     }
 
 }

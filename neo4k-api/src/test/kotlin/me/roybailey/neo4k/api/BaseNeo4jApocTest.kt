@@ -4,9 +4,10 @@ import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
 
 
-abstract class BaseNeo4jApocTest : BaseNeo4jServiceTest() {
-
-    protected val neo4jApoc = Neo4jApoc(neo4jService)
+abstract class BaseNeo4jApocTest(
+        final override val neo4jService: Neo4jService,
+        val neo4jApoc: Neo4jApoc = Neo4jApoc(neo4jService)
+) : BaseNeo4jServiceTest(neo4jService) {
 
 
     @Test
