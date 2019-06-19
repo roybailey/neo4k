@@ -11,14 +11,20 @@ Neo4j wrapper for Kotlin
 * No other frameworks (no Spring or neo4j-ogm)
 * Simple mapping to clean kotlin data classes (MyBatis like inspiration)
 
-#### Primary Use-Cases Considered
+#### Intended Use-Cases
 
-* Simple way to add neo4j embedded capabilities into a micro-service
-* Neo4j graph hydration, query, drop (simple small analytics) 
+Easy way to add Neo4j capabilities (primarily embedded) into a micro-service for graph hydration and querying. 
+
+_At this time the objective is for low risk use-cases, such as caching data in a GraphQL server
+or allowing for simple analytics/reporting (i.e. given read access to multiple databases)_
 
 #### Use-Cases Definitely NOT Considered
 
 * Large scale or high performance data graph projects
+* Master of truth production database use
+
+_At this time the project is not focused or mature enough to be used for mission critical
+'master of truth' production use-cases.  Do so at your own risk._
 
 
 ## User Guide
