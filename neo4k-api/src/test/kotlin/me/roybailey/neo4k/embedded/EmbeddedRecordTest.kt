@@ -1,11 +1,10 @@
 package me.roybailey.neo4k.embedded
 
-import me.roybailey.neo4k.api.BaseNeo4jRecordTest
+import me.roybailey.neo4k.api.Neo4jRecordTest
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInfo
 
 
-class EmbeddedRecordTest: BaseNeo4jRecordTest() {
+class EmbeddedRecordTest: Neo4jRecordTest() {
 
     @Test
     fun `should map bolt table result record into Neo4jServiceRecord correctly`() {

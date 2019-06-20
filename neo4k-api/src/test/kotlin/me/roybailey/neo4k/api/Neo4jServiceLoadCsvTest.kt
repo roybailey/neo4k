@@ -4,7 +4,7 @@ import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
 
 
-abstract class BaseNeo4jServiceLoadCsvTest(override val neo4jService: Neo4jService)
+abstract class Neo4jServiceLoadCsvTest(override val neo4jService: Neo4jService)
     : BaseNeo4jServiceTest(neo4jService) {
 
     @Test

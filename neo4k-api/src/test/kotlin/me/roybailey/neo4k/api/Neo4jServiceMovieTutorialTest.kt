@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test
 /**
  * These tests use queries from the Neo4j `play: movies` tutorial
  */
-abstract class BaseNeo4jServiceMovieTutorialTest(final override val neo4jService: Neo4jService)
+abstract class Neo4jServiceMovieTutorialTest(final override val neo4jService: Neo4jService)
     : BaseNeo4jServiceTest(neo4jService) {
 
 

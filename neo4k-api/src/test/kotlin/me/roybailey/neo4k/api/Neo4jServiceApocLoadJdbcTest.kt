@@ -4,14 +4,14 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 
-abstract class BaseServiceApocLoadJdbcTest(final override val neo4jService: Neo4jService)
+abstract class Neo4jServiceApocLoadJdbcTest(final override val neo4jService: Neo4jService)
     : BaseNeo4jServiceTest(neo4jService) {
 
 
     private fun cypherSample() = Neo4jApoc.apocLoadJdbc(
-            dbUrl = "'jdbc:h2:mem:test;DB_CLOSE_DELAY=-1'",
+            dbUrl = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1",
             sql = "SELECT * FROM CSVREAD('$testDataFolder/SampleCSVFile_2kb.csv')",
-            merge = """
+            process = """
                 RETURN
                 row.PRODUCT as PRODUCT,
                 apoc.text.base64Encode(row.FULLNAME) as FULLNAME,

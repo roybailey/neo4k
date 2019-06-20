@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 /**
  * These tests use queries from the Neo4j `play: northwind` tutorial
  */
-abstract class BaseNeo4jServiceNorthwindScriptTest(final override val neo4jService: Neo4jService)
+abstract class Neo4jServiceNorthwindScriptTest(final override val neo4jService: Neo4jService)
     : BaseNeo4jServiceTest(neo4jService) {
 
     private val expectedNumberOfProducts = 77L

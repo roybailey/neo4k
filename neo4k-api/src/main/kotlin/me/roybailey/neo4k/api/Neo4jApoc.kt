@@ -13,6 +13,22 @@ class Neo4jApoc(val neo4j: Neo4jService) {
         // get static data
         fun apocGetStatic(name: String) = "call apoc.static.get('$name')"
 
+
+        /**
+         * Apoc json load cypher command, e.g.
+         *
+        WITH "https://api.stackexchange.com/2.2/questions?pagesize=100&order=desc&sort=creation&tagged=neo4j&site=stackoverflow&filter=!5-i6Zw8Y)4W7vpy91PMYsKM-k9yzEsSC1_Uxlf" AS url
+        CALL apoc.load.json(url) YIELD value
+        UNWIND value.items AS item
+        RETURN item.title, item.owner, item.creation_date, keys(item)
+         */
+        fun apocLoadJson(url: String, process: String) = """
+            WITH "$url" as url
+            CALL apoc.load.json(url) YIELD value
+            $process
+        """.trimIndent()
+
+
         /**
          * Apoc jdbc load cypher command, e.g.
          *
@@ -28,10 +44,11 @@ class Neo4jApoc(val neo4j: Neo4jService) {
             row.QUANTITY as QUANTITY,
             row.DISCOUNT as DISCOUNT
          */
-        fun apocLoadJdbc(dbUrl: String, sql: String, merge: String) = """
-            CALL apoc.load.jdbc($dbUrl,"$sql") YIELD row
+        fun apocLoadJdbc(dbUrl: String, sql: String, process: String) = """
+            WITH "$dbUrl" AS dbUrl
+            CALL apoc.load.jdbc(dbUrl,"$sql") YIELD row
             WITH row
-            $merge
+            $process
         """.trimIndent()
 
 
@@ -41,14 +58,14 @@ class Neo4jApoc(val neo4j: Neo4jService) {
         fun apocLoadJdbcBatch(
                 apocStaticUrl: String,
                 sql: String,
-                merge: String,
+                process: String,
                 batchsize: Int = 1000,
                 parallel: Boolean = false
         ) = """
             CALL apoc.periodic.iterate("
               CALL apoc.static.get('$apocStaticUrl') yield value WITH apoc.convert.toString(value) AS DB_URL
               CALL apoc.load.jdbc(DB_URL,\"$sql\") YIELD row RETURN row
-            ","$merge", {batchSize:$batchsize, parallel:$parallel})
+            ","$process", {batchSize:$batchsize, parallel:$parallel})
         """.trimIndent()
 
     }

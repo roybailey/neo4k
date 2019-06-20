@@ -15,22 +15,25 @@ object BoltNeo4jServiceFactory {
 }
 
 
-class BoltServiceBasicTest : BaseNeo4jServiceBasicTest(BoltNeo4jServiceFactory.createNeo4jService())
+class BoltServiceBasicTest : Neo4jServiceBasicTest(BoltNeo4jServiceFactory.createNeo4jService())
 
 
-class BoltServiceMovieTutorialTest : BaseNeo4jServiceMovieTutorialTest(BoltNeo4jServiceFactory.createNeo4jService())
+class BoltServiceMovieTutorialTest : Neo4jServiceMovieTutorialTest(BoltNeo4jServiceFactory.createNeo4jService())
 
 
-class BoltServiceQueryApiTest : BaseNeo4jServiceQueryApiTest(BoltNeo4jServiceFactory.createNeo4jService())
+class BoltServiceQueryApiTest : Neo4jServiceQueryApiTest(BoltNeo4jServiceFactory.createNeo4jService())
 
 
-class BoltServiceApocTest : BaseNeo4jServiceApocTest(BoltNeo4jServiceFactory.createNeo4jService())
+class BoltServiceApocTest : Neo4jServiceApocTest(BoltNeo4jServiceFactory.createNeo4jService())
 
 
-class BoltServiceLoadCsvTest : BaseNeo4jServiceLoadCsvTest(BoltNeo4jServiceFactory.createNeo4jService())
+class BoltServiceLoadCsvTest : Neo4jServiceLoadCsvTest(BoltNeo4jServiceFactory.createNeo4jService())
 
 
-class BoltServiceApocLoadJdbcTest : BaseServiceApocLoadJdbcTest(BoltNeo4jServiceFactory.createNeo4jService())
+class BoltServiceApocLoadJdbcTest : Neo4jServiceApocLoadJdbcTest(BoltNeo4jServiceFactory.createNeo4jService())
 
 
-class BoltServiceNorthwindScriptTest : BaseNeo4jServiceNorthwindScriptTest(BoltNeo4jServiceFactory.createNeo4jService())
+class BoltServiceApocLoadJsonTest : Neo4jServiceApocLoadJsonTest(BoltNeo4jServiceFactory.createNeo4jService())
+
+
+class BoltServiceNorthwindScriptTest : Neo4jServiceNorthwindScriptTest(BoltNeo4jServiceFactory.createNeo4jService())

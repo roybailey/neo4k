@@ -1,10 +1,10 @@
 package me.roybailey.neo4k.bolt
 
-import me.roybailey.neo4k.api.BaseNeo4jRecordTest
+import me.roybailey.neo4k.api.Neo4jRecordTest
 import org.junit.jupiter.api.Test
 
 
-class BoltRecordTest : BaseNeo4jRecordTest() {
+class BoltRecordTest : Neo4jRecordTest() {
 
     @Test
     fun `should map bolt table result record into Neo4jServiceRecord correctly`() {

@@ -4,7 +4,7 @@ import mu.KotlinLogging
 import org.assertj.core.api.Assertions.assertThat
 
 
-open class BaseNeo4jRecordTest {
+open class Neo4jRecordTest {
 
     val LOG = KotlinLogging.logger { this::class.qualifiedName }
 
