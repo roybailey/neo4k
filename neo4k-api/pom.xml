@@ -64,4 +64,36 @@
 
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.asciidoctor</groupId>
+                <artifactId>asciidoctor-maven-plugin</artifactId>
+                <version>1.5.6</version>
+                <configuration>
+                    <sourceDirectory>${basedir}/..</sourceDirectory>
+                    <sourceDocumentName>README.adoc</sourceDocumentName>
+                    <backend>html5</backend>
+                    <outputDirectory>../docs</outputDirectory>
+                    <outputFile>../docs/index.html</outputFile>
+                    <resources>
+                        <resource>
+                            <directory>../diagrams</directory>
+                            <targetPath>images/diagrams</targetPath>
+                        </resource>
+                    </resources>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>output-html</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>process-asciidoc</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>

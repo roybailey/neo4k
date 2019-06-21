@@ -1,5 +1,7 @@
 package me.roybailey.neo4k.api
 
+import me.roybailey.neo4k.api.Neo4jTestQueries.Companion.CSV_100_TESTDATA
+import me.roybailey.neo4k.api.Neo4jTestQueries.Companion.CSV_TESTDATA_MERGE_NEO4J
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
 
@@ -11,32 +13,19 @@ abstract class Neo4jServiceLoadCsvTest(override val neo4jService: Neo4jService)
     fun `should load csv file without errors`() {
 
         val cypher = Neo4jCypher.loadCsvWithHeaders(
-                fileUrl = "file://$testDataFolder/SampleCSVFile_2kb.csv",
-                withLineCypher = """
-                        return
-                        line.Product as product,
-                        apoc.text.base64Encode(line.Fullname) as fullname,
-                        line.Price as price,
-                        line.UnitPrice as unitPrice,
-                        apoc.text.toUpperCase(COALESCE(line.Category, "")) as category,
-                        line.Brand as brand,
-                        line.Quantity as quantity,
-                        line.Discount as discount
-                """.trimIndent())
+                fileUrl = "file://$testDataFolder/$CSV_100_TESTDATA",
+                withLineCypher = CSV_TESTDATA_MERGE_NEO4J)
 
         LOG.info { "Running cypher:\n\n$cypher\n\n" }
 
-        val results = mutableListOf<Map<String, Any>>()
-        neo4jService.execute(cypher, emptyMap()) { rs ->
+        neo4jService.execute(cypher, emptyMap())
 
-            LOG.info { rs.keys() }
+        val totalProducts = neo4jService.queryForObject<Long>("match (p:Product) return count(p) as totalProducts")!!
+        Assertions.assertThat(totalProducts).isEqualTo(12L)
 
-            while (rs.hasNext()) {
-                results.add(rs.next().asMap())
-            }
-        }
-        Assertions.assertThat(results).hasSize(10)
-        results.forEach { LOG.info { it } }
+        val totalCountries = neo4jService.queryForObject<Long>("match (c:Country) return count(c) as totalCountries")!!
+        Assertions.assertThat(totalCountries).isEqualTo(76L)
+
     }
 
 }

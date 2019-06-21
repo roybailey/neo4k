@@ -19,7 +19,7 @@ object Neo4jCypher {
             """.trimIndent()
 
     fun loadCsvWithHeaders(fileUrl: String, withLineCypher: String) = """
-        LOAD CSV WITH HEADERS FROM "$fileUrl" AS line WITH line
+        LOAD CSV WITH HEADERS FROM "$fileUrl" AS row WITH row
         $withLineCypher
     """.trimIndent()
 }

@@ -7,7 +7,7 @@ object EmbeddedNeo4jServiceFactory {
 
     fun createNeo4jService(): Neo4jService = Neo4jService.getInstance(
             Neo4jServiceOptions(
-                    neo4jUri = "file://./target/neo4j/EmbeddedServiceBasicTest-{timestamp}",
+                    neo4jUri = "file://./target/neo4j/EmbeddedServiceTest-{timestamp}",
                     boltPort = 7988
             ))
 }
