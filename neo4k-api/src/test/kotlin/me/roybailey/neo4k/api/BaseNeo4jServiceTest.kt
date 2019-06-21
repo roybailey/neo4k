@@ -7,6 +7,7 @@ import org.junit.jupiter.api.TestInfo
 
 abstract class BaseNeo4jServiceTest(
         open val neo4jService: Neo4jService,
+        val neo4jApoc: Neo4jApoc = Neo4jApoc(neo4jService),
         val testQueries: Neo4jTestQueries = Neo4jTestQueries(neo4jService)
 ) : BaseTest() {
 
