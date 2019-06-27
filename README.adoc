@@ -2,7 +2,7 @@
 
 # neo4k
 
-Neo4j wrapper for Kotlin
+> Neo4j wrapper for Kotlin, supporting same interface for embedded and bolt drivers.
 
 
 ## Motivation and Design Guide
@@ -11,16 +11,18 @@ Neo4j wrapper for Kotlin
 * Support Neo4j Embedded and Bolt drivers directly
 * Same neo4j interface working with Embedded or Bolt drivers
 * No other frameworks (no Spring or neo4j-ogm)
-* Simple mapping to clean kotlin data classes (MyBatis like inspiration)
+* Apoc library helpers for graph data hydration from SQL, CSV, and JSON sources
+* Exploring simpler syntax sugar ways to increase productivity of working with Neo4j cypher queries and responses
 
-#### Intended Use-Cases
+
+### Intended Use-Cases
 
 Easy way to add Neo4j capabilities (primarily embedded) into a micro-service for graph hydration and querying. 
 
 _At this time the objective is for low risk use-cases, such as caching data in a GraphQL server
 or allowing for simple analytics/reporting (i.e. given read access to multiple databases)_
 
-#### Use-Cases Definitely NOT Considered
+### Use-Cases Definitely NOT Considered
 
 * Large scale or high performance data graph projects
 * Master of truth production database use
@@ -31,7 +33,7 @@ _At this time the project is not focused or mature enough to be used for mission
 
 ## User Guide
 
-##### Maven 
+### Maven
 
 ```
     <dependency>
@@ -41,24 +43,37 @@ _At this time the project is not focused or mature enough to be used for mission
     </dependency>
 ```
 
-##### Gradle 
+### Gradle
 
 `implementation("me.roybailey:neo4k-api:0.1.0")`
 
 
 ## Getting Started
 
-.Design Concepts
+.Design Concepts and Noteworthy Classes
 |===
-|Key Concept |Description |Example value
+|Noteworthy Class/Concept |Description
 
 |`Neo4jService`
 |the low-level neo4j driver interface, through which all cypher is executed
+
+|`Neo4jServiceRecord`
+|the low-level neo4j record returned from running cypher queries, standardised for both embedded and bolt responses
+
+|`QueryStatement`
+|utility object for loading cypher queries from AsciiDoc/markdown or regular text files
+
+|`Neo4jCypher`
+|common cypher commands or cypher command construction utilities
+
+|`Neo4jApoc`
+|common cypher commands or cypher command construction utilities for Apoc library
+
 |
 |===
 
 
-#### Creating an embedded instance of a Neo4j Service
+### Creating an embedded instance of a Neo4j Service
 
 Create an embedded instance using the `file://` uri.  
 
@@ -89,7 +104,7 @@ apoc.jdbc.TESTH2.url=jdbc:h2:mem:test;DB_CLOSE_DELAY=-1
 apoc.import.file.enabled=true
 ```
 
-#### Creating a remote bolt instance of Neo4j Service
+### Creating a remote bolt instance of Neo4j Service
 
 Create a remote bolt instance using the `bolt://` uri
 
@@ -102,7 +117,7 @@ Create a remote bolt instance using the `bolt://` uri
     vak neo4jService = Neo4jService.getInstance(options)
 ```
 
-#### Options for configuring Neo4j Service adaptor
+### Options for configuring Neo4j Service adaptor
 
 .Neo4jService Options
 |===
@@ -139,7 +154,7 @@ Create a remote bolt instance using the `bolt://` uri
 |===
 
 
-#### Connecting to the embedded instance from Neo4j Browser
+### Connecting to the embedded instance from Neo4j Browser
 
 1. make sure you are running in embedded mode and assign a unique port e.g. `boltPort=7987`
 1. run command `:server disconnect` in the neo4j browser
@@ -147,6 +162,50 @@ Create a remote bolt instance using the `bolt://` uri
 1. leave `username` and `password` blank
 
 This should get you connected to your running embedded database and allow you to query it using the browser. 
+
+
+### `QueryStatement` utilities
+
+Utility object for loading cypher queries from AsciiDoc/markdown or regular text files.  For example...
+
+```
+QueryStatement.parseQueryScriptStatements(cypherScriptTextWithMultipleStatements)
+```
+
+### `Neo4jCypher` utilities
+
+Utility object for constructing common cypher queries.  For example...
+
+```
+Neo4jCypher.loadCsvWithHeaders("data.csv","""
+MERGE (c:Country {country: apoc.text.toUpperCase(COALESCE(row.Country, 'unknown'))})
+              SET c.region = row.Region
+            MERGE (p:Product {product: row.`Item Type`})
+            MERGE (o:Order {orderId: row.`Order ID`})
+              SET o.salesChannel = row.`Sales Channel`,
+                  o.orderPriority = row.`Order Priority`,
+                  o.orderDate = row.`Order Date`,
+                  o.shipDate = row.`Ship Date`,
+                  o.quantity = row.`Units Sold`,
+                  o.unitPrice = row.`Unit Price`
+              MERGE (o)-[:FROM]->(c)
+              MERGE (o)-[:OF]->(p)
+              RETURN count(p) as totalProducts
+""".trimIndent())
+```
+
+
+### `Neo4jApoc` utilities
+
+Utility object for constructing common cypher queries from apoc library.  For example...
+
+```
+    val neo4jApoc = Neo4jApoc(myNeo4jService)
+    // save a static value through apoc query
+    neo4jApoc.setStatic("test", "hello apoc")
+    // load a static value through apoc query
+    val value = neo4jApoc.getStatic("test")
+```
 
 
 ## Developers Guide
@@ -162,7 +221,7 @@ This is so all the capabilities can be tested against both embedded and bolt ins
 
 > Warning : Database will be cleared with every test, hence the project does not use the default port
 
-#### Installing h2 database plugin
+### Installing h2 database plugin
 
 Find the neo4j database instance plugins folder e.g.
 
@@ -175,7 +234,7 @@ folder under there.
 Note : if you get an error after adding the h2 jar to the plugins folder, check the neo4j.log file for errors.
 Could be you need an older version of h2 to run on the Neo4j JVM version. 
 
-#### Configuring the Neo4j remote instance for testing Bolt support
+### Configuring the Neo4j remote instance for testing Bolt support
 
 
 In the remote Neo4j database instance, there are several settings you need to override to allow the tests to pass.
@@ -199,11 +258,8 @@ dbms.connector.https.listen_address=:7973
 # dbms.directories.import=import
 ```
 
-#### Building the project
+### Building the project
 
 * `mvn clean install`
 
-
-
-
-
+__Note:  please read above for prerequisites to allow the tests to work__

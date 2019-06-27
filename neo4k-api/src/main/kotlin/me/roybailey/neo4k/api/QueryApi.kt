@@ -62,8 +62,11 @@ interface QueryStatement {
 
 
         /**
-         * Breaks a script of multiple statements down using comment lines as delimiters
-         */
+         * Breaks a script of multiple statements down using comment lines or semi-colons as delimiters.
+         *
+         * @param script - script text string
+         * @return parsed list of QueryStatement objects, one per executable command
+        */
         fun parseQueryScriptStatements(
                 script: String,
                 parsingOptions: QueryStatementParsingOptions = QueryStatementParsingOptions()
@@ -128,6 +131,12 @@ interface QueryStatement {
         }
 
 
+        /**
+         * Parses a map of named scripts, where each script might contain multiple commands.
+         *
+         * @param scripts - map of 'name' to 'script text string'
+         * @return map of same 'name' keys to parsed list of QueryStatement objects, one per executable command
+         */
         fun parseQueryScriptStatements(
                 scripts: Map<String, String>,
                 parsingOptions: QueryStatementParsingOptions = QueryStatementParsingOptions()
