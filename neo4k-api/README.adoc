@@ -1,0 +1,4 @@
+# neok4-api framework
+
+This module contains the main Neo4j service interface and adaptor implementations.
+

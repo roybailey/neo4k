@@ -1,0 +1,54 @@
+spring:
+  application:
+    name: neo4k-springboot
+  servlet:
+    multipart:
+      enabled: true
+      location: /tmp
+
+server:
+  port: 5000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+graphql:
+  servlet:
+    mapping: /api/graphql
+    enabled: true
+
+graphiql:
+  enabled: true
+  mapping: /graphiql
+  endpoint:
+    graphql: /api/graphql
+  cdn:
+    enabled: true
+    version: 0.12.0
+
+voyager:
+  enabled: true
+  mapping: /voyager
+  pageTitle: Neo4k SpringBoot GraphQL Explorer
+  endpoint: /api/graphql
+  cdn:
+    enabled: false
+
+# ===========================================
+# NEO4J DATABASE (see classpath://neo4j.conf for neo4j database settings)
+# ===========================================
+# these properties are not used by Neo4j but are custom properties to activate bolt connector to embedded database
+# when active it means you can access your embedded database from a local Noe4j Browser neo4jService
+neo4j:
+  uri: file://./target/neo4j/graph.db
+  #uri: bolt://localhost:7987
+  #username: neo4j
+  #password: localhost
+  reset: purge
+  bolt:
+    connector:
+      port: 7887
+
