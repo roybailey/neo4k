@@ -1,0 +1,35 @@
+# Cypher Notepad
+
+
+### Creating new graph model from nested parameter data in Neo4j Browser
+
+Setting parameters in browser (note: parameter json needs to be on single line)
+
+```
+:params { newMovie: { title: 'Scratch Movie', released: 2000, actors: [{ name: 'First Actor', born: 1987},{ name: 'Second Actor', born: 1964}]}}
+```
+
+Test cypher to create Moive node
+
+```
+unwind $newMovie as props
+merge (m:Movie {title:props.title})
+on create set m.released = props.released
+return m
+```
+
+Test cypher to create Moive node and actor nodes with relationships
+
+```
+UNWIND $newMovie as props
+MERGE (m:Movie { title: props.title })
+    ON CREATE SET m.created = timestamp(), m.released = props.released
+    ON MATCH SET m.updated = timestamp(), m.released = props.released
+WITH props, m
+UNWIND props.actors as actor
+MERGE (a:Person { name: actor.name })
+    ON CREATE SET a.created = timestamp(), a += actor
+    ON MATCH SET a.updated = timestamp(), a += actor
+MERGE (a)-[:ACTED_IN]->(m)
+RETURN m
+```

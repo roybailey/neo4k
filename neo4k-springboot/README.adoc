@@ -1,0 +1,6 @@
+# Example SpringBoot Application using Neo4k to support GraphQL service
+
+* Launch `http://localhost:5000/graphiql` for GraphQL query browser
+* Launch `http://localhost:5000/voyager` for GraphQL voyager visualisation of schema
+* See `graphql.adoc` for samples of queries you can play with in the GraphQL query application
+* See `cypher.adoc` for samples of queries you can play with in the neo4j browser

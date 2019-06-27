@@ -1,15 +1,11 @@
 package me.roybailey.neo4k.springboot
 
-
 import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.boot.autoconfigure.domain.EntityScan
 import org.springframework.boot.runApplication
 
-
 @SpringBootApplication
-open class Application
+open class GraphqlworkshopApplication
 
 fun main(args: Array<String>) {
-    runApplication<Application>(*args)
+    runApplication<GraphqlworkshopApplication>(*args)
 }
-

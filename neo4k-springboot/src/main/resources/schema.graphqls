@@ -1,0 +1,48 @@
+type Person {
+  id: Int!
+  name: String!
+  born: Int!
+}
+
+type Movie {
+  id: Int!
+  title: String!
+  released: Int!
+
+  # Resolved from relationships
+  actors: [Person!]
+  directors: [Person!]
+}
+
+enum MovieOrderByEnum {
+  TITLE
+  RELEASED
+}
+
+type Query {
+  # Gets all people
+  people: [Person!]!
+  # Gets all movies
+  movies: [Movie!]!
+  # Gets movie by id
+  movieById(movieId: String): Movie!
+  # Gets all movies
+  moviesBy(orderBy: MovieOrderByEnum): [Movie!]!
+}
+
+input NewPerson {
+  name: String!
+  born: Int!
+}
+
+input NewMovie {
+  title: String!
+  released: Int!
+  actors: [NewPerson!]
+  directors: [NewPerson!]
+}
+
+type Mutation {
+  # Create a new movie
+  createMovie(newMovie: NewMovie!): Movie!
+}

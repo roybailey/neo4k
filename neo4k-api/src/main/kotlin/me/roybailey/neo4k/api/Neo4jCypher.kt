@@ -1,6 +1,8 @@
 package me.roybailey.neo4k.api
 
 
+fun String.toNeo4j(): String = Neo4jCypher.toNeo4j(this)
+
 object Neo4jCypher {
 
     fun toNeo4j(cypher: String, dollar: String = "__") = cypher.replace(dollar, "$")

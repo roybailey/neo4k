@@ -2,6 +2,7 @@ package me.roybailey.neo4k.api
 
 import mu.KotlinLogging
 import org.assertj.core.api.Assertions
+import java.io.File
 
 
 class Neo4jTestQueries(val neo4jService: Neo4jService) {
@@ -38,6 +39,8 @@ class Neo4jTestQueries(val neo4jService: Neo4jService) {
         val CSV_1000_TESTDATA = "1000-Sales-Records.csv"
         val CSV_10000_TESTDATA = "10000-Sales-Records.csv"
         val CSV_50000_TESTDATA = "50000-Sales-Records.csv"
+
+        fun findTestDataFile(filename:String) = File(".").walkTopDown().first { it.name == filename }.absolutePath
 
         // merge from csv read `row` variable data
         // (note: neo4j converts single word columns to uppercase, while columns with spaces need back-quotes to read)

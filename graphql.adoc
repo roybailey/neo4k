@@ -1,0 +1,75 @@
+# GraphQL Notepad
+
+## Query
+
+#### Query all people
+
+```
+query {
+  people {
+    id
+    name
+    born
+  }
+}
+```
+
+#### Query all movies
+
+```
+query {
+  movies {
+    id
+    title
+    released
+  }
+}
+```
+
+#### Query all movies by enum sort order parameter
+
+```
+query {
+  moviesBy(orderBy: RELEASED) {
+    id
+    title
+    released
+  }
+}
+```
+
+#### Query movies with actors
+
+```
+query {
+  moviesBy(orderBy: RELEASED) {
+    id
+    title
+    released
+    actors {
+      id
+      name
+      born
+    }
+  }
+}
+```
+
+
+
+## Mutation
+
+#### Creating a new Movie with Actors
+
+```
+mutation {
+  createMovie(newMovie: { title: "Rambo", released: 2000, actors: [
+    { name: "First Actor", born: 1988 },
+    { name: "Second Actor", born: 1967 },
+  ] }) {
+    id
+    title
+    released
+  }
+}
+```

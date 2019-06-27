@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration
 
 
 @Configuration
-open class GraphConfiguration(val customVariables: Map<String, String> = emptyMap()) {
+open class Neo4jConfiguration(val customVariables: Map<String, String> = emptyMap()) {
 
     val LOG = KotlinLogging.logger {}
 
@@ -21,6 +21,12 @@ open class GraphConfiguration(val customVariables: Map<String, String> = emptyMa
     @Value("\${neo4j.uri}")
     lateinit var neo4jUri: String
 
+    @Value("\${neo4j.username:neo4j}")
+    lateinit var neo4jUsername: String
+
+    @Value("\${neo4j.password:neo4j}")
+    lateinit var neo4jPassword: String
+
     @Value("\${neo4j.reset:keep}")
     lateinit var neo4jReset: String
 
@@ -28,7 +34,12 @@ open class GraphConfiguration(val customVariables: Map<String, String> = emptyMa
     open fun neo4jService(): Neo4jService {
         // initialize embedded Neo4j database
         val neo4jService = Neo4jService.getInstance(
-                Neo4jServiceOptions(neo4jUri = neo4jUri, boltPort = neo4jBoltConnectorPort))
+                Neo4jServiceOptions(
+                        neo4jUri = neo4jUri,
+                        boltPort = neo4jBoltConnectorPort,
+                        username = neo4jUsername,
+                        password = neo4jPassword
+                ))
         // set static global variables such as sensitive connection values...
         val neo4jApoc = Neo4jApoc(neo4jService)
         customVariables.forEach {

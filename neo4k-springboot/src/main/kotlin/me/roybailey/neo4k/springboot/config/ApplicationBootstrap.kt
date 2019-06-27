@@ -8,13 +8,13 @@ import org.springframework.stereotype.Component
 
 @Component
 open class ApplicationBootstrap(
-        val graphBootstrap: GraphBootstrap
+        val neo4jBootstrap: Neo4jBootstrap
 ) : ApplicationListener<ApplicationReadyEvent> {
 
     private val LOG = KotlinLogging.logger {}
 
     override fun onApplicationEvent(event: ApplicationReadyEvent) {
         LOG.info { "onApplicationEvent($event)" }
-        graphBootstrap.initializeGraph()
+        neo4jBootstrap.initializeGraph()
     }
 }

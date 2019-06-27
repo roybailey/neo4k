@@ -19,6 +19,24 @@ abstract class Neo4jServiceBasicTest(override val neo4jService: Neo4jService)
         val movieData: List<Map<String, Any>> = neo4jService.query("match (m:Movie)--(p:Person) return m,p")
         LOG.info { movieData }
         assertThat(movieData).isNotEmpty
+
+        val actualNames = mutableListOf<String>()
+        val expectedNames = listOf(
+                "Emil Eifrem",
+                "Keanu Reeves",
+                "Carrie-Anne Moss",
+                "Laurence Fishburne",
+                "Hugo Weaving")
+        neo4jService.execute(
+                "match (m:Movie { title: __title })-[:ACTED_IN]-(p:Person) return m,p".toNeo4j(),
+                mapOf("title" to "The Matrix")) {
+            while (it.hasNext()) {
+                LOG.info { it }
+                actualNames.add((it.next()["p"] as Neo4jServiceRecord)["name"] as String)
+            }
+        }
+        assertThat(actualNames.size).isEqualTo(expectedNames.size)
+        assertThat(actualNames.toList().sorted()).isEqualTo(expectedNames.sorted())
     }
 
     @Test

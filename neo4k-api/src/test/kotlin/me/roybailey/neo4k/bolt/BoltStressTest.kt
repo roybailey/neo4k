@@ -12,13 +12,8 @@ import java.io.File
  */
 fun main(args: Array<String>) {
 
-    val csvFilename :String = when {
-        args.isNotEmpty() -> args[0]
-        else -> File(".").walkTopDown().first { it.name == CSV_50000_TESTDATA }.absolutePath
-    }
-
     Neo4jServiceStressTest(BoltNeo4jServiceFactory.createNeo4jService()).run {
-        neo4jLoadCsvBatch(csvFilename, CSV_TESTDATA_MERGE_APOC)
+        neo4jLoadCsvBatch50000()
         shutdown()
     }
 
