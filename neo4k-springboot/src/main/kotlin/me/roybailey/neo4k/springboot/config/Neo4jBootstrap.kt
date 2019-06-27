@@ -1,6 +1,6 @@
 package me.roybailey.neo4k.springboot.config
 
-import me.roybailey.neo4k.api.BaseNeo4jServiceTest
+import me.roybailey.neo4k.api.Neo4jCypher
 import me.roybailey.neo4k.api.Neo4jService
 import mu.KotlinLogging
 import org.springframework.stereotype.Component
@@ -18,7 +18,7 @@ class Neo4jBootstrap(
 
         val initializeTime = Instant.now()
 
-        val cypher = BaseNeo4jServiceTest::class.java.getResource("/cypher/create-movies.cypher").readText()
+        val cypher = Neo4jCypher::class.java.getResource("/cypher/create-movies.cypher").readText()
         neo4jService.execute(cypher) {
             LOG.info { "Loaded Movie Graph Data" }
         }

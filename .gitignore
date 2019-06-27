@@ -3,6 +3,7 @@
 **/build/
 !gradle/wrapper/gradle-wrapper.jar
 .DS_Store
+pom.xml.versionsBackup
 
 ### STS ###
 .apt_generated
