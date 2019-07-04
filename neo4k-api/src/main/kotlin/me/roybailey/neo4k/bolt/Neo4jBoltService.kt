@@ -64,7 +64,9 @@ open class Neo4jBoltService(val options: Neo4jServiceOptions) : Neo4jService {
     override fun registerProcedures(toRegister: List<Class<*>>): Neo4jService {
         val unregisteredProcedures = mutableSetOf<String>()
         unregisteredProcedures.addAll(toRegister.map { it.name.toLowerCase() })
-        query("CALL dbms.procedures()").map {
+        query("CALL dbms.procedures()") {
+            record -> record.asMap()
+        }.map {
             LOG.debug { it }
             it
         }.forEach { procedure ->
@@ -112,11 +114,11 @@ open class Neo4jBoltService(val options: Neo4jServiceOptions) : Neo4jService {
     }
 
 
-    override fun query(cypher: String, params: Map<String, Any>): List<Map<String, Any>> {
-        val result = mutableListOf<Map<String, Any>>()
+    override fun <T> query(cypher: String, params: Map<String, Any>, mapper: Neo4jRecordMapper<T>): List<T> {
+        val result = mutableListOf<T>()
         execute(cypher, params) {
             if (it.hasNext())
-                result.add(it.next().asMap())
+                result.add(mapper(it.next()))
         }
         return result.toList()
     }

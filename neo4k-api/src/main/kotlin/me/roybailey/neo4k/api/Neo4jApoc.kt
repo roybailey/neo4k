@@ -7,21 +7,62 @@ class Neo4jApoc(val neo4j: Neo4jService) {
 
     companion object {
 
-        // set static data
+
+        /**
+         * Sets a static value
+         *
+         * @param name - the name of the static variable
+         * @param value - the value to assign
+         * @return the cypher command string
+         */
         fun apocSetStatic(name: String, value: String) = "call apoc.static.set('$name', '$value')"
 
-        // get static data
+
+        /**
+         * Gets a static value
+         *
+         * @param name - the name of the static variable
+         * @return the cypher command string
+         */
         fun apocGetStatic(name: String) = "call apoc.static.get('$name')"
 
 
-        // prepare a cypher variable value, either directly or from static named variable
+        /**
+         * Gets static value as String, assigning to variable.
+         * Correctly converts the returned value into String form before assigning to variable
+         *
+         * @param name - the name of the static variable to get a value from
+         * @param variable - the name of the variable to assign once converted to string
+         * @return the cypher command string
+         */
+        fun apocGetStaticAsString(name: String, variable: String = "VALUE") = "CALL apoc.static.get('$name') yield value WITH apoc.convert.toString(value) AS $variable"
+
+        /**
+         * Gets static value as JSon, assigning to variable.
+         * Correctly converts the returned value into JSon object form before assigning to variable
+         *
+         * @param name - the name of the static variable to get a value from
+         * @param variable - the name of the variable to assign once converted to JSon
+         * @return the cypher command string
+         */
+        fun apocGetStaticAsJson(name: String, variable: String = "VALUE") = "CALL apoc.static.get('$name') yield value WITH apoc.convert.fromJsonMap(apoc.convert.toString(value)) AS $variable"
+
+
+        /**
+         * Prepare a cypher variable nameOrValue, either directly or from static named variable
+         *
+         * @param nameOrValue - the variable of the static variable to get a nameOrValue from; otherwise the
+         * @param variable - the variable to assign the nameOrValue to
+         * @param fromStatic - boolean to route from static value or direct value
+         * @return the cypher command string
+         */
         fun getVariable(
-                name: String,
-                value: String,
+                nameOrValue: String,
+                variable: String = "VALUE",
                 fromStatic: Boolean = false,
                 singleQuote: Boolean = false) = when (fromStatic) {
-            true -> "CALL apoc.static.get('$value') yield value WITH apoc.convert.toString(value) AS $name"
-            else -> "WITH '$value' AS $name"
+            true -> apocGetStaticAsString(nameOrValue, variable)
+            else -> "WITH '$nameOrValue' AS $variable"
         }
 
 
@@ -64,7 +105,30 @@ class Neo4jApoc(val neo4j: Neo4jService) {
 
 
         /**
-         * Apoc jdbc batch load cypher command wrapped in periodic commit...
+         * Apoc jdbc batch load cypher command wrapped in periodic commit.
+         * Tricky to construct because it is a function taking two strings, one for the SQL and one for the cypher MERGE,
+         * but as these strings can contain nested levels of quotes you need to correctly escape or switch between single
+         * and double quotes.
+         * Here's an example of full cypher for loading in batch from SQL statement...
+         *
+        CALL apoc.periodic.iterate("
+        WITH 'jdbc:h2:mem:test;DB_CLOSE_DELAY=-1' AS DB_URL
+        CALL apoc.load.jdbc(DB_URL,\"SELECT * FROM CSVREAD('sample.csv')\") YIELD row RETURN row
+        ","
+        MERGE (c:Country {country: apoc.text.toUpperCase(COALESCE(row.COUNTRY, 'unknown'))})
+        SET c.region = row.REGION
+        MERGE (p:Product {product: row.`Item Type`})
+        MERGE (o:Order {orderId: row.`Order ID`})
+        SET o.salesChannel = row.`Sales Channel`,
+        o.orderPriority = row.`Order Priority`,
+        o.orderDate = row.`Order Date`,
+        o.shipDate = row.`Ship Date`,
+        o.quantity = row.`Units Sold`,
+        o.unitPrice = row.`Unit Price`
+        MERGE (o)-[:FROM]->(c)
+        MERGE (o)-[:OF]->(p)
+        RETURN count(p) as totalProducts
+        ", {batchSize:100, parallel:false})
          */
         fun apocLoadJdbcBatch(
                 dbUrl: String,
@@ -75,7 +139,7 @@ class Neo4jApoc(val neo4j: Neo4jService) {
                 useStaticDbUrl: Boolean = true
         ) = """
             CALL apoc.periodic.iterate("
-              ${getVariable(name = "DB_URL", value = dbUrl, fromStatic = useStaticDbUrl, singleQuote = true)}
+              ${getVariable(variable = "DB_URL", nameOrValue = dbUrl, fromStatic = useStaticDbUrl, singleQuote = true)}
               CALL apoc.load.jdbc(DB_URL,\"$sql\") YIELD row RETURN row
             ","$process", {batchSize:$batchsize, parallel:$parallel})
         """.trimIndent()

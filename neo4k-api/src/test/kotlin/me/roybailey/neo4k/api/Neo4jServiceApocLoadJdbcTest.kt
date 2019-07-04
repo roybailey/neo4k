@@ -9,8 +9,6 @@ import org.junit.jupiter.api.Test
 import java.time.Duration.ofMinutes
 
 
-
-
 abstract class Neo4jServiceApocLoadJdbcTest(final override val neo4jService: Neo4jService)
     : BaseNeo4jServiceTest(neo4jService) {
 
@@ -55,8 +53,8 @@ abstract class Neo4jServiceApocLoadJdbcTest(final override val neo4jService: Neo
         val expectedProducts = 12L
         val expectedCountries = 185L
 
-        val result = assertTimeoutPreemptively<Map<String,Any>>(ofMinutes(3)) {
-            var result = emptyMap<String,Any>()
+        val result = assertTimeoutPreemptively<Map<String, Any>>(ofMinutes(3)) {
+            var result = emptyMap<String, Any>()
             neo4jService.execute(cypher, emptyMap()) { rs ->
                 result = rs.single().asMap()
             }
@@ -70,7 +68,7 @@ abstract class Neo4jServiceApocLoadJdbcTest(final override val neo4jService: Neo
         val totalProducts = neo4jService.queryForObject<Long>("match (p:Product) return count(p) as totalProducts")!!
         assertThat(totalProducts).isEqualTo(expectedProducts)
 
-        LOG.info { neo4jService.query("match (c:Country) return c.country as country") }
+        LOG.info { neo4jService.query("match (c:Country) return c.country as country") { it.asMap() } }
 
         val totalCountries = neo4jService.queryForObject<Long>("match (c:Country) return count(c) as totalCountries")!!
         assertThat(totalCountries).isEqualTo(expectedCountries)

@@ -97,13 +97,14 @@ open class Neo4jEmbeddedService(val options: Neo4jServiceOptions) : Neo4jService
 
     override fun registerProcedures(toRegister: List<Class<*>>): Neo4jService {
         if (isEmbedded()) {
+            // todo replace this deprecated method with selection strategy
             val procedures = (graphDb as GraphDatabaseAPI).dependencyResolver.resolveDependency(Procedures::class.java)
             toRegister.forEach { proc ->
                 try {
                     procedures.registerProcedure(proc, true)
                     procedures.registerFunction(proc, true)
                 } catch (e: Exception) {
-                    throw RuntimeException("Error registering " + proc, e)
+                    throw RuntimeException("Error registering $proc", e)
                 }
             }
         }
@@ -151,11 +152,11 @@ open class Neo4jEmbeddedService(val options: Neo4jServiceOptions) : Neo4jService
     }
 
 
-    override fun query(cypher: String, params: Map<String, Any>): List<Map<String, Any>> {
-        val result = mutableListOf<Map<String, Any>>()
+    override fun <T> query(cypher: String, params: Map<String, Any>, mapper: Neo4jRecordMapper<T>): List<T> {
+        val result = mutableListOf<T>()
         execute(cypher, params) { srs ->
             while (srs.hasNext()) {
-                result.add(srs.next().asMap())
+                result.add(mapper(srs.next()))
             }
         }
         return result.toList()

@@ -16,7 +16,7 @@ abstract class Neo4jServiceBasicTest(override val neo4jService: Neo4jService)
         val movieCount: Long = neo4jService.queryForObject("match (m:Movie) return count(m) as movieCount")!!
         assertThat(movieCount).isNotZero()
 
-        val movieData: List<Map<String, Any>> = neo4jService.query("match (m:Movie)--(p:Person) return m,p")
+        val movieData: List<Map<String, Any>> = neo4jService.query("match (m:Movie)--(p:Person) return m,p") { it.asMap() }
         LOG.info { movieData }
         assertThat(movieData).isNotEmpty
 

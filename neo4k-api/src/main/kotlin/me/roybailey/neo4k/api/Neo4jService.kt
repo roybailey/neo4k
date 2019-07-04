@@ -19,11 +19,12 @@ interface Neo4jServiceRecord {
     fun fields(): List<Pair<String, Any>>
 }
 
-class Neo4jMapRecord(val template: Map<String, Any>, vararg more:Pair<String,Any>) : Neo4jServiceRecord {
+class Neo4jMapRecord(val template: Map<String, Any>, vararg more: Pair<String, Any>) : Neo4jServiceRecord {
 
-    val record:Map<String,Any>
+    val record: Map<String, Any>
+
     init {
-        record = mutableMapOf<String,Any>().also { it.putAll(template) }.also { it.putAll(more) }.toMap()
+        record = mutableMapOf<String, Any>().also { it.putAll(template) }.also { it.putAll(more) }.toMap()
     }
 
     override fun keys(): List<String> = record.entries.map { it.key }
@@ -49,6 +50,7 @@ interface Neo4jServiceStatementResult : Iterator<Neo4jServiceRecord> {
 }
 
 typealias Neo4jResultMapper = (record: Neo4jServiceStatementResult) -> Unit
+typealias Neo4jRecordMapper<T> = (record: Neo4jServiceRecord) -> T
 
 val nullNeo4jResultMapper = { _: Neo4jServiceStatementResult -> }
 
@@ -70,7 +72,7 @@ interface Neo4jService {
     fun shutdown()
     fun isEmbedded(): Boolean
     fun execute(cypher: String, params: Map<String, Any> = emptyMap(), code: Neo4jResultMapper = nullNeo4jResultMapper): Neo4jService
-    fun query(cypher: String, params: Map<String, Any> = emptyMap()): List<Map<String, Any>>
+    fun <T> query(cypher: String, params: Map<String, Any> = emptyMap(), mapper: Neo4jRecordMapper<T>): List<T>
     fun <T> queryForObject(cypher: String, params: Map<String, Any> = emptyMap()): T?
 
     companion object {
