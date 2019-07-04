@@ -112,26 +112,5 @@ open class Neo4jBoltService(val options: Neo4jServiceOptions) : Neo4jService {
         }
         return this
     }
-
-
-    override fun <T> query(cypher: String, params: Map<String, Any>, mapper: Neo4jRecordMapper<T>): List<T> {
-        val result = mutableListOf<T>()
-        execute(cypher, params) {
-            if (it.hasNext())
-                result.add(mapper(it.next()))
-        }
-        return result.toList()
-    }
-
-
-    override fun <T> queryForObject(cypher: String, params: Map<String, Any>): T? {
-        var result: T? = null
-        execute(cypher, params) {
-            if (it.hasNext())
-                result = it.next().asMap().entries.first().value as T
-        }
-        return result
-    }
-
 }
 

@@ -151,27 +151,5 @@ open class Neo4jEmbeddedService(val options: Neo4jServiceOptions) : Neo4jService
         return this
     }
 
-
-    override fun <T> query(cypher: String, params: Map<String, Any>, mapper: Neo4jRecordMapper<T>): List<T> {
-        val result = mutableListOf<T>()
-        execute(cypher, params) { srs ->
-            while (srs.hasNext()) {
-                result.add(mapper(srs.next()))
-            }
-        }
-        return result.toList()
-    }
-
-
-    override fun <T> queryForObject(cypher: String, params: Map<String, Any>): T? {
-        var result: T? = null
-        execute(cypher, params) {srs ->
-            if (srs.hasNext()) {
-                result = srs.next().asMap().entries.first().value as T
-            }
-        }
-        return result
-    }
-
 }
 

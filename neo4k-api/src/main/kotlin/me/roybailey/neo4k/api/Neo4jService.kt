@@ -7,17 +7,70 @@ import org.neo4j.procedure.UserFunction
 import java.util.*
 import java.util.stream.Stream
 
+
 interface Neo4jServiceRecord {
+
     fun keys(): List<String>
     fun values(): List<Any>
     fun containsKey(lookup: String): Boolean
     fun index(lookup: String): Int
-    operator fun get(key: String): Any?
-    operator fun get(index: Int): Any?
     fun size(): Int
     fun asMap(): Map<String, Any>
     fun fields(): List<Pair<String, Any>>
+
+    operator fun get(key: String): Any?
+    operator fun get(index: Int): Any?
+
+    // syntax sugar default value methods
+
+    operator fun get(key: String, defaultValue: Int): Int = get(key)?.let { it as Int } ?: defaultValue
+
+    operator fun get(key: String, defaultValue: Long): Long = get(key)?.let { it as Long } ?: defaultValue
+
+    operator fun get(key: String, defaultValue: Boolean): Boolean = get(key)?.let { it as Boolean } ?: defaultValue
+
+    operator fun get(key: String, defaultValue: String): String = get(key)?.let { it.toString() } ?: defaultValue
+
+    operator fun get(key: String, defaultValue: Float): Float = get(key)?.let { it as Float } ?: defaultValue
+
+    operator fun get(key: String, defaultValue: Double): Double = get(key)?.let { it as Double } ?: defaultValue
+
+    operator fun get(key: String, defaultValue: Any): Any = get(key)?.let { it } ?: defaultValue
+
+    operator fun get(key: String, defaultValue: Number): Number = get(key)?.let { it as Number } ?: defaultValue
+
+    operator fun get(key: String, defaultValue: Neo4jServiceRecord): Neo4jServiceRecord = get(key)?.let { it as Neo4jServiceRecord }
+            ?: defaultValue
+
+    operator fun get(key: String, defaultValue: List<Any>): List<Any> = get(key)?.let { it as List<Any> }
+            ?: defaultValue
+
+    operator fun get(key: String, defaultValue: Map<String, Any>): Map<String, Any> = get(key)?.let { it as Map<String, Any> }
+            ?: defaultValue
+
+    fun asNode(key: String, defaultValue: Neo4jServiceRecord = nullNeo4jServiceRecord): Neo4jServiceRecord = get(key)?.let { it as Neo4jServiceRecord }
+            ?: defaultValue
+
+    fun <T> asList(key: String, defaultValue: List<T> = emptyList()): List<T> = get(key)?.let { it as List<T> }
+            ?: defaultValue
+
+    fun asMap(key: String, defaultValue: Map<String, Any> = emptyMap()): Map<String, Any> = get(key)?.let { it as Map<String, Any> }
+            ?: defaultValue
 }
+
+
+private val nullNeo4jServiceRecord = object : Neo4jServiceRecord {
+    override fun keys(): List<String> = emptyList()
+    override fun values(): List<Any> = emptyList()
+    override fun containsKey(lookup: String): Boolean = false
+    override fun index(lookup: String): Int = -1
+    override fun size(): Int = 0
+    override fun asMap(): Map<String, Any> = emptyMap()
+    override fun fields(): List<Pair<String, Any>> = emptyList()
+    override fun get(key: String): Any? = null
+    override fun get(index: Int): Any? = null
+}
+
 
 class Neo4jMapRecord(val template: Map<String, Any>, vararg more: Pair<String, Any>) : Neo4jServiceRecord {
 
@@ -38,6 +91,7 @@ class Neo4jMapRecord(val template: Map<String, Any>, vararg more: Pair<String, A
     override fun fields(): List<Pair<String, Any>> = record.entries.map { Pair(it.key, it.value) }
 }
 
+
 interface Neo4jServiceStatementResult : Iterator<Neo4jServiceRecord> {
 
     fun address(): String
@@ -49,10 +103,13 @@ interface Neo4jServiceStatementResult : Iterator<Neo4jServiceRecord> {
     fun stream(): Stream<Neo4jServiceRecord>
 }
 
+
 typealias Neo4jResultMapper = (record: Neo4jServiceStatementResult) -> Unit
 typealias Neo4jRecordMapper<T> = (record: Neo4jServiceRecord) -> T
 
+
 val nullNeo4jResultMapper = { _: Neo4jServiceStatementResult -> }
+
 
 data class Neo4jServiceOptions(
         val neo4jUri: String,
@@ -66,14 +123,53 @@ data class Neo4jServiceOptions(
     val mode: String = neo4jUri.toLowerCase().substring(0, 4)
 }
 
+
 interface Neo4jService {
 
     fun registerProcedures(toRegister: List<Class<*>>): Neo4jService
     fun shutdown()
     fun isEmbedded(): Boolean
     fun execute(cypher: String, params: Map<String, Any> = emptyMap(), code: Neo4jResultMapper = nullNeo4jResultMapper): Neo4jService
-    fun <T> query(cypher: String, params: Map<String, Any> = emptyMap(), mapper: Neo4jRecordMapper<T>): List<T>
-    fun <T> queryForObject(cypher: String, params: Map<String, Any> = emptyMap()): T?
+
+    /**
+     * Query for a list of records
+     *
+     * @param cypher - the cypher query string
+     * @param params - the map of cypher query parameters
+     * @param mapper - the record mapper to convert Neo4jServiceRecord objects into <T> objects
+     * @return list of <T> objects; otherwise empty list
+     */
+    fun <T> query(cypher: String, params: Map<String, Any> = emptyMap(), mapper: Neo4jRecordMapper<T>): List<T> {
+        val result = mutableListOf<T>()
+        execute(cypher, params) { statementResult ->
+            while (statementResult.hasNext())
+                mapper(statementResult.next())?.let { result.add(it) }
+        }
+        return result.toList()
+    }
+
+
+    /**
+     * Query for an object
+     *
+     * @param cypher - the cypher query string
+     * @param params - the map of cypher query parameters
+     * @param mapper - the record mapper to convert the first Neo4jServiceRecord object into <T> object;
+     * null to take the singular value returned as a primitive
+     * @return the object result
+     */
+    @Suppress("UNCHECKED_CAST")
+    fun <T> queryForObject(cypher: String, params: Map<String, Any> = emptyMap(), mapper: Neo4jRecordMapper<T>? = null): T? {
+        var result: T? = null
+        execute(cypher, params) {
+            if (it.hasNext()) {
+                val value = it.next()
+                result = mapper?.let { it(value) } ?: (value.asMap().entries.first().value as T)
+            }
+        }
+        return result
+    }
+
 
     companion object {
 
