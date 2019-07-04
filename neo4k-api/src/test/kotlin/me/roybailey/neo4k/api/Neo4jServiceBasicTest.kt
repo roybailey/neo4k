@@ -40,8 +40,8 @@ abstract class Neo4jServiceBasicTest(override val neo4jService: Neo4jService)
                 }
             }
             SoftAssertions().run {
-                Assertions.assertThat(actualNames.size).isEqualTo(expectedNames.size)
-                Assertions.assertThat(actualNames.toList().sorted()).isEqualTo(expectedNames.sorted())
+                assertThat(actualNames.size).isEqualTo(expectedNames.size)
+                assertThat(actualNames.toList().sorted()).isEqualTo(expectedNames.sorted())
             }
         }
 
@@ -51,11 +51,11 @@ abstract class Neo4jServiceBasicTest(override val neo4jService: Neo4jService)
                     "match (m:Movie { title: __title })-[:ACTED_IN]-(p:Person) return m,p".toNeo4j(),
                     mapOf("title" to "The Matrix")) { record ->
                 LOG.info { record }
-                record.asNode("p")["name", "unknown"]
+                record.asNode("p")!!.asString("name")!!
             }
             SoftAssertions().run {
-                Assertions.assertThat(actualNames.size).isEqualTo(expectedNames.size)
-                Assertions.assertThat(actualNames.toList().sorted()).isEqualTo(expectedNames.sorted())
+                assertThat(actualNames.size).isEqualTo(expectedNames.size)
+                assertThat(actualNames.toList().sorted()).isEqualTo(expectedNames.sorted())
             }
         }
     }
@@ -99,8 +99,8 @@ abstract class Neo4jServiceBasicTest(override val neo4jService: Neo4jService)
             query(query) { record ->
                 LOG.info { record }
                 MovieResult(
-                        record["title", "unknown"],
-                        record["released", 0L],
+                        record.asString("title")!!,
+                        record.asLong("released", 0L),
                         record.asList("actors"))
             }
             records.forEach { LOG.info { it } }
@@ -162,24 +162,24 @@ abstract class Neo4jServiceBasicTest(override val neo4jService: Neo4jService)
         neo4jService.run {
             query(query) { record ->
                 LOG.info { record }
-                val movie = record.asNode("m")
-                val director = record.asNode("d")
-                LOG.info { "movieId=${movie["id"]} directorId=${director["id"]}" }
-                LOG.info { "movie.labels=${movie["labels"]} director.labels=${director["labels"]}" }
+                val movie = record.asNode("m")!!
+                val director = record.asNode("d")!!
+                LOG.info { "movieId=${movie.id()} directorId=${director.id()}" }
+                LOG.info { "movie.labels=${movie.labels()} director.labels=${director.labels()}" }
 
-                if (!mapDirectors.containsKey(director["id", -1L]))
-                    mapDirectors[director["id", -1L]] = PersonResult(director["id", -1L],
-                            director["name", "unknown"],
-                            director["born", 0L])
+                if (!mapDirectors.containsKey(director["id"]))
+                    mapDirectors[director.id()] = PersonResult(director.id(),
+                            director.asString("name")!!,
+                            director.asLong("born", 0L))
 
-                if (!mapMovies.containsKey(movie["id", -1L]))
-                    mapMovies[movie["id", -1L]] = MovieResult(movie["id", -1L],
-                            movie["title", "unknown"],
-                            movie["released", 0L],
+                if (!mapMovies.containsKey(movie.id()))
+                    mapMovies[movie.id()] = MovieResult(movie.id(),
+                            movie.asString("title")!!,
+                            movie.asLong("released", 0L),
                             mutableListOf(),
                             mutableListOf())
 
-                mapMovies[movie["id", -1L]]?.directors?.add(mapDirectors[director["id", -1L]]!!)
+                mapMovies[movie.id()]?.directors?.add(mapDirectors[director.id()]!!)
             }
             Assertions.assertThat(mapMovies.size).isEqualTo(expectedRecords)
         }

@@ -23,32 +23,23 @@ interface Neo4jServiceRecord {
 
     // syntax sugar default value methods
 
-    operator fun get(key: String, defaultValue: Int): Int = get(key)?.let { it as Int } ?: defaultValue
+    fun asInt(key: String, defaultValue: Int = 0): Int = get(key)?.let { it as Int } ?: defaultValue
 
-    operator fun get(key: String, defaultValue: Long): Long = get(key)?.let { it as Long } ?: defaultValue
+    fun asLong(key: String, defaultValue: Long = 0L): Long = get(key)?.let { it as Long } ?: defaultValue
 
-    operator fun get(key: String, defaultValue: Boolean): Boolean = get(key)?.let { it as Boolean } ?: defaultValue
+    fun asBoolean(key: String, defaultValue: Boolean = false): Boolean = get(key)?.let { it as Boolean } ?: defaultValue
 
-    operator fun get(key: String, defaultValue: String): String = get(key)?.let { it.toString() } ?: defaultValue
+    fun asString(key: String, defaultValue: String? = null): String? = get(key)?.let { it.toString() } ?: defaultValue
 
-    operator fun get(key: String, defaultValue: Float): Float = get(key)?.let { it as Float } ?: defaultValue
+    fun asFloat(key: String, defaultValue: Float? = null): Float? = get(key)?.let { it as Float } ?: defaultValue
 
-    operator fun get(key: String, defaultValue: Double): Double = get(key)?.let { it as Double } ?: defaultValue
+    fun asDouble(key: String, defaultValue: Double? = null): Double? = get(key)?.let { it as Double } ?: defaultValue
 
-    operator fun get(key: String, defaultValue: Any): Any = get(key)?.let { it } ?: defaultValue
+    fun asObject(key: String, defaultValue: Any? = null): Any? = get(key)?.let { it } ?: defaultValue
 
-    operator fun get(key: String, defaultValue: Number): Number = get(key)?.let { it as Number } ?: defaultValue
+    fun asNumber(key: String, defaultValue: Number? = null): Number? = get(key)?.let { it as Number } ?: defaultValue
 
-    operator fun get(key: String, defaultValue: Neo4jServiceRecord): Neo4jServiceRecord = get(key)?.let { it as Neo4jServiceRecord }
-            ?: defaultValue
-
-    operator fun get(key: String, defaultValue: List<Any>): List<Any> = get(key)?.let { it as List<Any> }
-            ?: defaultValue
-
-    operator fun get(key: String, defaultValue: Map<String, Any>): Map<String, Any> = get(key)?.let { it as Map<String, Any> }
-            ?: defaultValue
-
-    fun asNode(key: String, defaultValue: Neo4jServiceRecord = nullNeo4jServiceRecord): Neo4jServiceRecord = get(key)?.let { it as Neo4jServiceRecord }
+    fun asNode(key: String, defaultValue: Neo4jServiceRecord? = null): Neo4jServiceRecord? = get(key)?.let { it as Neo4jServiceRecord }
             ?: defaultValue
 
     fun <T> asList(key: String, defaultValue: List<T> = emptyList()): List<T> = get(key)?.let { it as List<T> }
@@ -56,10 +47,14 @@ interface Neo4jServiceRecord {
 
     fun asMap(key: String, defaultValue: Map<String, Any> = emptyMap()): Map<String, Any> = get(key)?.let { it as Map<String, Any> }
             ?: defaultValue
+
+    fun id() = asLong("id")
+    fun labels() = asList<String>("labels")
+
 }
 
 
-private val nullNeo4jServiceRecord = object : Neo4jServiceRecord {
+val emptyNeo4jServiceRecord = object : Neo4jServiceRecord {
     override fun keys(): List<String> = emptyList()
     override fun values(): List<Any> = emptyList()
     override fun containsKey(lookup: String): Boolean = false
