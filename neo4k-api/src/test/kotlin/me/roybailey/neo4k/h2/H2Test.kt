@@ -1,7 +1,6 @@
 package me.roybailey.neo4k.h2
 
-import me.roybailey.neo4k.api.BaseTest
-import mu.KotlinLogging
+import me.roybailey.neo4k.UnitTestBase
 import org.junit.jupiter.api.Test
 import java.io.File
 import java.sql.Connection
@@ -10,7 +9,7 @@ import java.sql.PreparedStatement
 import java.sql.SQLException
 
 
-class H2Test : BaseTest() {
+class H2Test : UnitTestBase() {
 
     companion object {
 
@@ -47,7 +46,7 @@ class H2Test : BaseTest() {
         val csvTestData = File(testDataFolder).absolutePath+"/SampleCSVFile_2kb.csv"
         val SelectQuery = "SELECT * FROM CSVREAD('$csvTestData')"
 
-        LOG.info { SelectQuery }
+        logger.info { SelectQuery }
 
         try {
             connection!!.autoCommit = false

@@ -14,6 +14,7 @@ class Neo4jEmbeddedRecord(val record: Map<String, Any>) : Neo4jServiceRecord {
     override fun size(): Int = record.size
     override fun asMap(): Map<String, Any> = record
     override fun fields(): List<Pair<String, Any>> = record.entries.map { Pair(it.key, unwrapEmbeddedValue(it.value)) }
+    override fun toString(): String = super.toString() + keys()
 
     companion object {
 

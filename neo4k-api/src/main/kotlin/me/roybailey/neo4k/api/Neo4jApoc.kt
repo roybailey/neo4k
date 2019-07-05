@@ -13,7 +13,7 @@ class Neo4jApoc(val neo4j: Neo4jService) {
          *
          * @param name - the name of the static variable
          * @param value - the value to assign
-         * @return the cypher command string
+         * @return the append command string
          */
         fun apocSetStatic(name: String, value: String) = "call apoc.static.set('$name', '$value')"
 
@@ -22,7 +22,7 @@ class Neo4jApoc(val neo4j: Neo4jService) {
          * Gets a static value
          *
          * @param name - the name of the static variable
-         * @return the cypher command string
+         * @return the append command string
          */
         fun apocGetStatic(name: String) = "call apoc.static.get('$name')"
 
@@ -33,7 +33,7 @@ class Neo4jApoc(val neo4j: Neo4jService) {
          *
          * @param name - the name of the static variable to get a value from
          * @param variable - the name of the variable to assign once converted to string
-         * @return the cypher command string
+         * @return the append command string
          */
         fun apocGetStaticAsString(name: String, variable: String = "VALUE") = "CALL apoc.static.get('$name') yield value WITH apoc.convert.toString(value) AS $variable"
 
@@ -43,18 +43,18 @@ class Neo4jApoc(val neo4j: Neo4jService) {
          *
          * @param name - the name of the static variable to get a value from
          * @param variable - the name of the variable to assign once converted to JSon
-         * @return the cypher command string
+         * @return the append command string
          */
-        fun apocGetStaticAsJson(name: String, variable: String = "VALUE") = "CALL apoc.static.get('$name') yield value WITH apoc.convert.fromJsonMap(apoc.convert.toString(value)) AS $variable"
+        fun apocGetStaticAsJson(name: String, variable: String = "VALUE") = "CALL apoc.static.get('$name') yield value WITH apoc.convert.fromJsonMap(apoc.convert.toString(value)) as $variable"
 
 
         /**
-         * Prepare a cypher variable nameOrValue, either directly or from static named variable
+         * Prepare a append variable nameOrValue, either directly or from static named variable
          *
          * @param nameOrValue - the variable of the static variable to get a nameOrValue from; otherwise the
          * @param variable - the variable to assign the nameOrValue to
          * @param fromStatic - boolean to route from static value or direct value
-         * @return the cypher command string
+         * @return the append command string
          */
         fun getVariable(
                 nameOrValue: String,
@@ -67,7 +67,7 @@ class Neo4jApoc(val neo4j: Neo4jService) {
 
 
         /**
-         * Apoc json load cypher command, e.g.
+         * Apoc json load append command, e.g.
          *
         WITH "https://api.stackexchange.com/2.2/questions?pagesize=100&order=desc&sort=creation&tagged=neo4j&site=stackoverflow&filter=!5-i6Zw8Y)4W7vpy91PMYsKM-k9yzEsSC1_Uxlf" AS url
         CALL apoc.load.json(url) YIELD value
@@ -82,7 +82,7 @@ class Neo4jApoc(val neo4j: Neo4jService) {
 
 
         /**
-         * Apoc jdbc load cypher command, e.g.
+         * Apoc jdbc load append command, e.g.
          *
         CALL apoc.load.jdbc('jdbc:h2:mem:test;DB_CLOSE_DELAY=-1',"SELECT * FROM CSVREAD('sample.csv')") YIELD row
         WITH row
@@ -105,11 +105,11 @@ class Neo4jApoc(val neo4j: Neo4jService) {
 
 
         /**
-         * Apoc jdbc batch load cypher command wrapped in periodic commit.
-         * Tricky to construct because it is a function taking two strings, one for the SQL and one for the cypher MERGE,
+         * Apoc jdbc batch load append command wrapped in periodic commit.
+         * Tricky to construct because it is a function taking two strings, one for the SQL and one for the append MERGE,
          * but as these strings can contain nested levels of quotes you need to correctly escape or switch between single
          * and double quotes.
-         * Here's an example of full cypher for loading in batch from SQL statement...
+         * Here's an example of full append for loading in batch from SQL query...
          *
         CALL apoc.periodic.iterate("
         WITH 'jdbc:h2:mem:test;DB_CLOSE_DELAY=-1' AS DB_URL

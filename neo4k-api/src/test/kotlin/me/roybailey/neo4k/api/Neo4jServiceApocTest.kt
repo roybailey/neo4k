@@ -1,12 +1,13 @@
 package me.roybailey.neo4k.api
 
+import me.roybailey.neo4k.Neo4jServiceTestBase
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
 
 
 abstract class Neo4jServiceApocTest(
         final override val neo4jService: Neo4jService
-) : BaseNeo4jServiceTest(neo4jService) {
+) : Neo4jServiceTestBase(neo4jService) {
 
 
     @Test

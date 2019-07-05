@@ -1,13 +1,13 @@
 package me.roybailey.neo4k.api
 
-import org.assertj.core.api.Assertions
+import me.roybailey.neo4k.Neo4jServiceTestBase
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.SoftAssertions
 import org.junit.jupiter.api.Test
 
 
 abstract class Neo4jServiceBasicTest(override val neo4jService: Neo4jService)
-    : BaseNeo4jServiceTest(neo4jService) {
+    : Neo4jServiceTestBase(neo4jService) {
 
     @Test
     fun `should load movies graph without errors`() {
@@ -18,7 +18,7 @@ abstract class Neo4jServiceBasicTest(override val neo4jService: Neo4jService)
         assertThat(movieCount).isNotZero()
 
         val movieData: List<Map<String, Any>> = neo4jService.query("match (m:Movie)--(p:Person) return m,p") { it.asMap() }
-        LOG.info { movieData }
+        logger.info { movieData }
         assertThat(movieData).isNotEmpty
 
         val expectedNames = listOf(
@@ -35,14 +35,14 @@ abstract class Neo4jServiceBasicTest(override val neo4jService: Neo4jService)
                     "match (m:Movie { title: __title })-[:ACTED_IN]-(p:Person) return m,p".toNeo4j(),
                     mapOf("title" to "The Matrix")) {
                 while (it.hasNext()) {
-                    LOG.info { it }
+                    logger.info { it }
                     actualNames.add((it.next()["p"] as Neo4jServiceRecord)["name"] as String)
                 }
             }
-            SoftAssertions().run {
+            SoftAssertions().apply {
                 assertThat(actualNames.size).isEqualTo(expectedNames.size)
                 assertThat(actualNames.toList().sorted()).isEqualTo(expectedNames.sorted())
-            }
+            }.assertAll()
         }
 
         // Neo4jService.query...
@@ -50,15 +50,38 @@ abstract class Neo4jServiceBasicTest(override val neo4jService: Neo4jService)
             val actualNames = query(
                     "match (m:Movie { title: __title })-[:ACTED_IN]-(p:Person) return m,p".toNeo4j(),
                     mapOf("title" to "The Matrix")) { record ->
-                LOG.info { record }
+                logger.info { record }
                 record.asNode("p")!!.asString("name")!!
             }
-            SoftAssertions().run {
+            SoftAssertions().apply {
                 assertThat(actualNames.size).isEqualTo(expectedNames.size)
                 assertThat(actualNames.toList().sorted()).isEqualTo(expectedNames.sorted())
-            }
+            }.assertAll()
         }
     }
+
+    // create clean data classes
+    private data class PersonResult(val id: Long? = null, val name: String, val born: Long = 0, val unavailable: String? = null)
+    private data class MovieResult(val id: Long? = null,
+                           val title: String,
+                           val released: Long,
+                           val actors: MutableList<PersonResult> = emptyList<PersonResult>().toMutableList(),
+                           val directors: MutableList<PersonResult> = emptyList<PersonResult>().toMutableList(),
+                           val expectingNull: String? = null)
+
+    // extend neo4j record with mapping functions for our data classes
+    private fun Neo4jServiceRecord.toMovieResult(m: String? = null): MovieResult {
+        val movieNode = m?.let { asNode(it) } ?: this
+        return MovieResult(
+                id = movieNode.id(),
+                title = movieNode.asString("title")!!,
+                released = movieNode.asLong("released"),
+                actors = movieNode.asList<PersonResult>("actors").toMutableList(),
+                directors = movieNode.asList<PersonResult>("directors").toMutableList(),
+                expectingNull = movieNode.asString("expectingNull")
+        )
+    }
+
 
     @Test
     fun `should process table style results`() {
@@ -71,40 +94,55 @@ abstract class Neo4jServiceBasicTest(override val neo4jService: Neo4jService)
                 return m.title as title, m.released as released, collect(actor.name) as actors
         """.trimIndent())
 
-        data class MovieResult(val title: String, val released: Long, val actors: List<String>)
-
-        val records = mutableListOf<MovieResult>()
         val expectedRecords = 38
 
         // Neo4jService.execute...
         neo4jService.run {
+            val records = mutableListOf<MovieResult>()
             execute(query) { result ->
                 while (result.hasNext()) {
                     result.next()
-                            .also { LOG.info { it } }
+                            .also { logger.info { it } }
                             .also {
                                 records.add(MovieResult(
-                                        it["title"].toString(),
-                                        it["released"] as Long,
-                                        it["actors"] as List<String>))
+                                        title = it["title"].toString(),
+                                        released = it["released"] as Long,
+                                        actors = (it["actors"] as List<String>).map { PersonResult(name = it) }.toMutableList(),
+                                        expectingNull = it["expectingNull"]?.toString()
+                                ))
                             }
                 }
             }
-            records.forEach { LOG.info { it } }
-            Assertions.assertThat(records.size).isEqualTo(expectedRecords)
+            assertThat(records.size).isEqualTo(expectedRecords)
+            SoftAssertions().apply {
+                records.forEach {
+                    logger.info { it }
+                    assertThat(it.id == null || it.id == 0L).isTrue
+                    assertThat(it.title).isNotNull
+                    assertThat(it.released).isGreaterThan(0L)
+                    assertThat(it.actors).isNotEmpty
+                    assertThat(it.expectingNull).isNull()
+                }
+            }.assertAll()
         }
 
         // Neo4jService.query...
         neo4jService.run {
-            query(query) { record ->
-                LOG.info { record }
-                MovieResult(
-                        record.asString("title")!!,
-                        record.asLong("released", 0L),
-                        record.asList("actors"))
+            val records = query(query) { record ->
+                logger.info { record }
+                record.toMovieResult()
             }
-            records.forEach { LOG.info { it } }
-            Assertions.assertThat(records.size).isEqualTo(expectedRecords)
+            assertThat(records.size).isEqualTo(expectedRecords)
+            SoftAssertions().apply {
+                records.forEach {
+                    logger.info { it }
+                    assertThat(it.id == null || it.id == 0L).isTrue
+                    assertThat(it.title).isNotNull
+                    assertThat(it.released).isGreaterThan(0L)
+                    assertThat(it.actors).isNotEmpty
+                    assertThat(it.expectingNull).isNull()
+                }
+            }.assertAll()
         }
     }
 
@@ -115,13 +153,6 @@ abstract class Neo4jServiceBasicTest(override val neo4jService: Neo4jService)
 
         val query = "match (m:Movie)-[:DIRECTED]-(d:Person) return m, d"
 
-        data class PersonResult(val id: Long, val name: String, val born: Long)
-        data class MovieResult(val id: Long,
-                               val title: String,
-                               val released: Long,
-                               val actors: MutableList<PersonResult>,
-                               val directors: MutableList<PersonResult>)
-
         val mapMovies = mutableMapOf<Long, MovieResult>()
         val mapDirectors = mutableMapOf<Long, PersonResult>()
         val expectedRecords = 38
@@ -131,13 +162,13 @@ abstract class Neo4jServiceBasicTest(override val neo4jService: Neo4jService)
             execute(query) { result ->
                 while (result.hasNext()) {
                     result.next()
-                            .also { LOG.info { it } }
+                            .also { logger.info { it } }
                             .also { record ->
 
                                 val movie = (record["m"] as Neo4jServiceRecord)
                                 val director = (record["d"] as Neo4jServiceRecord)
-                                LOG.info { "movieId=${movie["id"]} directorId=${director["id"]}" }
-                                LOG.info { "movie.labels=${movie["labels"]} director.labels=${director["labels"]}" }
+                                logger.info { "movieId=${movie["id"]} directorId=${director["id"]}" }
+                                logger.info { "movie.labels=${movie["labels"]} director.labels=${director["labels"]}" }
 
                                 if (!mapDirectors.containsKey(director["id"] as Long))
                                     mapDirectors[director["id"] as Long] = PersonResult(director["id"] as Long,
@@ -154,20 +185,20 @@ abstract class Neo4jServiceBasicTest(override val neo4jService: Neo4jService)
                                 mapMovies[movie["id"] as Long]?.directors?.add(mapDirectors[director["id"] as Long]!!)
                             }
                 }
-                Assertions.assertThat(mapMovies.size).isEqualTo(expectedRecords)
+                assertThat(mapMovies.size).isEqualTo(expectedRecords)
             }
         }
 
         // Neo4jService.query...
         neo4jService.run {
             query(query) { record ->
-                LOG.info { record }
+                logger.info { record }
                 val movie = record.asNode("m")!!
                 val director = record.asNode("d")!!
-                LOG.info { "movieId=${movie.id()} directorId=${director.id()}" }
-                LOG.info { "movie.labels=${movie.labels()} director.labels=${director.labels()}" }
+                logger.info { "movieId=${movie.id()} directorId=${director.id()}" }
+                logger.info { "movie.labels=${movie.labels()} director.labels=${director.labels()}" }
 
-                if (!mapDirectors.containsKey(director["id"]))
+                if (!mapDirectors.containsKey(director.id()))
                     mapDirectors[director.id()] = PersonResult(director.id(),
                             director.asString("name")!!,
                             director.asLong("born", 0L))
@@ -181,7 +212,7 @@ abstract class Neo4jServiceBasicTest(override val neo4jService: Neo4jService)
 
                 mapMovies[movie.id()]?.directors?.add(mapDirectors[director.id()]!!)
             }
-            Assertions.assertThat(mapMovies.size).isEqualTo(expectedRecords)
+            assertThat(mapMovies.size).isEqualTo(expectedRecords)
         }
     }
 }

@@ -50,7 +50,6 @@ interface Neo4jServiceRecord {
 
     fun id() = asLong("id")
     fun labels() = asList<String>("labels")
-
 }
 
 
@@ -69,11 +68,7 @@ val emptyNeo4jServiceRecord = object : Neo4jServiceRecord {
 
 class Neo4jMapRecord(val template: Map<String, Any>, vararg more: Pair<String, Any>) : Neo4jServiceRecord {
 
-    val record: Map<String, Any>
-
-    init {
-        record = mutableMapOf<String, Any>().also { it.putAll(template) }.also { it.putAll(more) }.toMap()
-    }
+    val record: Map<String, Any> = mutableMapOf<String, Any>().also { it.putAll(template) }.also { it.putAll(more) }.toMap()
 
     override fun keys(): List<String> = record.entries.map { it.key }
     override fun values(): List<Any> = record.entries.map { it.value }
@@ -84,6 +79,7 @@ class Neo4jMapRecord(val template: Map<String, Any>, vararg more: Pair<String, A
     override fun size(): Int = record.size
     override fun asMap(): Map<String, Any> = record
     override fun fields(): List<Pair<String, Any>> = record.entries.map { Pair(it.key, it.value) }
+    override fun toString(): String = super.toString() + keys()
 }
 
 
@@ -129,8 +125,8 @@ interface Neo4jService {
     /**
      * Query for a list of records
      *
-     * @param cypher - the cypher query string
-     * @param params - the map of cypher query parameters
+     * @param cypher - the append query string
+     * @param params - the map of append query parameters
      * @param mapper - the record mapper to convert Neo4jServiceRecord objects into <T> objects
      * @return list of <T> objects; otherwise empty list
      */
@@ -147,8 +143,8 @@ interface Neo4jService {
     /**
      * Query for an object
      *
-     * @param cypher - the cypher query string
-     * @param params - the map of cypher query parameters
+     * @param cypher - the append query string
+     * @param params - the map of append query parameters
      * @param mapper - the record mapper to convert the first Neo4jServiceRecord object into <T> object;
      * null to take the singular value returned as a primitive
      * @return the object result

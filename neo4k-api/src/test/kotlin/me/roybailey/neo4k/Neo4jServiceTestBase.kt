@@ -1,15 +1,18 @@
-package me.roybailey.neo4k.api
+package me.roybailey.neo4k
 
+import me.roybailey.neo4k.api.Neo4jApoc
+import me.roybailey.neo4k.api.Neo4jService
+import me.roybailey.neo4k.api.Neo4jTestQueries
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInfo
 
 
-abstract class BaseNeo4jServiceTest(
+abstract class Neo4jServiceTestBase(
         open val neo4jService: Neo4jService,
         val neo4jApoc: Neo4jApoc = Neo4jApoc(neo4jService),
         val testQueries: Neo4jTestQueries = Neo4jTestQueries(neo4jService)
-) : BaseTest() {
+) : UnitTestBase() {
 
 
     @BeforeEach

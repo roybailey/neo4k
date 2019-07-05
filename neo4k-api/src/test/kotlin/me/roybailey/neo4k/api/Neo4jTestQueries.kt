@@ -1,5 +1,6 @@
 package me.roybailey.neo4k.api
 
+import me.roybailey.neo4k.Neo4jServiceTestBase
 import mu.KotlinLogging
 import org.assertj.core.api.Assertions
 import java.io.File
@@ -22,7 +23,7 @@ class Neo4jTestQueries(val neo4jService: Neo4jService) {
         val countBefore: Long = neo4jService.queryForObject("match (n) return count(n)")!!
         LOG.info { "graph count before movies loaded = $countBefore" }
 
-        val cypher = BaseNeo4jServiceTest::class.java.getResource("/cypher/create-movies.cypher").readText()
+        val cypher = Neo4jServiceTestBase::class.java.getResource("/cypher/create-movies.cypher").readText()
         neo4jService.execute(cypher) {
             LOG.info { "Loaded Movie Graph Data" }
         }

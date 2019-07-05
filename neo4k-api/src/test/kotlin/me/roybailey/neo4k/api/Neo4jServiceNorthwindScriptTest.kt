@@ -1,5 +1,6 @@
 package me.roybailey.neo4k.api
 
+import me.roybailey.neo4k.Neo4jServiceTestBase
 import me.roybailey.neo4k.util.MarkdownProperties
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -9,7 +10,7 @@ import org.junit.jupiter.api.Test
  * These tests use queries from the Neo4j `play: northwind` tutorial
  */
 abstract class Neo4jServiceNorthwindScriptTest(final override val neo4jService: Neo4jService)
-    : BaseNeo4jServiceTest(neo4jService) {
+    : Neo4jServiceTestBase(neo4jService) {
 
     private val expectedNumberOfProducts = 77L
     private val expectedNumberOfCategories = 8L
@@ -24,7 +25,7 @@ abstract class Neo4jServiceNorthwindScriptTest(final override val neo4jService: 
     fun `should load northwind dataset through asciidoc script`() {
 
         val queries = MarkdownProperties.loadFromClasspath("/queries/northwind.adoc", this)
-        queries.entries.forEachIndexed { index, query -> LOG.info { "$index) key=${query.key} value=${query.value}" } }
+        queries.entries.forEachIndexed { index, query -> logger.info { "$index) key=${query.key} value=${query.value}" } }
         assertThat(queries).hasSize(4)
 
         val scripts = QueryStatement.parseQueryScriptStatements(queries)
@@ -41,7 +42,7 @@ abstract class Neo4jServiceNorthwindScriptTest(final override val neo4jService: 
         scriptProductCatalog.let { statements ->
 
             statements.forEach { statement ->
-                LOG.info { "query=\n\n$statement\n\n" }
+                logger.info { "query=\n\n$statement\n\n" }
                 neo4jService.execute(statement.query)
             }
             neo4jService.execute("match (n:Product) return count(n) as totalProducts") {
@@ -70,7 +71,7 @@ abstract class Neo4jServiceNorthwindScriptTest(final override val neo4jService: 
 
             var numberOfSuppliersFound: Long = 0
             statements[0].let { supplierProductCategories ->
-                LOG.info { "query=\n\n$supplierProductCategories\n\n" }
+                logger.info { "query=\n\n$supplierProductCategories\n\n" }
                 neo4jService.execute(supplierProductCategories.query) {
                     while (it.hasNext()) {
                         val record = it.next()
@@ -84,7 +85,7 @@ abstract class Neo4jServiceNorthwindScriptTest(final override val neo4jService: 
 
             var numberOfProduceSuppliers: Long = 0
             statements[1].let { findProduceSuppliers ->
-                LOG.info { "query=\n\n$findProduceSuppliers\n\n" }
+                logger.info { "query=\n\n$findProduceSuppliers\n\n" }
                 neo4jService.execute(findProduceSuppliers.query) {
                     while (it.hasNext()) {
                         val record = it.next()
@@ -104,7 +105,7 @@ abstract class Neo4jServiceNorthwindScriptTest(final override val neo4jService: 
         scriptCustomerOrders.let { statements ->
 
             statements.forEach { statement ->
-                LOG.info { "query=\n\n$statement\n\n" }
+                logger.info { "query=\n\n$statement\n\n" }
                 neo4jService.execute(statement.query)
             }
             neo4jService.execute("match (c:Customer) return count(c) as totalCustomers") {
@@ -127,7 +128,7 @@ abstract class Neo4jServiceNorthwindScriptTest(final override val neo4jService: 
 
             var numberOfCustomersFound: Long = 0
             statements[0].let { customerPurchases ->
-                LOG.info { "query=\n\n$customerPurchases\n\n" }
+                logger.info { "query=\n\n$customerPurchases\n\n" }
                 neo4jService.execute(customerPurchases.query) {
                     while (it.hasNext()) {
                         val record = it.next()

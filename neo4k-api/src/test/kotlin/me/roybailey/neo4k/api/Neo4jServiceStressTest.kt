@@ -52,7 +52,7 @@ class Neo4jServiceStressTest(val neo4jService: Neo4jService) {
 
         LOG.info { "Loading file: $csvFilename" }
         neo4jService.execute(Neo4jCypher.deleteAllData())
-        LOG.info { "Running cypher:\n\n$cypher\n\n" }
+        LOG.info { "Running append:\n\n$cypher\n\n" }
 
         val started = now()
 

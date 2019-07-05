@@ -1,5 +1,6 @@
 package me.roybailey.neo4k.api
 
+import me.roybailey.neo4k.Neo4jServiceTestBase
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -8,7 +9,7 @@ import org.junit.jupiter.api.Test
  * These tests use queries from the Neo4j `play: movies` tutorial
  */
 abstract class Neo4jServiceMovieTutorialTest(final override val neo4jService: Neo4jService)
-    : BaseNeo4jServiceTest(neo4jService) {
+    : Neo4jServiceTestBase(neo4jService) {
 
 
     @Test

@@ -138,7 +138,7 @@ open class Neo4jEmbeddedService(val options: Neo4jServiceOptions) : Neo4jService
                     override fun stream(): Stream<Neo4jServiceRecord> = list().stream()
                 })
             } catch (err: Exception) {
-                // don't throw errors on cypher drop commands
+                // don't throw errors on append drop commands
                 if (options.ignoreErrorOnDrop && cypher.trim().startsWith("drop", ignoreCase = true) &&
                         err.toString().toLowerCase().contains("no such index"))
                     LOG.warn { "Ignoring failed drop error on : $cypher\n${err.message}" }
