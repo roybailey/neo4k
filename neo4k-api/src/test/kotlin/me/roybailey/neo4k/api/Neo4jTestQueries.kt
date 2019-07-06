@@ -8,28 +8,28 @@ import java.io.File
 
 class Neo4jTestQueries(val neo4jService: Neo4jService) {
 
-    val LOG = KotlinLogging.logger {}
+    val logger = KotlinLogging.logger {}
 
     fun deleteAllData() {
 
         neo4jService.execute(Neo4jCypher.deleteAllData())
         val count: Long = neo4jService.queryForObject("match (n) return count(n)")!!
-        LOG.info { "graph count after purge = $count" }
+        logger.info { "graph count after purge = $count" }
         org.junit.jupiter.api.Assertions.assertEquals(0, count)
     }
 
     fun loadMovieData() {
 
         val countBefore: Long = neo4jService.queryForObject("match (n) return count(n)")!!
-        LOG.info { "graph count before movies loaded = $countBefore" }
+        logger.info { "graph count before movies loaded = $countBefore" }
 
         val cypher = Neo4jServiceTestBase::class.java.getResource("/cypher/create-movies.cypher").readText()
         neo4jService.execute(cypher) {
-            LOG.info { "Loaded Movie Graph Data" }
+            logger.info { "Loaded Movie Graph Data" }
         }
 
         val countAfter: Long = neo4jService.queryForObject("match (n) return count(n)")!!
-        LOG.info { "graph count after movies loaded = $countAfter" }
+        logger.info { "graph count after movies loaded = $countAfter" }
         Assertions.assertThat(countAfter).isGreaterThan(countBefore)
 
     }

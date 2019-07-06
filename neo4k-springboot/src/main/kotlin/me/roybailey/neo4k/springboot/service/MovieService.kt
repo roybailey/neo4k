@@ -13,7 +13,7 @@ import java.lang.RuntimeException
 @Component
 class MovieService(val neo4jService: Neo4jService) {
 
-    val LOG = KotlinLogging.logger {}
+    val logger = KotlinLogging.logger {}
 
 
     fun movies(): List<Movie> {
@@ -110,7 +110,7 @@ class MovieService(val neo4jService: Neo4jService) {
                         title = record["title"] as String,
                         released = (record["released"] as Long).toInt()
                 )
-                LOG.info { "New Movie(${movie!!.id}) created/merged for title '${movie!!.title}'" }
+                logger.info { "New Movie(${movie!!.id}) created/merged for title '${movie!!.title}'" }
             }
         }
 

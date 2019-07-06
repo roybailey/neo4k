@@ -9,7 +9,7 @@ import org.neo4j.graphdb.Node
  */
 class Neo4jQueryExecutor(val neo4jService: Neo4jService) {
 
-    val LOG = KotlinLogging.logger {}
+    val logger = KotlinLogging.logger {}
 
 
 

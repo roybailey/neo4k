@@ -18,11 +18,13 @@ abstract class Neo4jServiceApocLoadJdbcTest(final override val neo4jService: Neo
     @Test
     fun `test apocLoadJdbc using cypher`() {
 
-        val cypher = Neo4jApoc.apocLoadJdbc(
-                dbUrl = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1",
-                sql = "SELECT * FROM CSVREAD('$testDataFolder/$CSV_100_TESTDATA')",
-                process = CSV_TESTDATA_MERGE_APOC
-        )
+        val url = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1"
+        val cypher = """
+            CALL apoc.load.jdbc("$url",
+                "SELECT * FROM CSVREAD('$testDataFolder/$CSV_100_TESTDATA')"
+            ) YIELD row WITH row
+            $CSV_TESTDATA_MERGE_APOC
+          """.trimIndent()
 
         logger.info { "Running append:\n\n$cypher\n\n" }
 
@@ -36,45 +38,6 @@ abstract class Neo4jServiceApocLoadJdbcTest(final override val neo4jService: Neo
         val totalCountries = neo4jService.queryForObject<Long>("match (c:Country) return count(c) as totalCountries")!!
         assertThat(totalCountries).isEqualTo(76L)
 
-    }
-
-
-    @Test
-    fun `test apocLoadJdbcBatch using cypher`() {
-
-        val cypher = Neo4jApoc.apocLoadJdbcBatch(
-                dbUrl = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1",
-                useStaticDbUrl = false,
-                sql = "SELECT * FROM CSVREAD('$testDataFolder/$CSV_1000_TESTDATA')",
-                process = CSV_TESTDATA_MERGE_APOC,
-                batchsize = 100
-        )
-
-        logger.info { "Running append:\n\n$cypher\n\n" }
-
-        val expectedRecords = 1000L
-        val expectedProducts = 12L
-        val expectedCountries = 185L
-
-        val result = assertTimeoutPreemptively<Map<String, Any>>(ofMinutes(3)) {
-            var result = emptyMap<String, Any>()
-            neo4jService.execute(cypher, emptyMap()) { rs ->
-                result = rs.single().asMap()
-            }
-            result
-        }
-        logger.info { result }
-        assertThat(result["total"]).isEqualTo(expectedRecords)
-        assertThat(result["batches"]).isEqualTo(10L)
-        assertThat(result["failedBatches"]).isEqualTo(0L)
-
-        val totalProducts = neo4jService.queryForObject<Long>("match (p:Product) return count(p) as totalProducts")!!
-        assertThat(totalProducts).isEqualTo(expectedProducts)
-
-        logger.info { neo4jService.query("match (c:Country) return c.country as country") { it.asMap() } }
-
-        val totalCountries = neo4jService.queryForObject<Long>("match (c:Country) return count(c) as totalCountries")!!
-        assertThat(totalCountries).isEqualTo(expectedCountries)
     }
 
 

@@ -18,7 +18,7 @@ class PdfReportVisitor(
         val writer: OutputStream = ByteArrayOutputStream()
 ) {
 
-    private val log = KotlinLogging.logger {}
+    private val logger = KotlinLogging.logger {}
 
     // Capture the data
     val data = mutableListOf<MutableList<Any?>>()
@@ -27,7 +27,7 @@ class PdfReportVisitor(
 
     fun reportVisit(ctx: ReportContext): ReportContext = when (ctx.evt) {
         ReportEvent.START_REPORT -> {
-            log.info("$reportName ${ctx.evt}")
+            logger.info("$reportName ${ctx.evt}")
             ctx
         }
         ReportEvent.DATA -> {
@@ -48,7 +48,7 @@ class PdfReportVisitor(
             ctx
         }
         ReportEvent.END_REPORT -> {
-            log.info("$reportName ${ctx.evt}")
+            logger.info("$reportName ${ctx.evt}")
             writePdfReport()
             ctx
         }

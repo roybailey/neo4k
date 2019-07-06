@@ -51,17 +51,17 @@ object StandardReportVisitor {
 
 class CompositeReportVisitor(vararg args: ReportVisitor) {
 
-    private val log = KotlinLogging.logger {}
+    private val logger = KotlinLogging.logger {}
 
     val visitors = mutableListOf(StandardReportVisitor::decoders, *args)
     fun reportVisit(ctxArg: ReportContext): ReportContext {
         var ctx = ctxArg
         visitors.forEach {
             if (ctx.column >= 0)
-                log.debug("${hashCode()} ${ctx.toColumnString()}")
+                logger.debug("${hashCode()} ${ctx.toColumnString()}")
             ctx = it(ctx)
             if (ctx.column >= 0)
-                log.debug("${hashCode()} ${ctx.toColumnString()}")
+                logger.debug("${hashCode()} ${ctx.toColumnString()}")
         }
         return ctx
     }
@@ -74,7 +74,7 @@ class CompositeReportVisitor(vararg args: ReportVisitor) {
  */
 open class SimpleReportVisitor(val reportName: String) {
 
-    private val log = KotlinLogging.logger {}
+    protected val logger = KotlinLogging.logger {}
 
     val listColumns = mutableListOf<String>()
     val listColumnWidths = mutableListOf<Int>()
@@ -82,7 +82,7 @@ open class SimpleReportVisitor(val reportName: String) {
 
     open fun reportVisit(ctx: ReportContext) = when (ctx.evt) {
         ReportEvent.START_REPORT -> {
-            log.info("$reportName${ctx.evt}")
+            logger.info("$reportName${ctx.evt}")
             ctx
         }
         ReportEvent.START_ROW -> {
@@ -100,7 +100,7 @@ open class SimpleReportVisitor(val reportName: String) {
         }
         ReportEvent.END_ROW -> ctx
         ReportEvent.END_REPORT -> {
-            log.info("$reportName${ctx.evt}")
+            logger.info("$reportName${ctx.evt}")
             ctx
         }
     }

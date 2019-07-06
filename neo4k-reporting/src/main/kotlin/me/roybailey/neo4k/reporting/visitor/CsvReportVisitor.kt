@@ -17,7 +17,7 @@ open class CsvReportVisitor(
         val writer: Writer = StringWriter()
 ) {
 
-    private val log = KotlinLogging.logger {}
+    private val logger = KotlinLogging.logger {}
 
     val printer = CSVPrinter(writer, CSVFormat.RFC4180.withDelimiter(delimiter))
     val listColumns = mutableListOf<String>()
@@ -25,11 +25,11 @@ open class CsvReportVisitor(
 
     fun reportVisit(ctx: ReportContext): ReportContext = when (ctx.evt) {
         ReportEvent.START_REPORT -> {
-            log.info("$reportName${ctx.evt}")
+            logger.info("$reportName${ctx.evt}")
             ctx
         }
         ReportEvent.DATA -> {
-            //log.debug(ctx.toColumnString())
+            //logger.debug(ctx.toColumnString())
             if (ctx.row == 0) {
                 listColumns += ctx.name
             }
@@ -45,7 +45,7 @@ open class CsvReportVisitor(
             ctx
         }
         ReportEvent.END_REPORT -> {
-            log.info("$reportName${ctx.evt}")
+            logger.info("$reportName${ctx.evt}")
             printer.flush()
             ctx
         }

@@ -8,24 +8,23 @@ import org.neo4j.driver.v1.Session
 import org.neo4j.driver.v1.Value
 
 
-private val LOG = KotlinLogging.logger("Neo4jBoltTest")
-
-
 /**
-* Direct driver sample code to investigate query/result structure/performance outside the Neo4jService solution
-*/
+ * Direct driver sample code to investigate query/result structure/performance outside the Neo4jService solution
+ */
 class Neo4jBoltTest(neo4jUri: String, username: String, password: String) {
+
+    private val logger = KotlinLogging.logger {}
 
     private val driver = GraphDatabase.driver(neo4jUri, AuthTokens.basic(username, password))
 
     init {
-        LOG.info { "Created Neo4j session $driver" }
+        logger.info { "Created Neo4j session $driver" }
 
         driver.session().run(Neo4jCypher.deleteAllData())
         val cypher = Neo4jBoltTest::class.java.getResource("/cypher/create-movies.cypher").readText()
         driver.session().writeTransaction { tx -> tx.run(cypher) }
         val total = driver.session().run("match (m) return count(m) as total").single().get("total").asLong()
-        LOG.info { "Loaded movie database $total" }
+        logger.info { "Loaded movie database $total" }
     }
 
     fun session(): Session = driver.session()
@@ -41,25 +40,25 @@ class Neo4jBoltTest(neo4jUri: String, username: String, password: String) {
             val statementResult = run("match (m:Movie)-[:DIRECTED]-(d:Person) return m, d")
             while (statementResult.hasNext()) {
                 val record = statementResult.next()
-                LOG.info { record.fields() }
-                LOG.info { record.get("m")::class.qualifiedName } // org.neo4j.driver.internal.value.NodeValue
-                LOG.info { record.get("m").asObject()::class.qualifiedName } // org.neo4j.driver.internal.InternalNode
+                logger.info { record.fields() }
+                logger.info { record.get("m")::class.qualifiedName } // org.neo4j.driver.internal.value.NodeValue
+                logger.info { record.get("m").asObject()::class.qualifiedName } // org.neo4j.driver.internal.InternalNode
                 Neo4jBoltRecord(record).run {
-                    LOG.info { "Neo4jBoltRecord" }
-                    LOG.info { this["m"]!!::class.qualifiedName }
-                    LOG.info { this[0]!!::class.qualifiedName }
-                    LOG.info { this.asMap() }
-                    LOG.info { this.fields() }
-                    LOG.info { this.index("m") }
-                    LOG.info { this.keys() }
-                    LOG.info { this.size() }
-                    LOG.info { this.values() }
-                    LOG.info { "--------------" }
+                    logger.info { "Neo4jBoltRecord" }
+                    logger.info { this["m"]!!::class.qualifiedName }
+                    logger.info { this[0]!!::class.qualifiedName }
+                    logger.info { this.asMap() }
+                    logger.info { this.fields() }
+                    logger.info { this.index("m") }
+                    logger.info { this.keys() }
+                    logger.info { this.size() }
+                    logger.info { this.values() }
+                    logger.info { "--------------" }
                 }
                 val movie = (record["m"] as Value).asNode()
                 val director = (record["d"] as Value).asNode()
-                LOG.info { "movieId=${movie.id()} directorId=${director.id()}" }
-                LOG.info { "movie.labels=${movie.labels()} director.labels=${director.labels()}" }
+                logger.info { "movieId=${movie.id()} directorId=${director.id()}" }
+                logger.info { "movie.labels=${movie.labels()} director.labels=${director.labels()}" }
 
                 if (!mapDirectors.containsKey(director.id().toString()))
                     mapDirectors[director.id().toString()] = PersonResult(director.id(),
@@ -76,12 +75,12 @@ class Neo4jBoltTest(neo4jUri: String, username: String, password: String) {
             }
         }
 
-        mapMovies.forEach { LOG.info { it } }
+        mapMovies.forEach { logger.info { it } }
     }
 
     fun shutdown() {
         driver.closeAsync()
-        LOG.info { "Closed Neo4j session" }
+        logger.info { "Closed Neo4j session" }
     }
 }
 

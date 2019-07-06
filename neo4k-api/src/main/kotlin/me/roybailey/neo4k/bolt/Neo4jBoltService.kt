@@ -12,7 +12,7 @@ import java.util.stream.Stream
 @Suppress("UNCHECKED_CAST")
 open class Neo4jBoltService(val options: Neo4jServiceOptions) : Neo4jService {
 
-    private val LOG = KotlinLogging.logger {}
+    private val logger = KotlinLogging.logger {}
     private val instanceSignature = InetAddress.getLocalHost().canonicalHostName + "-" + hashCode()
 
     private val neo4jConfiguration = Neo4jService::class.java.getResource("/neo4j.conf")
@@ -20,11 +20,11 @@ open class Neo4jBoltService(val options: Neo4jServiceOptions) : Neo4jService {
     private var driver: Driver
 
     init {
-        LOG.info("########### ########## ########## ########## ##########")
-        LOG.info("Creating Neo4j Database options=$options instance=$instanceSignature")
-        LOG.info("########### ########## ########## ########## ##########")
+        logger.info("########### ########## ########## ########## ##########")
+        logger.info("Creating Neo4j Database options=$options instance=$instanceSignature")
+        logger.info("########### ########## ########## ########## ##########")
 
-        LOG.info("Created Neo4j Database from: $neo4jConfiguration")
+        logger.info("Created Neo4j Database from: $neo4jConfiguration")
 
         val neo4jUri = if (options.neo4jUri.substring(7).contains(":")) options.neo4jUri else options.neo4jUri + ":" + options.boltPort
         driver = GraphDatabase.driver(neo4jUri, AuthTokens.basic(options.username, options.password))
@@ -44,12 +44,12 @@ open class Neo4jBoltService(val options: Neo4jServiceOptions) : Neo4jService {
 
     override fun shutdown() {
         try {
-            LOG.info("########### ########## ########## ########## ##########")
-            LOG.info("Shutdown Neo4j Database options=$options instance=${hashCode()}")
-            LOG.info("########### ########## ########## ########## ##########")
+            logger.info("########### ########## ########## ########## ##########")
+            logger.info("Shutdown Neo4j Database options=$options instance=${hashCode()}")
+            logger.info("########### ########## ########## ########## ##########")
             driver.close()
         } catch (err: Exception) {
-            LOG.warn("Unable to shutdown Neo4j bolt database: $err")
+            logger.warn("Unable to shutdown Neo4j bolt database: $err")
         }
     }
 
@@ -67,7 +67,7 @@ open class Neo4jBoltService(val options: Neo4jServiceOptions) : Neo4jService {
         query("CALL dbms.procedures()") {
             record -> record.asMap()
         }.map {
-            LOG.debug { it }
+            logger.debug { it }
             it
         }.forEach { procedure ->
             procedure["name"].let { procedureName ->
@@ -75,15 +75,15 @@ open class Neo4jBoltService(val options: Neo4jServiceOptions) : Neo4jService {
                     val packageName = procedureName.toString().substring(0, procedureName.toString().lastIndexOf('.'))
                     val packageProcedures = unregisteredProcedures.filter { it.startsWith(packageName) }
                     packageProcedures.forEach {
-                        LOG.debug { "Package found $it" }
+                        logger.debug { "Package found $it" }
                         unregisteredProcedures.remove(it)
                     }
                 } else {
-                    LOG.debug { "Procedure found $procedureName" }
+                    logger.debug { "Procedure found $procedureName" }
                 }
             }
         }
-        unregisteredProcedures.forEach { LOG.error { "Stored Procedure not found using classname or package name $it" } }
+        unregisteredProcedures.forEach { logger.error { "Stored Procedure not found using classname or package name $it" } }
         if (!options.ignoreProcedureNotFound && unregisteredProcedures.size > 0) {
             throw RuntimeException("Stored procedures not found $unregisteredProcedures")
         }

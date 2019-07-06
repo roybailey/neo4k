@@ -18,8 +18,6 @@ class ExcelReportVisitor(
         val workbook: HSSFWorkbook = HSSFWorkbook()
 ) : SimpleReportVisitor(reportName) {
 
-    private val log = KotlinLogging.logger {}
-
     override fun reportVisit(ctx: ReportContext): ReportContext {
         val result = super.reportVisit(ctx)
         when (ctx.evt) {
@@ -39,7 +37,7 @@ class ExcelReportVisitor(
         var row = sheet.createRow(rdx++)
         listColumns.forEachIndexed { idx, name ->
 
-            log.info { "col=$idx now=${sheet.getColumnWidth(idx)} len=${valueOf(name).length} cal=${listColumnWidths[idx]} def=${sheet.defaultColumnWidth}" }
+            logger.info { "col=$idx now=${sheet.getColumnWidth(idx)} len=${valueOf(name).length} cal=${listColumnWidths[idx]} def=${sheet.defaultColumnWidth}" }
 
             // seems inconsistent to calculate new widths for different platforms
             // so using the defaultWidth as more reliable measure of ~7 characters

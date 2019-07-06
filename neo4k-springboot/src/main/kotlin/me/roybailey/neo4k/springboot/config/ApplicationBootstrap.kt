@@ -11,10 +11,10 @@ open class ApplicationBootstrap(
         val neo4jBootstrap: Neo4jBootstrap
 ) : ApplicationListener<ApplicationReadyEvent> {
 
-    private val LOG = KotlinLogging.logger {}
+    private val logger = KotlinLogging.logger {}
 
     override fun onApplicationEvent(event: ApplicationReadyEvent) {
-        LOG.info { "onApplicationEvent($event)" }
+        logger.info { "onApplicationEvent($event)" }
         neo4jBootstrap.initializeGraph()
     }
 }

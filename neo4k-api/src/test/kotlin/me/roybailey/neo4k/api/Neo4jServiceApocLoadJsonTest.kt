@@ -13,22 +13,18 @@ abstract class Neo4jServiceApocLoadJsonTest(final override val neo4jService: Neo
     : Neo4jServiceTestBase(neo4jService) {
 
 
-    private fun cypherSample() = Neo4jApoc.apocLoadJson(
-            url = "https://api.stackexchange.com/2.2/questions?pagesize=100&order=desc&sort=creation&tagged=neo4j&site=stackoverflow&filter=!5-i6Zw8Y)4W7vpy91PMYsKM-k9yzEsSC1_Uxlf",
-            process = """
-                UNWIND value.items AS item
-                RETURN item.title, item.owner, item.creation_date, keys(item)
-            """.trimIndent()
-    )
-
-
     /**
      * Tests the direct Neo4jService query execution which returns Neo4j Result object
      */
     @Test
     fun `test apocLoadJson using cypher`() {
 
-        val cypher = cypherSample()
+        val url = "https://api.stackexchange.com/2.2/questions?pagesize=100&order=desc&sort=creation&tagged=neo4j&site=stackoverflow&filter=!5-i6Zw8Y)4W7vpy91PMYsKM-k9yzEsSC1_Uxlf"
+        val cypher = """
+            CALL apoc.load.jsonParams("$url",{},null) YIELD value WITH value
+            UNWIND value.items AS item
+            RETURN item.title, item.owner, item.creation_date, keys(item)
+            """.trimIndent()
 
         logger.info { "Running append:\n\n$cypher\n\n" }
 

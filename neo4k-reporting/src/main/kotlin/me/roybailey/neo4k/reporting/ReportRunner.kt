@@ -39,7 +39,7 @@ interface ReportRunner {
  */
 class Neo4kReportRunner(val neo4jService: Neo4jService) : ReportRunner {
 
-    private val log = KotlinLogging.logger {}
+    private val logger = KotlinLogging.logger {}
 
 
     fun getSafeValue(value: Any?): Any = when (value) {
@@ -73,7 +73,7 @@ class Neo4kReportRunner(val neo4jService: Neo4jService) : ReportRunner {
                 val name = column.name
                 var value = record[name]
                 if (value == null) {
-                    log.warn { "ReportRunner couldn't find value for $name in row ${ctx.row} " }
+                    logger.warn { "ReportRunner couldn't find value for $name in row ${ctx.row} " }
                 }
                 ctx = ctx.copy(evt = ReportEvent.DATA)
                 ctx = visitor(ctx.copy(column = ctx.column + 1, name = name, value = getSafeValue(value)))

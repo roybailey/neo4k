@@ -16,7 +16,7 @@ import java.util.stream.Stream
 @Suppress("UNCHECKED_CAST")
 open class Neo4jEmbeddedService(val options: Neo4jServiceOptions) : Neo4jService {
 
-    private val LOG = KotlinLogging.logger {}
+    private val logger = KotlinLogging.logger {}
     private val instanceSignature = InetAddress.getLocalHost().canonicalHostName + "-" + hashCode()
 
     private val neo4jConfiguration = Neo4jService::class.java.getResource("/neo4j.conf")
@@ -26,16 +26,16 @@ open class Neo4jEmbeddedService(val options: Neo4jServiceOptions) : Neo4jService
 
     init {
         val (neo4jUri, boltPort) = options
-        LOG.info("########### ########## ########## ########## ##########")
-        LOG.info("Creating Neo4j Database with neo4jUri=$neo4jUri instance=$instanceSignature")
-        LOG.info("########### ########## ########## ########## ##########")
+        logger.info("########### ########## ########## ########## ##########")
+        logger.info("Creating Neo4j Database with neo4jUri=$neo4jUri instance=$instanceSignature")
+        logger.info("########### ########## ########## ########## ##########")
 
         neo4jDatabaseFolder = File(when {
             neo4jUri.trim().isEmpty() -> createTempDir("${Neo4jService::class.simpleName}-", "-$instanceSignature").canonicalPath
             neo4jUri.startsWith("file://") -> File(neo4jUri.substring("file://".length)).canonicalPath
             else -> throw IllegalArgumentException("neo4jUri must be file:// based as only embedded instance supported")
         }.replace("{timestamp}", now().toString()) + "/graph.db")
-        LOG.info("Creating Neo4j Database at $neo4jDatabaseFolder")
+        logger.info("Creating Neo4j Database at $neo4jDatabaseFolder")
 
         val graphDbBuilder = GraphDatabaseFactory()
                 .newEmbeddedDatabaseBuilder(neo4jDatabaseFolder)
@@ -49,22 +49,22 @@ open class Neo4jEmbeddedService(val options: Neo4jServiceOptions) : Neo4jService
                     .setConfig(bolt.enabled, "true")
                     .setConfig(bolt.listen_address, boltListenAddress)
                     .setConfig(bolt.advertised_address, boltAdvertisedAddress)
-            LOG.info("Creating Neo4j Bolt Connector on Port : $boltPort")
-            LOG.info("Creating Neo4j Bolt Listen Address : $boltListenAddress")
-            LOG.info("Creating Neo4j Bolt Advertised Address : $boltAdvertisedAddress")
+            logger.info("Creating Neo4j Bolt Connector on Port : $boltPort")
+            logger.info("Creating Neo4j Bolt Listen Address : $boltListenAddress")
+            logger.info("Creating Neo4j Bolt Advertised Address : $boltAdvertisedAddress")
         }
 
         try {
             graphDb = graphDbBuilder.newGraphDatabase()
         } catch (err: Exception) {
-            LOG.error("########### ########## ########## ########## ##########")
-            LOG.error("!!!!!!!!!! Error creating Neo4j Database !!!!!!!!!!")
-            LOG.error("Error creating Neo4j Database", err)
-            LOG.error("########### ########## ########## ########## ##########")
+            logger.error("########### ########## ########## ########## ##########")
+            logger.error("!!!!!!!!!! Error creating Neo4j Database !!!!!!!!!!")
+            logger.error("Error creating Neo4j Database", err)
+            logger.error("########### ########## ########## ########## ##########")
             System.exit(-1)
         }
 
-        LOG.info("Created Neo4j Database from: $neo4jConfiguration")
+        logger.info("Created Neo4j Database from: $neo4jConfiguration")
 
         // Registers a shutdown hook for the Neo4j instance so that it
         // shuts down nicely when the VM exits (even if you "Ctrl-C" the
@@ -82,12 +82,12 @@ open class Neo4jEmbeddedService(val options: Neo4jServiceOptions) : Neo4jService
 
     override fun shutdown() {
         try {
-            LOG.info("########### ########## ########## ########## ##########")
-            LOG.info("Shutdown Neo4j Database options=$options instance=${hashCode()}")
-            LOG.info("########### ########## ########## ########## ##########")
+            logger.info("########### ########## ########## ########## ##########")
+            logger.info("Shutdown Neo4j Database options=$options instance=${hashCode()}")
+            logger.info("########### ########## ########## ########## ##########")
             graphDb.shutdown()
         } catch (err: Exception) {
-            LOG.warn("Unable to shutdown Neo4j embedded database: $err")
+            logger.warn("Unable to shutdown Neo4j embedded database: $err")
         }
     }
 
@@ -141,7 +141,7 @@ open class Neo4jEmbeddedService(val options: Neo4jServiceOptions) : Neo4jService
                 // don't throw errors on append drop commands
                 if (options.ignoreErrorOnDrop && cypher.trim().startsWith("drop", ignoreCase = true) &&
                         err.toString().toLowerCase().contains("no such index"))
-                    LOG.warn { "Ignoring failed drop error on : $cypher\n${err.message}" }
+                    logger.warn { "Ignoring failed drop error on : $cypher\n${err.message}" }
                 else
                     throw err
             } finally {
