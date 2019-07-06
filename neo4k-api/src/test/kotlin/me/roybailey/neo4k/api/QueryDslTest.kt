@@ -2,7 +2,7 @@ package me.roybailey.neo4k.api
 
 import me.roybailey.neo4k.UnitTestBase
 import me.roybailey.neo4k.api.Neo4jApoc.Companion.apocGetStaticAsJson
-import me.roybailey.neo4k.api.ScriptDsl.quote
+import me.roybailey.neo4k.api.Neo4jApoc.Companion.apocGetStaticAsString
 import me.roybailey.neo4k.api.ScriptDsl.scriptLibrary
 import me.roybailey.neo4k.api.ScriptDsl.toAsciiDoc
 import org.assertj.core.api.SoftAssertions
@@ -135,7 +135,7 @@ class QueryDslTest : UnitTestBase() {
                     apocLoadJson {
                         url = "API_ROOT"
                         headers = mutableMapOf("Authorization" to "API_AUTH")
-                        path = quote("/products")
+                        path = "/products".quoted()
                         cypher {
                             append("""
                                 MERGE (prd:Product { productId: row.productId })
@@ -224,5 +224,137 @@ class QueryDslTest : UnitTestBase() {
         saveScriptStatements(actual, scriptName)
     }
 
+    @Test
+    fun `test query dsl apocLoadJdbc cypher statement`(testInfo: TestInfo) {
+
+        val scriptName = testInfo.testMethod.get().name
+        val actual = scriptLibrary {
+            script(scriptName) {}
+            statement {
+                description = "Load all Products with cypher string"
+                query = """
+                    CALL apoc.static.get('DBURL') yield value WITH apoc.convert.toString(value) AS URL
+                    CALL apoc.load.jdbc(URL,
+                        "SELECT * FROM PRODUCTS"
+                    ) YIELD row WITH row
+                    MERGE (prd:Product { productId: row.productId })
+                       ON CREATE SET prd += row
+                    RETURN count(prd) as totalProducts
+                    """.toNeo4j().trimIndent()
+            }
+            statement {
+                description = "Load all Products with cypher dsl"
+                cypher {
+                    append(apocGetStaticAsString("DBURL", "URL"))
+                    apocLoadJdbc {
+                        url = "URL"
+                        select = "SELECT * FROM PRODUCTS"
+                        cypher = """
+                                MERGE (prd:Product { productId: row.productId })
+                                   ON CREATE SET prd += row
+                                RETURN count(prd) as totalProducts
+                                """
+                    }
+                }
+            }
+        }
+
+        logScriptStatements(actual)
+
+        SoftAssertions().apply {
+            assertThat(actual.size).isEqualTo(1)
+            assertThat(actual.keys).contains(scriptName)
+            assertThat(actual[scriptName]).hasSize(2)
+            assertThat(actual[scriptName]!![1].query).isEqualTo(actual[scriptName]!![0].query)
+        }.assertAll()
+
+        saveScriptStatements(actual, scriptName)
+    }
+
+
+    @Test
+    fun `test query dsl apocPeriodicLoadJdbc cypher statement`(testInfo: TestInfo) {
+
+        val scriptName = testInfo.testMethod.get().name
+        val actual = scriptLibrary {
+            script(scriptName) {}
+            statement {
+                description = "Load all Products (periodic commit) with cypher string"
+                query = """
+                    CALL apoc.periodic.iterate("
+                        CALL apoc.static.get('DBURL') yield value WITH apoc.convert.toString(value) AS URL
+                        CALL apoc.load.jdbc(URL,"SELECT * FROM PRODUCTS") YIELD row WITH row
+                    ","
+                        MERGE (prd:Product { productId: row.productId })
+                          SET prd.status = row.status
+                        MERGE (ptype:ProductType { productType: row.productType })
+                        MERGE (prd)-[:OF]->(ptype)
+                        WITH row, prd
+                        MATCH (sup { supplierId: row.supplierId })
+                        MERGE (prd)-[:BELONGS_TO]->(sup)
+                        RETURN count(prd)
+                    ", {batchSize:100, parallel:false})
+                    """.toNeo4j().trimIndent()
+            }
+            statement {
+                description = "Load all Products (periodic commit) with cypher dsl"
+                cypher {
+                    apocPeriodicIterate {
+                        batchSize = 100
+                        parallel = false
+                        outer = """
+                                CALL apoc.static.get('DBURL') yield value WITH apoc.convert.toString(value) AS URL
+                                CALL apoc.load.jdbc(URL,"SELECT * FROM PRODUCTS") YIELD row WITH row
+                                """.trimIndent()
+                        inner = """
+                                MERGE (prd:Product { productId: row.productId })
+                                  SET prd.status = row.status
+                                MERGE (ptype:ProductType { productType: row.productType })
+                                MERGE (prd)-[:OF]->(ptype)
+                                WITH row, prd
+                                MATCH (sup { supplierId: row.supplierId })
+                                MERGE (prd)-[:BELONGS_TO]->(sup)
+                                RETURN count(prd)
+                                """.trimIndent()
+                    }
+                }
+            }
+            statement {
+                description = "Load all Products (periodic commit) with cypher dsl"
+                cypher {
+                    apocPeriodicIterate {
+                        batchSize = 100
+                        parallel = false
+                        outer {
+                            append("CALL apoc.static.get('DBURL') yield value WITH apoc.convert.toString(value) AS URL")
+                            append("CALL apoc.load.jdbc(URL,\"SELECT * FROM PRODUCTS\") YIELD row WITH row")
+                        }
+                        inner = """
+                                MERGE (prd:Product { productId: row.productId })
+                                  SET prd.status = row.status
+                                MERGE (ptype:ProductType { productType: row.productType })
+                                MERGE (prd)-[:OF]->(ptype)
+                                WITH row, prd
+                                MATCH (sup { supplierId: row.supplierId })
+                                MERGE (prd)-[:BELONGS_TO]->(sup)
+                                RETURN count(prd)
+                                """.trimIndent()
+                    }
+                }
+            }
+        }
+
+        logScriptStatements(actual)
+
+        SoftAssertions().apply {
+            assertThat(actual.size).isEqualTo(1)
+            assertThat(actual.keys).contains(scriptName)
+            assertThat(actual[scriptName]).hasSize(3)
+            assertThat(actual[scriptName]!![1].query).isEqualTo(actual[scriptName]!![0].query)
+            assertThat(actual[scriptName]!![2].query).isEqualTo(actual[scriptName]!![0].query)
+        }.assertAll()
+
+        saveScriptStatements(actual, scriptName)
+    }
 }
 

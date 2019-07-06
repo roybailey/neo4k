@@ -10,6 +10,17 @@ import java.io.Writer
 
 typealias ScriptLibrary = MutableMap<String, MutableList<QueryStatement>>
 
+fun String.escapeDoubleQuotes() = this.replace("\"","\\\"")
+fun String.quoted(doubleQuotes: Boolean = true, quoted: Boolean = true) =
+        when (quoted) {
+            true -> when (doubleQuotes) {
+                true -> "\"$this\""
+                else -> "\'$this\'"
+            }
+            else -> this
+        }
+
+
 object ScriptDsl {
 
     private fun trimAndJoin(vararg args: String) = args.map { it.trimIndent() }.joinToString(separator = "\n") { it.trimIndent() }
@@ -21,18 +32,9 @@ object ScriptDsl {
         return params.joinToString(",")
     }
 
-    fun quote(text: String, doubleQuotes: Boolean = true, quoted: Boolean = true) =
-            when (quoted) {
-                true -> when (doubleQuotes) {
-                    true -> "\"$text\""
-                    else -> "\'$text\'"
-                }
-                else -> text
-            }
-
-    //
+    // ------------------------------------------------------------
     // Root DSL starter methods
-    //
+    // ------------------------------------------------------------
 
     fun scriptLibrary(init: ScriptDefinitionContext.() -> Unit): ScriptLibrary {
         val context = ScriptDefinitionContext().apply(init)
@@ -41,6 +43,16 @@ object ScriptDsl {
 
     fun apocLoadJson(init: ApocLoadJsonContext.() -> Unit): String {
         val context = ApocLoadJsonContext().apply(init)
+        return context.build()
+    }
+
+    fun apocLoadJdbc(init: ApocLoadJdbcContext.() -> Unit): String {
+        val context = ApocLoadJdbcContext().apply(init)
+        return context.build()
+    }
+
+    fun apocPeriodicIterate(init: ApocPeriodicIterateContext.() -> Unit): String {
+        val context = ApocPeriodicIterateContext().apply(init)
         return context.build()
     }
 
@@ -105,6 +117,11 @@ object ScriptDsl {
             query.append(context.build())
         }
 
+        fun apocLoadJdbc(init: ApocLoadJdbcContext.() -> Unit) {
+            val context = ApocLoadJdbcContext().apply(init)
+            query.append(context.build())
+        }
+
         fun apocPeriodicIterate(init: ApocPeriodicIterateContext.() -> Unit) {
             val context = ApocPeriodicIterateContext().apply(init)
             query.append(context.build())
@@ -118,7 +135,8 @@ object ScriptDsl {
         var headers = mutableMapOf<String, String>()
         var payload: String? = null
         var path: String? = null
-        var cypher: String? = "PROCESS_NOT_ASSIGNED"
+        var with: String = "WITH value"
+        var cypher: String = ""
 
         fun cypher(init: QueryContext.() -> Unit) {
             val context = QueryContext().apply(init)
@@ -135,8 +153,30 @@ object ScriptDsl {
         }
 
         fun build(): String = trimAndJoin(
-                "CALL apoc.load.jsonParams(${params()}) YIELD value WITH value",
-                cypher!!
+                "CALL apoc.load.jsonParams(${params()}) YIELD value $with",
+                cypher
+        )
+    }
+
+
+    class ApocLoadJdbcContext {
+
+        var url: String = ""
+        var select: String = "LOAD_JDBC_SELECT_NOT_ASSIGNED"
+        var with: String = "WITH row"
+        var cypher: String = ""
+
+        fun cypher(init: QueryContext.() -> Unit) {
+            val context = QueryContext().apply(init)
+            this.cypher = context.build()
+        }
+
+        fun build(): String = trimAndJoin(
+                """
+                CALL apoc.load.jdbc($url,
+                ${select.trimIndent().escapeDoubleQuotes().quoted().prependIndent("    ")}
+                ) YIELD row $with""".trimMargin(),
+                cypher
         )
     }
 
@@ -150,12 +190,12 @@ object ScriptDsl {
 
         fun outer(init: QueryContext.() -> Unit) {
             val context = QueryContext().apply(init)
-            this.outer = context.build()
+            this.outer = context.build().trimIndent()
         }
 
         fun inner(init: QueryContext.() -> Unit) {
             val context = QueryContext().apply(init)
-            this.inner = context.build()
+            this.inner = context.build().trimIndent()
         }
 
         fun build(): String = arrayOf(
