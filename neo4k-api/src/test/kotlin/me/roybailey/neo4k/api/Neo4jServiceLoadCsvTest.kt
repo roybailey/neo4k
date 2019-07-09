@@ -14,7 +14,7 @@ abstract class Neo4jServiceLoadCsvTest(override val neo4jService: Neo4jService)
     fun `should load csv file without errors`() {
 
         val cypher = Neo4jCypher.loadCsvWithHeaders(
-                fileUrl = "file://$testDataFolder/$CSV_100_TESTDATA",
+                fileUrl = "file://$projectTestDataFolder/$CSV_100_TESTDATA",
                 withLineCypher = CSV_TESTDATA_MERGE_NEO4J)
 
         logger.info { "Running append:\n\n$cypher\n\n" }
@@ -22,10 +22,10 @@ abstract class Neo4jServiceLoadCsvTest(override val neo4jService: Neo4jService)
         neo4jService.execute(cypher, emptyMap())
 
         val totalProducts = neo4jService.queryForObject<Long>("match (p:Product) return count(p) as totalProducts")!!
-        Assertions.assertThat(totalProducts).isEqualTo(12L)
+        Assertions.assertThat(totalProducts).isEqualTo(100L)
 
-        val totalCountries = neo4jService.queryForObject<Long>("match (c:Country) return count(c) as totalCountries")!!
-        Assertions.assertThat(totalCountries).isEqualTo(76L)
+        val totalSuppliers = neo4jService.queryForObject<Long>("match (s:Supplier) return count(s) as totalSuppliers")!!
+        Assertions.assertThat(totalSuppliers).isEqualTo(10L)
 
     }
 

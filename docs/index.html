@@ -450,8 +450,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_options_for_configuring_neo4j_service_adaptor">Options for configuring Neo4j Service adaptor</a></li>
 <li><a href="#_connecting_to_the_embedded_instance_from_neo4j_browser">Connecting to the embedded instance from Neo4j Browser</a></li>
 <li><a href="#_code_querystatement_code_utilities"><code>QueryStatement</code> utilities</a></li>
-<li><a href="#_code_neo4jcypher_code_utilities"><code>Neo4jCypher</code> utilities</a></li>
-<li><a href="#_code_neo4japoc_code_utilities"><code>Neo4jApoc</code> utilities</a></li>
+<li><a href="#_code_neo4jcypher_code_dsl"><code>Neo4jCypher</code> DSL</a></li>
 </ul>
 </li>
 <li><a href="#_developers_guide">Developers Guide</a>
@@ -732,43 +731,13 @@ apoc.import.file.enabled=true</code></pre>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_code_neo4jcypher_code_utilities"><code>Neo4jCypher</code> utilities</h3>
+<h3 id="_code_neo4jcypher_code_dsl"><code>Neo4jCypher</code> DSL</h3>
+<div class="quoteblock">
+<blockquote>
 <div class="paragraph">
-<p>Utility object for constructing common cypher queries.  For example&#8230;&#8203;</p>
+<p>TODO</p>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code>Neo4jCypher.loadCsvWithHeaders("data.csv","""
-MERGE (c:Country {country: apoc.text.toUpperCase(COALESCE(row.Country, 'unknown'))})
-              SET c.region = row.Region
-            MERGE (p:Product {product: row.`Item Type`})
-            MERGE (o:Order {orderId: row.`Order ID`})
-              SET o.salesChannel = row.`Sales Channel`,
-                  o.orderPriority = row.`Order Priority`,
-                  o.orderDate = row.`Order Date`,
-                  o.shipDate = row.`Ship Date`,
-                  o.quantity = row.`Units Sold`,
-                  o.unitPrice = row.`Unit Price`
-              MERGE (o)-[:FROM]-&gt;(c)
-              MERGE (o)-[:OF]-&gt;(p)
-              RETURN count(p) as totalProducts
-""".trimIndent())</code></pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_code_neo4japoc_code_utilities"><code>Neo4jApoc</code> utilities</h3>
-<div class="paragraph">
-<p>Utility object for constructing common cypher queries from apoc library.  For example&#8230;&#8203;</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code>    val neo4jApoc = Neo4jApoc(myNeo4jService)
-    // save a static value through apoc query
-    neo4jApoc.setStatic("test", "hello apoc")
-    // load a static value through apoc query
-    val value = neo4jApoc.getStatic("test")</code></pre>
-</div>
+</blockquote>
 </div>
 </div>
 </div>
@@ -869,7 +838,7 @@ dbms.connector.https.listen_address=:7973</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2019-06-27 15:53:22 BST
+Last updated 2019-07-09 12:49:48 BST
 </div>
 </div>
 </body>

@@ -14,9 +14,12 @@ abstract class UnitTestBase {
     val logger = KotlinLogging.logger(this.javaClass.name)
 
     var started: Instant = now()
+
     var projectFolder = "."
     var moduleFolder = "."
-    var testDataFolder = "."
+
+    var projectTestDataFolder = "."
+    var moduleTestDataFolder = "."
 
 
     @BeforeEach
@@ -50,11 +53,14 @@ abstract class UnitTestBase {
         val rootFolder = "neo4k"
         projectFolder = cwd.substring(0, cwd.indexOf(rootFolder) + rootFolder.length)
         moduleFolder = cwd.substring(0, cwd.indexOf("/", projectFolder.length+1))
-        testDataFolder = "$moduleFolder/src/test/resources/testdata"
+        projectTestDataFolder = "$projectFolder/testdata"
+        moduleTestDataFolder = "$moduleFolder/src/test/resources/testdata"
 
         logger.info { "Using projectFolder from $projectFolder" }
         logger.info { "Using ModuleFolder from $moduleFolder" }
-        logger.info { "Using testDataFolder from $testDataFolder" }
+
+        logger.info { "Using projectTestDataFolder from $projectTestDataFolder" }
+        logger.info { "Using moduleTestDataFolder from $moduleTestDataFolder" }
     }
 
 }

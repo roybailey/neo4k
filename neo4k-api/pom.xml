@@ -24,6 +24,9 @@
         <neo4j-java-driver.version>1.7.2</neo4j-java-driver.version>
         <!-- h2 for SQL testing -->
         <h2.version>1.4.197</h2.version>
+        <ktor.version>1.2.2</ktor.version>
+        <sparkjava.version>2.5.4</sparkjava.version>
+        <javalin.version>3.1.0</javalin.version>
     </properties>
 
     <dependencies>
@@ -59,6 +62,12 @@
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <version>${h2.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.javalin</groupId>
+            <artifactId>javalin</artifactId>
+            <version>${javalin.version}</version>
             <scope>test</scope>
         </dependency>
 

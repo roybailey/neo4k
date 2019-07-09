@@ -1,6 +1,7 @@
 package me.roybailey.neo4k.h2
 
 import me.roybailey.neo4k.UnitTestBase
+import me.roybailey.neo4k.api.Neo4jTestQueries
 import org.junit.jupiter.api.Test
 import java.io.File
 import java.sql.Connection
@@ -43,7 +44,7 @@ class H2Test : UnitTestBase() {
         val connection = getDBConnection()
         var selectPreparedStatement: PreparedStatement? = null
 
-        val csvTestData = File(testDataFolder).absolutePath+"/SampleCSVFile_2kb.csv"
+        val csvTestData = File(projectTestDataFolder).absolutePath+ Neo4jTestQueries.CSV_100_TESTDATA
         val SelectQuery = "SELECT * FROM CSVREAD('$csvTestData')"
 
         logger.info { SelectQuery }

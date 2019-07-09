@@ -172,40 +172,9 @@ Utility object for loading cypher queries from AsciiDoc/markdown or regular text
 QueryStatement.parseQueryScriptStatements(cypherScriptTextWithMultipleStatements)
 ```
 
-### `Neo4jCypher` utilities
+### `Neo4jCypher` DSL
 
-Utility object for constructing common cypher queries.  For example...
-
-```
-Neo4jCypher.loadCsvWithHeaders("data.csv","""
-MERGE (c:Country {country: apoc.text.toUpperCase(COALESCE(row.Country, 'unknown'))})
-              SET c.region = row.Region
-            MERGE (p:Product {product: row.`Item Type`})
-            MERGE (o:Order {orderId: row.`Order ID`})
-              SET o.salesChannel = row.`Sales Channel`,
-                  o.orderPriority = row.`Order Priority`,
-                  o.orderDate = row.`Order Date`,
-                  o.shipDate = row.`Ship Date`,
-                  o.quantity = row.`Units Sold`,
-                  o.unitPrice = row.`Unit Price`
-              MERGE (o)-[:FROM]->(c)
-              MERGE (o)-[:OF]->(p)
-              RETURN count(p) as totalProducts
-""".trimIndent())
-```
-
-
-### `Neo4jApoc` utilities
-
-Utility object for constructing common cypher queries from apoc library.  For example...
-
-```
-    val neo4jApoc = Neo4jApoc(myNeo4jService)
-    // save a static value through apoc query
-    neo4jApoc.setStatic("test", "hello apoc")
-    // load a static value through apoc query
-    val value = neo4jApoc.getStatic("test")
-```
+> TODO
 
 
 ## Developers Guide

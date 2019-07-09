@@ -1,0 +1,47 @@
+package me.roybailey.neo4k.server
+
+import me.roybailey.neo4k.UnitTestBase
+import me.roybailey.neo4k.api.Neo4jTestQueries.Companion.JSON_100_TESTDATA
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import java.io.FileReader
+import java.net.URL
+
+
+class TestApiServerTest : UnitTestBase() {
+
+
+    val api = TestApiServer()
+
+
+    @BeforeEach
+    fun startWebApiServer() {
+        val data = FileReader("$projectTestDataFolder/$JSON_100_TESTDATA").readText()
+        api.start(data)
+    }
+
+
+    @AfterEach
+    fun stopWebApiServer() {
+        api.stop()
+    }
+
+
+    @Test
+    fun testApiServer() {
+
+        val response = try {
+            URL("${api.url}/testdata")
+                    .openStream()
+                    .bufferedReader()
+                    .use {
+                        val data = it.readText()
+                        logger.info { data }
+                    }
+        } catch (err: Exception) {
+            logger.error { err }
+            throw RuntimeException("Local test api server not working!!")
+        }
+    }
+}
