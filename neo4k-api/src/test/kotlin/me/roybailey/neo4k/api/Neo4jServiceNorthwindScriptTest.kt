@@ -1,7 +1,8 @@
 package me.roybailey.neo4k.api
 
 import me.roybailey.neo4k.Neo4jServiceTestBase
-import me.roybailey.neo4k.util.MarkdownProperties
+import me.roybailey.neo4k.dsl.MarkdownProperties
+import me.roybailey.neo4k.dsl.QueryStatement
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 

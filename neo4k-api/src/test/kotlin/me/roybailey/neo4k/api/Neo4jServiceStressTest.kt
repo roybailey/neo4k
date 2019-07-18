@@ -4,7 +4,9 @@ import me.roybailey.neo4k.api.Neo4jTestQueries.Companion.CSV_10000_TESTDATA
 import me.roybailey.neo4k.api.Neo4jTestQueries.Companion.CSV_50000_TESTDATA
 import me.roybailey.neo4k.api.Neo4jTestQueries.Companion.CSV_TESTDATA_MERGE_APOC
 import me.roybailey.neo4k.api.Neo4jTestQueries.Companion.findTestDataFile
-import me.roybailey.neo4k.api.ScriptDsl.apocLoadJdbc
+import me.roybailey.neo4k.dsl.ScriptDsl.apocLoadJdbc
+import me.roybailey.neo4k.dsl.ScriptDsl.cypherMatchAndDeleteAll
+import me.roybailey.neo4k.dsl.quoted
 import mu.KotlinLogging
 import java.time.Instant.now
 
@@ -48,7 +50,7 @@ class Neo4jServiceStressTest(val neo4jService: Neo4jService) {
         }
 
         logger.info { "Loading file: $csvFilename" }
-        neo4jService.execute(Neo4jCypher.deleteAllData())
+        neo4jService.execute(cypherMatchAndDeleteAll())
         logger.info { "Running append:\n\n$cypher\n\n" }
 
         val started = now()

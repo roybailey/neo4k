@@ -1,8 +1,5 @@
-package me.roybailey.neo4k.api
+package me.roybailey.neo4k.dsl
 
-import me.roybailey.neo4k.dsl.MarkdownProperties
-import me.roybailey.neo4k.dsl.QueryStatement
-import me.roybailey.neo4k.dsl.toNeo4j
 import me.roybailey.neo4k.testdata.UnitTestBase
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -15,6 +12,7 @@ class QueryApiTest : UnitTestBase() {
     fun `test parameter parsing regexp`() {
         """
             match (m:Movie { title : __title })
+
         """.toNeo4j().trimIndent().let {
             val paramSearch = Regex(QueryStatement.REGEX_PARAM)
             val all = paramSearch.findAll(it)
@@ -26,6 +24,7 @@ class QueryApiTest : UnitTestBase() {
         """
             match (m:Movie)
             where m.title = __title and m.released > __releasedSince
+
         """.toNeo4j().trimIndent().let {
             val paramSearch = Regex(QueryStatement.REGEX_PARAM)
             val all = paramSearch.findAll(it)
@@ -52,6 +51,7 @@ class QueryApiTest : UnitTestBase() {
             // Create indexes
             CREATE INDEX ON :Product(productID);
             CREATE INDEX ON :Category(categoryID);
+
         """.trimIndent())
         assertThat(statements).hasSize(4)
         statements[0].let {

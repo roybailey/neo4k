@@ -16,11 +16,11 @@ abstract class Neo4jServiceApocTest(
         val name = "loadApocStatic"
         val value = "test"
         // save a static value through apoc query
-        neo4jApoc.setStatic(name, value)
+        neo4jService.setStatic(name, value)
         // check the saved static value can be queried
-        Assertions.assertThat(neo4jApoc.getStatic(name)).isEqualTo(value)
+        Assertions.assertThat(neo4jService.getStatic(name)).isEqualTo(value)
         // check unknown static values return the default
-        Assertions.assertThat(neo4jApoc.getStatic("__unknown__", "hello")).isEqualTo("hello")
+        Assertions.assertThat(neo4jService.getStatic("__unknown__", "hello")).isEqualTo("hello")
     }
 
 }

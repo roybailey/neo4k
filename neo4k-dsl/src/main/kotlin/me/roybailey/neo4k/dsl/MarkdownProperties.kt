@@ -1,4 +1,4 @@
-package me.roybailey.neo4k.util
+package me.roybailey.neo4k.dsl
 
 import java.io.IOException
 import java.nio.charset.StandardCharsets

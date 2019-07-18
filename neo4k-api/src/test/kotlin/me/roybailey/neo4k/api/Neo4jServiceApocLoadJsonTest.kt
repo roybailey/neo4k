@@ -3,8 +3,10 @@ package me.roybailey.neo4k.api
 import com.fasterxml.jackson.databind.ObjectMapper
 import me.roybailey.neo4k.Neo4jServiceTestBase
 import me.roybailey.neo4k.api.Neo4jTestQueries.Companion.JSON_TESTDATA_MERGE
-import me.roybailey.neo4k.api.ScriptDsl.apocLoadJson
-import me.roybailey.neo4k.api.ScriptDsl.apocPeriodicIterate
+import me.roybailey.neo4k.dsl.ScriptDsl.apocLoadJson
+import me.roybailey.neo4k.dsl.ScriptDsl.apocPeriodicIterate
+import me.roybailey.neo4k.dsl.escapeDoubleQuotes
+import me.roybailey.neo4k.dsl.quoted
 import me.roybailey.neo4k.server.TestApiServer
 import org.assertj.core.api.SoftAssertions
 import org.junit.jupiter.api.AfterEach

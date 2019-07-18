@@ -1,6 +1,8 @@
 package me.roybailey.neo4k.api
 
 import me.roybailey.neo4k.bolt.Neo4jBoltService
+import me.roybailey.neo4k.dsl.ScriptDsl.apocGetStatic
+import me.roybailey.neo4k.dsl.ScriptDsl.apocSetStatic
 import me.roybailey.neo4k.embedded.Neo4jEmbeddedService
 import org.neo4j.procedure.Name
 import org.neo4j.procedure.UserFunction
@@ -159,6 +161,38 @@ interface Neo4jService {
             }
         }
         return result
+    }
+
+
+    /**
+     * Sets an apoc static value in the neo4j database, for use in cypher later
+     * @param key the name of the static variable to assign
+     * @param value the value to assign the static variable
+     * @return this service for chaining multiple calls
+     */
+    fun setStatic(key: String, value: Any): Neo4jService {
+        // set static global variables such as sensitive connection values...
+        execute(apocSetStatic(key, value.toString()), emptyMap())
+        val storedValue = getStatic(key, value)
+        if (storedValue != value)
+            throw RuntimeException("Failed to assign static key [$key] with value [$value], came back with [$storedValue] instead")
+        return this
+    }
+
+
+    /**
+     * Gets an apoc static value from the neo4j database
+     * @param key the name of the static variable to assign
+     * @param defaultValue the value to return if no static variable value is found (defaults to null)
+     * @return the static variable value from the database; otherwise the default value provided
+     */
+    fun getStatic(key: String, defaultValue: Any? = null): Any? {
+        var result: Any? = null
+        execute(apocGetStatic(key), emptyMap()) {
+            if (it.hasNext())
+                result = it.single()["value"]
+        }
+        return result?.let { result } ?: defaultValue
     }
 
 

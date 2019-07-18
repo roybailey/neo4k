@@ -71,6 +71,20 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>me.roybailey</groupId>
+            <artifactId>neo4k-dsl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>me.roybailey</groupId>
+            <artifactId>neo4k-testdata</artifactId>
+            <classifier>tests</classifier>
+            <type>test-jar</type>
+            <scope>test</scope>
+            <version>${project.version}</version>
+        </dependency>
+
     </dependencies>
 
     <build>

@@ -1,14 +1,9 @@
 package me.roybailey.neo4k.api
 
-import io.javalin.Javalin
 import me.roybailey.neo4k.Neo4jServiceTestBase
 import mu.KotlinLogging
 import org.assertj.core.api.Assertions
 import java.io.File
-import java.io.FileReader
-import java.net.ServerSocket
-
-
 
 
 class Neo4jTestQueries(val neo4jService: Neo4jService) {
@@ -17,7 +12,7 @@ class Neo4jTestQueries(val neo4jService: Neo4jService) {
 
     fun deleteAllData() {
 
-        neo4jService.execute(Neo4jCypher.deleteAllData())
+        neo4jService.execute(me.roybailey.neo4k.dsl.ScriptDsl.cypherMatchAndDeleteAll())
         val count: Long = neo4jService.queryForObject("match (n) return count(n)")!!
         logger.info { "graph count after purge = $count" }
         org.junit.jupiter.api.Assertions.assertEquals(0, count)

@@ -1,4 +1,4 @@
-package me.roybailey.neo4k.api
+package me.roybailey.neo4k.dsl
 
 import java.lang.Boolean.parseBoolean
 import java.lang.Integer.parseInt

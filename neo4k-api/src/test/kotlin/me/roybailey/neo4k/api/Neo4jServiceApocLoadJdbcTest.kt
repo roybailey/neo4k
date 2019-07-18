@@ -4,8 +4,10 @@ import me.roybailey.neo4k.Neo4jServiceTestBase
 import me.roybailey.neo4k.api.Neo4jTestQueries.Companion.CSV_1000_TESTDATA
 import me.roybailey.neo4k.api.Neo4jTestQueries.Companion.CSV_100_TESTDATA
 import me.roybailey.neo4k.api.Neo4jTestQueries.Companion.CSV_TESTDATA_MERGE_APOC
-import me.roybailey.neo4k.api.ScriptDsl.apocLoadJdbc
-import me.roybailey.neo4k.api.ScriptDsl.apocPeriodicIterate
+import me.roybailey.neo4k.dsl.ScriptDsl.apocLoadJdbc
+import me.roybailey.neo4k.dsl.ScriptDsl.apocPeriodicIterate
+import me.roybailey.neo4k.dsl.escapeDoubleQuotes
+import me.roybailey.neo4k.dsl.quoted
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.SoftAssertions
 import org.junit.jupiter.api.Assertions.assertTimeoutPreemptively

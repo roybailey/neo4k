@@ -1,7 +1,7 @@
 package me.roybailey.neo4k.server
 
-import me.roybailey.neo4k.UnitTestBase
 import me.roybailey.neo4k.api.Neo4jTestQueries.Companion.JSON_100_TESTDATA
+import me.roybailey.neo4k.testdata.UnitTestBase
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

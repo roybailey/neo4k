@@ -2,8 +2,6 @@ package me.roybailey.neo4k.springboot.service
 
 import me.roybailey.neo4k.api.Neo4jService
 import me.roybailey.neo4k.api.Neo4jServiceRecord
-import me.roybailey.neo4k.api.toNeo4j
-import me.roybailey.neo4k.springboot.storage.Movie
 import me.roybailey.neo4k.springboot.storage.Person
 import org.springframework.stereotype.Component
 

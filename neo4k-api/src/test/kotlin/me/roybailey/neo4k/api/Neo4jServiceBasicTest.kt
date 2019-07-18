@@ -1,6 +1,7 @@
 package me.roybailey.neo4k.api
 
 import me.roybailey.neo4k.Neo4jServiceTestBase
+import me.roybailey.neo4k.dsl.toNeo4j
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.SoftAssertions
 import org.junit.jupiter.api.Test
@@ -88,11 +89,11 @@ abstract class Neo4jServiceBasicTest(override val neo4jService: Neo4jService)
 
         testQueries.loadMovieData()
 
-        val query = Neo4jCypher.toNeo4j("""
+        val query = """
                 match (m:Movie)
                 optional match (m)-[:ACTED_IN]-(actor:Person)
                 return m.title as title, m.released as released, collect(actor.name) as actors
-        """.trimIndent())
+        """.toNeo4j().trimIndent()
 
         val expectedRecords = 38
 

@@ -34,6 +34,7 @@
 
     <modules>
         <module>neo4k-testdata</module>
+        <module>neo4k-dsl</module>
         <module>neo4k-api</module>
         <module>neo4k-reporting</module>
         <module>neo4k-springboot</module>

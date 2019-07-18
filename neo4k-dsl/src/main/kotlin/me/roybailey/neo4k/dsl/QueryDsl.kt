@@ -1,4 +1,4 @@
-package me.roybailey.neo4k.api
+package me.roybailey.neo4k.dsl
 
 import java.io.PrintWriter
 import java.io.Writer
@@ -10,7 +10,8 @@ import java.io.Writer
 
 typealias ScriptLibrary = MutableMap<String, MutableList<QueryStatement>>
 
-fun String.escapeDoubleQuotes() = this.replace("\"","\\\"")
+fun String.toNeo4j(dollar: String = "__"): String = replace(dollar, "$")
+fun String.escapeDoubleQuotes() = this.replace("\"", "\\\"")
 fun String.quoted(doubleQuotes: Boolean = true, quoted: Boolean = true) =
         when (quoted) {
             true -> when (doubleQuotes) {
@@ -31,6 +32,34 @@ object ScriptDsl {
         args.slice(minimum..args.size).forEach { if (!it.isNullOrBlank()) params += it }
         return params.joinToString(",")
     }
+
+    // ------------------------------------------------------------
+    // Standard Queries
+    // ------------------------------------------------------------
+
+    /**
+     * Matches all nodes and relationsips and deletes everything from the database.
+     * !!!warning!!! DELETES ALL DATA
+     */
+    fun cypherMatchAndDeleteAll() = "match (n) optional match (n)-[r]-() delete r,n"
+
+    /**
+     * Matches all nodes with specific label and deletes them along with their relationships to anything else.
+     * !!!warning!!! deletes all data for given label
+     * @param label to match
+     */
+    fun cypherMatchLabelAndDeleteAll(label: String) = "match (n:$label) optional match (n)-[r]-() delete r,n"
+
+    /**
+     * Matches all labels and counts their use.
+     * @return 'label' (name) and 'total' (count)
+     */
+    fun cypherMatchDistinctLabelCount() = """
+            MATCH (a) WITH DISTINCT LABELS(a) AS temp, COUNT(a) AS tempCnt
+            UNWIND temp AS label
+            RETURN label, SUM(tempCnt) AS total
+            ORDER BY label
+            """.trimIndent()
 
     // ------------------------------------------------------------
     // Root DSL starter methods
@@ -55,6 +84,51 @@ object ScriptDsl {
         val context = ApocPeriodicIterateContext().apply(init)
         return context.build()
     }
+
+    fun loadCsvWithHeaders(fileUrl: String, variable: String = "row", init: LoadCsvContext.() -> Unit): String {
+        val context = LoadCsvContext(fileUrl, variable).apply(init)
+        return context.build()
+    }
+
+    /**
+     * Sets a static value
+     *
+     * @param name - the name of the static variable
+     * @param value - the value to assign
+     * @return the append command string
+     */
+    fun apocSetStatic(name: String, value: String) = "call apoc.static.set('$name', '$value')"
+
+
+    /**
+     * Gets a static value
+     *
+     * @param name - the name of the static variable
+     * @return the append command string
+     */
+    fun apocGetStatic(name: String) = "call apoc.static.get('$name')"
+
+
+    /**
+     * Gets static value as String, assigning to variable.
+     * Correctly converts the returned value into String form before assigning to variable
+     *
+     * @param name - the name of the static variable to get a value from
+     * @param variable - the name of the variable to assign once converted to string
+     * @return the append command string
+     */
+    fun apocGetStaticAsString(name: String, variable: String = "VALUE") = "CALL apoc.static.get('$name') yield value WITH apoc.convert.toString(value) AS $variable"
+
+    /**
+     * Gets static value as JSon, assigning to variable.
+     * Correctly converts the returned value into JSon object form before assigning to variable
+     *
+     * @param name - the name of the static variable to get a value from
+     * @param variable - the name of the variable to assign once converted to JSon
+     * @return the append command string
+     */
+    fun apocGetStaticAsJson(name: String, variable: String = "VALUE") = "CALL apoc.static.get('$name') yield value WITH apoc.convert.fromJsonMap(apoc.convert.toString(value)) as $variable"
+
 
     // ------------------------------------------------------------
     // DSL Context objects work like builders
@@ -126,6 +200,22 @@ object ScriptDsl {
             val context = ApocPeriodicIterateContext().apply(init)
             query.append(context.build())
         }
+    }
+
+
+    class LoadCsvContext(var fileUrl: String, var variable: String = "row") {
+
+        var cypher: String = ""
+
+        fun cypher(init: QueryContext.() -> Unit) {
+            val context = QueryContext().apply(init)
+            this.cypher = context.build()
+        }
+
+        fun build(): String = trimAndJoin(
+                """LOAD CSV WITH HEADERS FROM "$fileUrl" AS row WITH $variable""",
+                cypher
+        )
     }
 
 

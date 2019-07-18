@@ -1,5 +1,9 @@
 package me.roybailey.neo4k.api
 
+import me.roybailey.neo4k.dsl.QueryParams
+import me.roybailey.neo4k.dsl.QueryResultConsumer
+import me.roybailey.neo4k.dsl.QueryStatement
+import me.roybailey.neo4k.dsl.SimpleQueryResult
 import mu.KotlinLogging
 import org.neo4j.graphdb.Node
 

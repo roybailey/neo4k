@@ -3,6 +3,7 @@ package me.roybailey.neo4k.api
 import me.roybailey.neo4k.Neo4jServiceTestBase
 import me.roybailey.neo4k.api.Neo4jTestQueries.Companion.CSV_100_TESTDATA
 import me.roybailey.neo4k.api.Neo4jTestQueries.Companion.CSV_TESTDATA_MERGE_NEO4J
+import me.roybailey.neo4k.dsl.ScriptDsl.loadCsvWithHeaders
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
 
@@ -13,9 +14,9 @@ abstract class Neo4jServiceLoadCsvTest(override val neo4jService: Neo4jService)
     @Test
     fun `should load csv file without errors`() {
 
-        val cypher = Neo4jCypher.loadCsvWithHeaders(
-                fileUrl = "file://$projectTestDataFolder/$CSV_100_TESTDATA",
-                withLineCypher = CSV_TESTDATA_MERGE_NEO4J)
+        val cypher = loadCsvWithHeaders(fileUrl = "file://$projectTestDataFolder/$CSV_100_TESTDATA") {
+            cypher = CSV_TESTDATA_MERGE_NEO4J
+        }
 
         logger.info { "Running append:\n\n$cypher\n\n" }
 

@@ -1,10 +1,10 @@
-package me.roybailey.neo4k.api
+package me.roybailey.neo4k.dsl
 
-import me.roybailey.neo4k.UnitTestBase
-import me.roybailey.neo4k.api.Neo4jApoc.Companion.apocGetStaticAsJson
-import me.roybailey.neo4k.api.Neo4jApoc.Companion.apocGetStaticAsString
-import me.roybailey.neo4k.api.ScriptDsl.scriptLibrary
-import me.roybailey.neo4k.api.ScriptDsl.toAsciiDoc
+import me.roybailey.neo4k.dsl.ScriptDsl.apocGetStaticAsJson
+import me.roybailey.neo4k.dsl.ScriptDsl.apocGetStaticAsString
+import me.roybailey.neo4k.dsl.ScriptDsl.scriptLibrary
+import me.roybailey.neo4k.dsl.ScriptDsl.toAsciiDoc
+import me.roybailey.neo4k.testdata.UnitTestBase
 import org.assertj.core.api.SoftAssertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInfo

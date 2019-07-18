@@ -2,7 +2,7 @@ package me.roybailey.neo4k.reporting
 
 import com.google.common.net.MediaType
 import me.roybailey.neo4k.api.Neo4jService
-import me.roybailey.neo4k.api.QueryStatement
+import me.roybailey.neo4k.dsl.QueryStatement
 import mu.KotlinLogging
 import java.io.ByteArrayOutputStream
 import java.io.OutputStream

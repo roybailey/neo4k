@@ -1,7 +1,6 @@
 package me.roybailey.neo4k.reporting
 
-import me.roybailey.neo4k.UnitTestBase
-import mu.KotlinLogging
+import me.roybailey.neo4k.testdata.UnitTestBase
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInfo
 import java.io.File

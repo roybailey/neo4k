@@ -1,9 +1,9 @@
 package me.roybailey.neo4k.reporting
 
-import me.roybailey.neo4k.api.QueryParams
-import me.roybailey.neo4k.api.QueryStatement
-import me.roybailey.neo4k.api.SimpleQueryStatement
-import me.roybailey.neo4k.api.emptyQueryParams
+import me.roybailey.neo4k.dsl.QueryParams
+import me.roybailey.neo4k.dsl.QueryStatement
+import me.roybailey.neo4k.dsl.SimpleQueryStatement
+import me.roybailey.neo4k.dsl.emptyQueryParams
 
 
 // ------------------------------------------------------------

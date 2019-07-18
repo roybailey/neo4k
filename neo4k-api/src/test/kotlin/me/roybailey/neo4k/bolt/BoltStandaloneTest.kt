@@ -1,6 +1,6 @@
 package me.roybailey.neo4k.bolt
 
-import me.roybailey.neo4k.api.Neo4jCypher
+import me.roybailey.neo4k.dsl.ScriptDsl.cypherMatchAndDeleteAll
 import mu.KotlinLogging
 import org.neo4j.driver.v1.AuthTokens
 import org.neo4j.driver.v1.GraphDatabase
@@ -20,7 +20,7 @@ class Neo4jBoltTest(neo4jUri: String, username: String, password: String) {
     init {
         logger.info { "Created Neo4j session $driver" }
 
-        driver.session().run(Neo4jCypher.deleteAllData())
+        driver.session().run(cypherMatchAndDeleteAll())
         val cypher = Neo4jBoltTest::class.java.getResource("/cypher/create-movies.cypher").readText()
         driver.session().writeTransaction { tx -> tx.run(cypher) }
         val total = driver.session().run("match (m) return count(m) as total").single().get("total").asLong()
