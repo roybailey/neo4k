@@ -12,7 +12,7 @@ import java.net.URL
 class TestApiServerTest : UnitTestBase() {
 
 
-    val api = TestApiServer()
+    val api = TestApiServer.createTestApiServer()
 
 
     @BeforeEach
@@ -41,7 +41,7 @@ class TestApiServerTest : UnitTestBase() {
                     }
         } catch (err: Exception) {
             logger.error { err }
-            throw RuntimeException("Local test api server not working!!")
+            throw RuntimeException("Local test api server not working!!", err)
         }
     }
 }

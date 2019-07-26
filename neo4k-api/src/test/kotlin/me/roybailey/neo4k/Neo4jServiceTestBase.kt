@@ -10,7 +10,7 @@ import org.junit.jupiter.api.TestInfo
 
 abstract class Neo4jServiceTestBase(
         open val neo4jService: Neo4jService,
-        val testQueries: Neo4jTestQueries = Neo4jTestQueries(neo4jService)
+        open var testQueries: Neo4jTestQueries = Neo4jTestQueries(neo4jService)
 ) : UnitTestBase() {
 
 
@@ -25,3 +25,4 @@ abstract class Neo4jServiceTestBase(
     }
 
 }
+

@@ -1,6 +1,10 @@
 package me.roybailey.neo4k.embedded
 
 import me.roybailey.neo4k.api.*
+import me.roybailey.neo4k.testdata.UnitTestBase
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.TestInfo
 
 
 object EmbeddedNeo4jServiceFactory {
@@ -13,25 +17,46 @@ object EmbeddedNeo4jServiceFactory {
 }
 
 
-class EmbeddedServiceBasicTest : Neo4jServiceBasicTest(EmbeddedNeo4jServiceFactory.createNeo4jService())
+abstract class EmbeddedNeo4jServiceTestBase : UnitTestBase() {
+
+    val neo4jImportFolder: String = projectTestDataFolder
+    val apiTestServer: String = "localhost"
+
+    var neo4jService: Neo4jService = EmbeddedNeo4jServiceFactory.createNeo4jService()
+    var testQueries: Neo4jTestQueries = Neo4jTestQueries(neo4jService)
+
+    @BeforeEach
+    fun setupDatabase(testInfo: TestInfo) {
+        testQueries.deleteAllData()
+    }
+
+    @AfterEach
+    fun shutdownDatabase(testInfo: TestInfo) {
+        neo4jService.shutdown()
+    }
+
+}
 
 
-class EmbeddedServiceMovieTutorialTest : Neo4jServiceMovieTutorialTest(EmbeddedNeo4jServiceFactory.createNeo4jService())
+class EmbeddedServiceBasicTest : EmbeddedNeo4jServiceTestBase(), Neo4jServiceBasicTestSuite
 
 
-class EmbeddedServiceQueryApiTest : Neo4jServiceQueryApiTest(EmbeddedNeo4jServiceFactory.createNeo4jService())
+class EmbeddedServiceMovieTutorialTest : EmbeddedNeo4jServiceTestBase(), Neo4jServiceMovieTutorialTestSuite
 
 
-class EmbeddedServiceApocTest : Neo4jServiceApocTest(EmbeddedNeo4jServiceFactory.createNeo4jService())
+class EmbeddedServiceQueryApiTest : EmbeddedNeo4jServiceTestBase(), Neo4jServiceQueryApiTestSuite
 
 
-class EmbeddedServiceLoadCsvTest : Neo4jServiceLoadCsvTest(EmbeddedNeo4jServiceFactory.createNeo4jService())
+class EmbeddedServiceApocTest : EmbeddedNeo4jServiceTestBase(), Neo4jServiceApocTestSuite
 
 
-class EmbeddedServiceApocLoadJdbcTest : Neo4jServiceApocLoadJdbcTest(EmbeddedNeo4jServiceFactory.createNeo4jService())
+class EmbeddedServiceLoadCsvTest : EmbeddedNeo4jServiceTestBase(), Neo4jServiceLoadCsvTestSuite
 
 
-class EmbeddedServiceApocLoadJsonTest : Neo4jServiceApocLoadJsonTest(EmbeddedNeo4jServiceFactory.createNeo4jService())
+class EmbeddedServiceApocLoadJdbcTest : EmbeddedNeo4jServiceTestBase(), Neo4jServiceApocLoadJdbcTestSuite
 
 
-class EmbeddedServiceNorthwindScriptTest : Neo4jServiceNorthwindScriptTest(EmbeddedNeo4jServiceFactory.createNeo4jService())
+class EmbeddedServiceApocLoadJsonTest : EmbeddedNeo4jServiceTestBase(), Neo4jServiceApocLoadJsonTestSuite
+
+
+class EmbeddedServiceNorthwindScriptTest : EmbeddedNeo4jServiceTestBase(), Neo4jServiceNorthwindScriptTestSuite
