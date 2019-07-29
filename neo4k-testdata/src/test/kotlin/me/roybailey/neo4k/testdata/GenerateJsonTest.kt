@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import org.junit.jupiter.api.Test
+import java.io.File
 import java.io.FileWriter
 
 
@@ -22,6 +23,7 @@ class GenerateJsonTest : UnitTestBase() {
 
         val generator = Generator()
         val outputFolder = "$projectFolder/testdata/generator"
+        File(outputFolder).mkdir()
 
         val suppliers10 = FileWriter("$outputFolder/suppliers-10.json")
         val suppliers10list = mutableListOf<Supplier>()
