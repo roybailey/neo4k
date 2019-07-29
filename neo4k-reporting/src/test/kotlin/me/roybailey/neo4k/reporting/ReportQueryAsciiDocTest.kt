@@ -17,7 +17,7 @@ class ReportQueryAsciiDocTest : UnitTestBase() {
         val file = File(moduleFolder, "target/_report_query.adoc")
 
         logger.info("${testInfo.displayName} output to ${file.absolutePath}")
-        PrintWriter(FileWriter(file)).use { output ->
+        PrintWriter(FileWriter(file)).let { output ->
 
             output.println("""
             = Reporting Service - Report Query Library =

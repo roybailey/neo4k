@@ -40,13 +40,8 @@ class GenerateCsvTest : UnitTestBase() {
 
             logger.info { "Generating $totalSuppliers suppliers and $productsPerSupplier products into $outputFolder" }
             generate(totalSuppliers, productsPerSupplier).forEachIndexed { supplierIndex, supplier ->
-                if(supplierIndex % 10 == 0)
-                    println("$supplierIndex) $supplier")
                 suppliers.print(supplierIndex, supplierValues(supplier))
-
                 supplier.products.forEachIndexed { productIndex, product ->
-                    if(productIndex % 10 == 0)
-                        println("$productIndex) $product")
                     products.print(productIndex, productValues(product))
                 }
             }
@@ -59,7 +54,6 @@ class GenerateCsvTest : UnitTestBase() {
     @Test
     fun `generate various sized csv files`() {
 
-        println()
         generate(10, 10)
         generate(100, 10)
         generate(100,100)

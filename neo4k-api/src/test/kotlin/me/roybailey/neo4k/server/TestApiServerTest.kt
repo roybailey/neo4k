@@ -35,7 +35,7 @@ class TestApiServerTest : UnitTestBase() {
             URL("${api.url}/testdata")
                     .openStream()
                     .bufferedReader()
-                    .use {
+                    .let {
                         val data = it.readText()
                         logger.info { data }
                     }

@@ -44,7 +44,7 @@ class H2Test : UnitTestBase() {
         val connection = getDBConnection()
         var selectPreparedStatement: PreparedStatement? = null
 
-        val csvTestData = File(projectTestDataFolder).absolutePath+ Neo4jTestQueries.CSV_100_TESTDATA
+        val csvTestData = File(projectTestDataFolder).absolutePath+"/"+ Neo4jTestQueries.CSV_100_TESTDATA
         val SelectQuery = "SELECT * FROM CSVREAD('$csvTestData')"
 
         logger.info { SelectQuery }
@@ -63,10 +63,6 @@ class H2Test : UnitTestBase() {
             selectPreparedStatement.close()
 
             connection.commit()
-        } catch (e: SQLException) {
-            println("Exception Message " + e.localizedMessage)
-        } catch (e: Exception) {
-            e.printStackTrace()
         } finally {
             connection!!.close()
         }

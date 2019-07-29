@@ -22,7 +22,7 @@ fun String.quoted(doubleQuotes: Boolean = true, quoted: Boolean = true) =
         }
 
 
-object ScriptDsl {
+object CypherDsl {
 
     private fun trimAndJoin(vararg args: String) = args.map { it.trimIndent() }.joinToString(separator = "\n") { it.trimIndent() }
 
@@ -303,7 +303,7 @@ object ScriptDsl {
     // ------------------------------------------------------------
 
     fun toAsciiDoc(library: ScriptLibrary, writer: Writer, title: String) {
-        PrintWriter(writer).use { output ->
+        PrintWriter(writer).let { output ->
 
             output.println("""
             = $title =

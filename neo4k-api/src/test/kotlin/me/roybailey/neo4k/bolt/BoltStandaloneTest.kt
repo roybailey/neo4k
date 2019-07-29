@@ -1,6 +1,6 @@
 package me.roybailey.neo4k.bolt
 
-import me.roybailey.neo4k.dsl.ScriptDsl.cypherMatchAndDeleteAll
+import me.roybailey.neo4k.dsl.CypherDsl.cypherMatchAndDeleteAll
 import mu.KotlinLogging
 import org.neo4j.driver.v1.AuthTokens
 import org.neo4j.driver.v1.GraphDatabase

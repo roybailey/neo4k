@@ -4,8 +4,8 @@ import me.roybailey.neo4k.api.Neo4jTestQueries.Companion.CSV_10000_TESTDATA
 import me.roybailey.neo4k.api.Neo4jTestQueries.Companion.CSV_50000_TESTDATA
 import me.roybailey.neo4k.api.Neo4jTestQueries.Companion.CSV_TESTDATA_MERGE_APOC
 import me.roybailey.neo4k.api.Neo4jTestQueries.Companion.findTestDataFile
-import me.roybailey.neo4k.dsl.ScriptDsl.apocLoadJdbc
-import me.roybailey.neo4k.dsl.ScriptDsl.cypherMatchAndDeleteAll
+import me.roybailey.neo4k.dsl.CypherDsl.apocLoadJdbc
+import me.roybailey.neo4k.dsl.CypherDsl.cypherMatchAndDeleteAll
 import me.roybailey.neo4k.dsl.quoted
 import mu.KotlinLogging
 import java.time.Instant.now

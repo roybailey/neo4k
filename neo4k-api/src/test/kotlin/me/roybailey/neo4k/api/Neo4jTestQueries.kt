@@ -12,7 +12,7 @@ class Neo4jTestQueries(val neo4jService: Neo4jService) {
 
     fun deleteAllData() {
 
-        neo4jService.execute(me.roybailey.neo4k.dsl.ScriptDsl.cypherMatchAndDeleteAll())
+        neo4jService.execute(me.roybailey.neo4k.dsl.CypherDsl.cypherMatchAndDeleteAll())
         val count: Long = neo4jService.queryForObject("match (n) return count(n)")!!
         logger.info { "graph count after purge = $count" }
         org.junit.jupiter.api.Assertions.assertEquals(0, count)

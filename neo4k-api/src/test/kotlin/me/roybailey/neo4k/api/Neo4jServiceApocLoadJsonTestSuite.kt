@@ -2,8 +2,8 @@ package me.roybailey.neo4k.api
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import me.roybailey.neo4k.api.Neo4jTestQueries.Companion.JSON_TESTDATA_MERGE
-import me.roybailey.neo4k.dsl.ScriptDsl.apocLoadJson
-import me.roybailey.neo4k.dsl.ScriptDsl.apocPeriodicIterate
+import me.roybailey.neo4k.dsl.CypherDsl.apocLoadJson
+import me.roybailey.neo4k.dsl.CypherDsl.apocPeriodicIterate
 import me.roybailey.neo4k.dsl.escapeDoubleQuotes
 import me.roybailey.neo4k.dsl.quoted
 import me.roybailey.neo4k.server.TestApiServer
@@ -13,9 +13,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.testcontainers.containers.GenericContainer.INTERNAL_HOST_HOSTNAME
 import java.io.FileReader
-import java.net.InetAddress
 import java.time.Duration
 
 

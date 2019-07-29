@@ -1,8 +1,8 @@
 package me.roybailey.neo4k.api
 
 import me.roybailey.neo4k.bolt.Neo4jBoltService
-import me.roybailey.neo4k.dsl.ScriptDsl.apocGetStatic
-import me.roybailey.neo4k.dsl.ScriptDsl.apocSetStatic
+import me.roybailey.neo4k.dsl.CypherDsl.apocGetStatic
+import me.roybailey.neo4k.dsl.CypherDsl.apocSetStatic
 import me.roybailey.neo4k.embedded.Neo4jEmbeddedService
 import org.neo4j.procedure.Name
 import org.neo4j.procedure.UserFunction

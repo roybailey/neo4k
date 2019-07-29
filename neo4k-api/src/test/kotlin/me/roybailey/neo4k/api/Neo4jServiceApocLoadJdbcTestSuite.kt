@@ -3,8 +3,8 @@ package me.roybailey.neo4k.api
 import me.roybailey.neo4k.api.Neo4jTestQueries.Companion.CSV_1000_TESTDATA
 import me.roybailey.neo4k.api.Neo4jTestQueries.Companion.CSV_100_TESTDATA
 import me.roybailey.neo4k.api.Neo4jTestQueries.Companion.CSV_TESTDATA_MERGE_APOC
-import me.roybailey.neo4k.dsl.ScriptDsl.apocLoadJdbc
-import me.roybailey.neo4k.dsl.ScriptDsl.apocPeriodicIterate
+import me.roybailey.neo4k.dsl.CypherDsl.apocLoadJdbc
+import me.roybailey.neo4k.dsl.CypherDsl.apocPeriodicIterate
 import me.roybailey.neo4k.dsl.escapeDoubleQuotes
 import me.roybailey.neo4k.dsl.quoted
 import org.assertj.core.api.Assertions.assertThat

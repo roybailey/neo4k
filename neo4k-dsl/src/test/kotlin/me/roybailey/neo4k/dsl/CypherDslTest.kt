@@ -1,9 +1,9 @@
 package me.roybailey.neo4k.dsl
 
-import me.roybailey.neo4k.dsl.ScriptDsl.apocGetStaticAsJson
-import me.roybailey.neo4k.dsl.ScriptDsl.apocGetStaticAsString
-import me.roybailey.neo4k.dsl.ScriptDsl.scriptLibrary
-import me.roybailey.neo4k.dsl.ScriptDsl.toAsciiDoc
+import me.roybailey.neo4k.dsl.CypherDsl.apocGetStaticAsJson
+import me.roybailey.neo4k.dsl.CypherDsl.apocGetStaticAsString
+import me.roybailey.neo4k.dsl.CypherDsl.scriptLibrary
+import me.roybailey.neo4k.dsl.CypherDsl.toAsciiDoc
 import me.roybailey.neo4k.testdata.UnitTestBase
 import org.assertj.core.api.SoftAssertions
 import org.junit.jupiter.api.Test
@@ -11,7 +11,7 @@ import org.junit.jupiter.api.TestInfo
 import java.io.FileWriter
 
 
-class QueryDslTest : UnitTestBase() {
+class CypherDslTest : UnitTestBase() {
 
 
     private fun logScriptStatements(library: ScriptLibrary) {

@@ -2,8 +2,7 @@ package me.roybailey.neo4k.api
 
 import me.roybailey.neo4k.api.Neo4jTestQueries.Companion.CSV_100_TESTDATA
 import me.roybailey.neo4k.api.Neo4jTestQueries.Companion.CSV_TESTDATA_MERGE_NEO4J
-import me.roybailey.neo4k.dsl.ScriptDsl.loadCsvWithHeaders
-import me.roybailey.neo4k.testdata.UnitTestBase.Companion.projectTestDataFolder
+import me.roybailey.neo4k.dsl.CypherDsl.loadCsvWithHeaders
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
 

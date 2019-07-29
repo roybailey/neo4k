@@ -2,7 +2,7 @@ package me.roybailey.neo4k.springboot.config
 
 import me.roybailey.neo4k.api.Neo4jService
 import me.roybailey.neo4k.api.Neo4jServiceOptions
-import me.roybailey.neo4k.dsl.ScriptDsl.cypherMatchAndDeleteAll
+import me.roybailey.neo4k.dsl.CypherDsl.cypherMatchAndDeleteAll
 import mu.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
