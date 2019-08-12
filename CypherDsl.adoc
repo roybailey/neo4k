@@ -1,0 +1,81 @@
+= CypherDSL =
+
+> Auto-generated from code.  DO NOT EDIT
+
+:toc:
+:toc-placement!:
+:toc-title: TABLE OF CONTENTS
+:toclevels: 2
+
+toc::[]
+
+
+=== Simple Create Cypher DSL
+
+```
+cypher {
+    CREATE("m:Movie { title: __title }")
+    RETURN("m")
+}
+```
+~produces...~
+```
+CREATE (m:Movie { title: $title })
+RETURN m
+
+```
+
+
+=== Create with Paramters Cypher DSL
+
+```
+cypher {
+    CREATE("TheMatrix", "Movie") {
+        param("title" to "The Matrix".singleQuoted(),
+                "released" to "1999",
+                "tagline" to "Welcome to the Real World".singleQuoted())
+    }
+}
+```
+~produces...~
+```
+CREATE (TheMatrix:Movie { title:'The Matrix', released:1999, tagline:'Welcome to the Real World' })
+
+```
+
+
+=== Create and Relationship with Parameters Cypher DSL
+
+```
+cypher {
+    CREATE(TheMarix, "Movie") {
+        param("title" to "The Matrix".singleQuoted(),
+                "released" to 1999,
+                "tagline" to "Welcome to the Real World".singleQuoted())
+    }
+    CREATE(Keanu, "Person") {
+        param("name" to "Keanu Reeves".singleQuoted(),
+                "born" to 1964)
+    }
+    CREATE(Carrie, "Person") {
+        param("name" to "Carrie-Anne Moss".singleQuoted(), "born" to 1967)
+    }
+    CREATE()
+    +relationship(Keanu, "ACTED_IN", TheMarix) {
+        param("roles", arrayOf("Neo".singleQuoted()))
+    }
+    +",\n"
+    +relationship(Carrie, "ACTED_IN", TheMarix) {
+        param("roles", arrayOf("Trinity".singleQuoted()))
+    }
+}
+```
+~produces...~
+```
+CREATE (TheMatrix:Movie { title:'The Matrix', released:1999, tagline:'Welcome to the Real World' })
+CREATE (Keanu:Person { name:'Keanu Reeves', born:1964 })
+CREATE (Carrie:Person { name:'Carrie-Anne Moss', born:1967 })
+CREATE
+(Keanu)-[:ACTED_IN { roles:['Neo'] }]->(TheMatrix),
+(Carrie)-[:ACTED_IN { roles:['Trinity'] }]->(TheMatrix)
+```

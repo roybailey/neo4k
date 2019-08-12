@@ -163,7 +163,7 @@ This should get you connected to your running embedded database and allow you to
 
 ### `CypherDsl`
 
-> TODO
+> file:///./CypherDsl.adoc[CypherDsl Documentation]
 
 
 ### `QueryStatement` utilities
@@ -193,12 +193,41 @@ Parser uses comments (becomes the description) or semi-colons to separate statem
 
 ## Developers Guide
 
+.Modules
+|===
+|Module |Description
+
+|`neo4k-testdata`
+|CSV and JSON test data generator module.
+Generates test data files for loading through Cypher.
+Internal only, outputs files to `testdata/generator` folder.
+
+|`neo4k-dsl`
+|Cypher DSL.
+Cypher construction kit for loading from AsciiDoc/Markdown/Text files,
+or constructing in code with DSL like blocks.
+
+|`neo4k-api`
+|Main Embedded and Bolt service adaptor and result processing objects.
+
+|`neo4k-reporting`
+|Reporting module for processing results and converting into CSV/PDF/XLS reports.
+
+|`neo4k-springboot`
+|Working example of pulling it all together into a springboot application.
+
+|===
+
+
 Neo4jService adaptor is intended to standardise across Bolt and Embedded drivers
 and therefore the project needs an instance of Neo4j to be running for the build.
 This is so all the capabilities can be tested against both embedded and bolt instances.
 
 The project uses https://www.testcontainers.org/modules/databases/neo4j/[Neo4j TestContainer]
 to create an instance of Neo4j Graph Database during the build, for testing bolt compatibility.
+
+Standard test suites are captured in interfaces (with default implementations) so that different
+drivers can be tested to pass the exact same tests.  See `neo4k-api` test packages.
 
 
 ### Installing and configuring Neo4j graph database

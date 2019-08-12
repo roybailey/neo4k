@@ -10,17 +10,12 @@ import java.io.Writer
 
 typealias ScriptLibrary = MutableMap<String, MutableList<QueryStatement>>
 
-fun String.toNeo4j(dollar: String = "__"): String = replace(dollar, "$")
-fun String.escapeDoubleQuotes() = this.replace("\"", "\\\"")
-fun String.quoted(doubleQuotes: Boolean = true, quoted: Boolean = true) =
-        when (quoted) {
-            true -> when (doubleQuotes) {
-                true -> "\"$this\""
-                else -> "\'$this\'"
-            }
-            else -> this
-        }
-
+fun String.toNeo4j(dollar: String = "__"): String = CypherDsl.toNeo4j(this, dollar)
+fun String.escapeDoubleQuotes() = CypherDsl.escapeQuotes(this)
+fun String.quoted(doubleQuotes: Boolean = true, quoted: Boolean = true) = CypherDsl.quoted(this, doubleQuotes, quoted)
+fun String.doubleQuoted() = CypherDsl.quoted(this, true)
+fun String.singleQuoted() = CypherDsl.quoted(this, false)
+fun String.withLabels(vararg labels: String) = CypherDsl.withLabels(this, *labels)
 
 object CypherDsl {
 
@@ -32,6 +27,50 @@ object CypherDsl {
         args.slice(minimum..args.size).forEach { if (!it.isNullOrBlank()) params += it }
         return params.joinToString(",")
     }
+
+    // ------------------------------------------------------------
+    // String & Cypher Fragments
+    // ------------------------------------------------------------
+
+    /**
+     * Replaces dollar substitute with dollar
+     * @param value the value to alter
+     * @param dollar the substitute to replace (defaults to __ double underscore)
+     */
+    fun toNeo4j(value: String, dollar: String = "__"): String = value.replace(dollar, "$")
+
+    /**
+     * Escapes double quotes in a string
+     * @param value the value to escape double
+     */
+    fun escapeQuotes(value: String, doubleQuotes: Boolean = true): String = when (doubleQuotes) {
+        true -> value.replace("\"", "\\\"")
+        else -> value.replace("'", "\\'")
+    }
+
+    /**
+     * Quotes a value
+     * @param value the value to be quoted
+     * @param doubleQuotes use double quotes (default); otherwise use single quotes
+     * @param quoted flag to indicate whether to apply quotes (defaults to true)
+     */
+    fun quoted(value: Any, doubleQuotes: Boolean = true, quoted: Boolean = true): String =
+            when (quoted) {
+                true -> when (doubleQuotes) {
+                    true -> "\"$value\""
+                    else -> "\'$value\'"
+                }
+                else -> "" + value
+            }
+
+    /**
+     * Joins labels to a node name
+     * @param node the name of the node variable
+     * @param labels the array of labels to apply
+     */
+    fun withLabels(node: String, vararg labels: String): String =
+            if (labels.isNotEmpty()) node + ":" + labels.joinToString(":") else node
+
 
     // ------------------------------------------------------------
     // Standard Queries
@@ -61,34 +100,6 @@ object CypherDsl {
             ORDER BY label
             """.trimIndent()
 
-    // ------------------------------------------------------------
-    // Root DSL starter methods
-    // ------------------------------------------------------------
-
-    fun scriptLibrary(init: ScriptDefinitionContext.() -> Unit): ScriptLibrary {
-        val context = ScriptDefinitionContext().apply(init)
-        return context.build()
-    }
-
-    fun apocLoadJson(init: ApocLoadJsonContext.() -> Unit): String {
-        val context = ApocLoadJsonContext().apply(init)
-        return context.build()
-    }
-
-    fun apocLoadJdbc(init: ApocLoadJdbcContext.() -> Unit): String {
-        val context = ApocLoadJdbcContext().apply(init)
-        return context.build()
-    }
-
-    fun apocPeriodicIterate(init: ApocPeriodicIterateContext.() -> Unit): String {
-        val context = ApocPeriodicIterateContext().apply(init)
-        return context.build()
-    }
-
-    fun loadCsvWithHeaders(fileUrl: String, variable: String = "row", init: LoadCsvContext.() -> Unit): String {
-        val context = LoadCsvContext(fileUrl, variable).apply(init)
-        return context.build()
-    }
 
     /**
      * Sets a static value
@@ -117,7 +128,7 @@ object CypherDsl {
      * @param variable - the name of the variable to assign once converted to string
      * @return the append command string
      */
-    fun apocGetStaticAsString(name: String, variable: String = "VALUE") = "CALL apoc.static.get('$name') yield value WITH apoc.convert.toString(value) AS $variable"
+    // fun apocGetStaticAsString(name: String, variable: String = "VALUE") = "CALL apoc.static.get('$name') yield value WITH apoc.convert.toString(value) AS $variable"
 
     /**
      * Gets static value as JSon, assigning to variable.
@@ -127,8 +138,47 @@ object CypherDsl {
      * @param variable - the name of the variable to assign once converted to JSon
      * @return the append command string
      */
-    fun apocGetStaticAsJson(name: String, variable: String = "VALUE") = "CALL apoc.static.get('$name') yield value WITH apoc.convert.fromJsonMap(apoc.convert.toString(value)) as $variable"
+    // fun apocGetStaticAsJson(name: String, variable: String = "VALUE") = "CALL apoc.static.get('$name') yield value WITH apoc.convert.fromJsonMap(apoc.convert.toString(value)) as $variable\n"
 
+
+    // ------------------------------------------------------------
+    // Root DSL starter methods
+    // ------------------------------------------------------------
+
+    fun scriptLibrary(init: ScriptDefinitionContext.() -> Unit): ScriptLibrary {
+        val context = ScriptDefinitionContext().apply(init)
+        return context.build()
+    }
+
+    fun statement(description: String = "", init: QueryStatementContext.() -> Unit): QueryStatement {
+        val context = QueryStatementContext().apply(init)
+        return context.build(description)
+    }
+
+    fun cypher(init: QueryContext.() -> Unit): String {
+        val context = QueryContext().apply(init)
+        return context.build()
+    }
+
+    fun apocLoadJson(init: ApocLoadJsonContext.() -> Unit): String {
+        val context = ApocLoadJsonContext().apply(init)
+        return context.build()
+    }
+
+    fun apocLoadJdbc(init: ApocLoadJdbcContext.() -> Unit): String {
+        val context = ApocLoadJdbcContext().apply(init)
+        return context.build()
+    }
+
+    fun apocPeriodicIterate(init: ApocPeriodicIterateContext.() -> Unit): String {
+        val context = ApocPeriodicIterateContext().apply(init)
+        return context.build()
+    }
+
+    fun loadCsvWithHeaders(fileUrl: String, variable: String = "row", init: LoadCsvContext.() -> Unit): String {
+        val context = LoadCsvContext(fileUrl, variable).apply(init)
+        return context.build()
+    }
 
     // ------------------------------------------------------------
     // DSL Context objects work like builders
@@ -174,17 +224,149 @@ object CypherDsl {
     }
 
 
+    class JoinContext(val separator: String = ",", vararg val list: String) {
+
+        fun build(): String = when {
+            list.isNotEmpty() -> list.joinToString(separator)
+            else -> ""
+        }
+    }
+
+
+    /**
+     * Captures "{ name=value, name=value }" strings
+     */
+    class ParameterContext {
+
+        var params: MutableMap<String, Any> = LinkedHashMap()
+
+        fun param(name: String, value: Any) {
+            params.put(name, value)
+        }
+
+        fun param(more: Map<String, Any>) {
+            params.putAll(more)
+        }
+
+        fun param(vararg more: Pair<String, Any>) {
+            params.putAll(more)
+        }
+
+        fun build(): String = when {
+            params.isNotEmpty() -> " { " + params.map {
+                it.key + ":" + when {
+                    it.value is Array<*> -> "[" + (it.value as Array<*>).joinToString(",") + "]"
+                    else -> it.value
+                }
+            }.joinToString(", ") + " }"
+            else -> ""
+        }
+    }
+
+
+    /**
+     * Captures construction of Cypher query strings
+     */
     open class QueryContext {
 
         var query = StringBuffer()
 
-        fun append(cypher: String) = query.append("$cypher\n")
+        fun append(cypher: String): QueryContext {
+            query.append(cypher)
+            return this
+        }
+
+        operator fun Any.unaryPlus() {
+            query.append(when (this) {
+                is Unit -> ""
+                is String -> this
+                is Array<*> -> this.joinToString(",") { this.toString() }
+                is Collection<*> -> this.joinToString(",") { this.toString() }
+                else -> this.toString()
+            })
+        }
+
+        fun CREATE(cypher: String = "", vararg labels: String = emptyArray(), init: QueryContext .() -> Unit = {}) {
+            val context = QueryContext().apply(init)
+            val nodeAndLabels = withLabels(cypher, *labels)
+            val parameters = context.build()
+            val create = "$nodeAndLabels$parameters".let {
+                when {
+                    it.trim().isNotEmpty() -> "($it)"
+                    else -> it
+                }
+            }
+            query.append("CREATE $create".trim().toNeo4j()).append("\n")
+        }
+
+        fun RETURN(cypher: String) = query.append("RETURN ${cypher.toNeo4j()}\n")
+
+        fun MERGE(cypher: String, vararg labels: String = emptyArray(), init: ParameterContext .() -> Unit = {}) {
+            val context = ParameterContext().apply(init)
+            query.append("MERGE (${withLabels(cypher, *labels)}${context.build()})\n".toNeo4j())
+        }
+
+        fun WITH(cypher: String) = query.append("WITH ${cypher.toNeo4j()}\n")
+        fun CALL(cypher: String) = query.append("CALL ${cypher.toNeo4j()}\n")
+
+        fun param(init: ParameterContext .() -> Unit = {}) {
+            val context = ParameterContext().apply(init)
+            query.append(context.build().toNeo4j())
+        }
+
+        fun param(params: Map<String, Any>) {
+            param {
+                param(params)
+            }
+        }
+
+        fun param(vararg params: Pair<String, Any>) {
+            param {
+                param(*params)
+            }
+        }
+
+        fun relationship(node1: String, relationship: String, node2: String, init: ParameterContext .() -> Unit = {}) {
+            val context = ParameterContext().apply(init)
+            query.append("($node1)-[:$relationship${context.build()}]->($node2)".toNeo4j())
+        }
 
         fun build(): String = query.toString()
+        override fun toString(): String = build()
     }
 
 
     class TopLevelQueryContext : QueryContext() {
+
+        /**
+         * Gets static value as String, assigning to variable.
+         * Correctly converts the returned value into String form before assigning to variable
+         *
+         * @param name - the name of the static variable to get a value from
+         * @param variable - the name of the variable to assign once converted to string
+         * @return the append command string
+         */
+        fun apocGetStaticAsString(name: String, variable: String = "VALUE", init: QueryContext.() -> Unit = {}): String {
+            val context = QueryContext().apply(init)
+            val cypher = "CALL apoc.static.get('$name') yield value WITH apoc.convert.toString(value) AS $variable"
+            query.append(cypher).append("\n")
+            return cypher
+        }
+
+        /**
+         * Gets static value as JSon, assigning to variable.
+         * Correctly converts the returned value into JSon object form before assigning to variable
+         *
+         * @param name - the name of the static variable to get a value from
+         * @param variable - the name of the variable to assign once converted to JSon
+         * @return the append command string
+         */
+        fun apocGetStaticAsJson(name: String, variable: String = "VALUE", init: QueryContext.() -> Unit = {}): String {
+            val context = QueryContext().apply(init)
+            val cypher = "CALL apoc.static.get('$name') yield value WITH apoc.convert.fromJsonMap(apoc.convert.toString(value)) as $variable"
+            query.append(cypher).append("\n")
+            return cypher
+        }
 
         fun apocLoadJson(init: ApocLoadJsonContext.() -> Unit) {
             val context = ApocLoadJsonContext().apply(init)
@@ -297,65 +479,4 @@ object CypherDsl {
         ).joinToString("\n")
     }
 
-
-    // ------------------------------------------------------------
-    // utilities
-    // ------------------------------------------------------------
-
-    fun toAsciiDoc(library: ScriptLibrary, writer: Writer, title: String) {
-        PrintWriter(writer).let { output ->
-
-            output.println("""
-            = $title =
-
-            > Auto-generated from code.  DO NOT EDIT
-
-            :toc:
-            :toc-placement!:
-            :toc-title: TABLE OF CONTENTS
-            :toclevels: 2
-
-            toc::[]
-            """.trimIndent())
-
-            // using our own simple template to get trimIndent() to work correctly
-            // (otherwise the mix of indented text here and un-indented text from the kotlin template doesn't output desired result)
-            val scriptMarkdownTemplate = """
-            === @SCRIPT_NAME@
-
-
-            ```
-            @STATEMENT_LIST@
-            ```
-
-            """.trimIndent()
-
-            val queryMarkdownTemplate = """
-
-            // @STATEMENT_DESCRIPTION@
-            // @STATEMENT_DEFAULT_PARAMETERS@
-            @STATEMENT_QUERY@
-
-            """.trimIndent()
-
-            library.entries.forEach { entry ->
-                val script = StringBuffer()
-                entry.value.forEach { queryStatement ->
-                    script.append(queryMarkdownTemplate
-                            .replace("@STATEMENT_DESCRIPTION@", queryStatement.description)
-                            .replace("@STATEMENT_DEFAULT_PARAMETERS@", queryStatement.defaultParams.toString())
-                            .replace("@STATEMENT_QUERY@", queryStatement.query))
-                }
-                val scriptMarkdown = scriptMarkdownTemplate
-                        .replace("@SCRIPT_NAME@", entry.key)
-                        .replace("@STATEMENT_LIST@", script.toString())
-                output.println()
-                output.write(scriptMarkdown.trimIndent())
-                output.println()
-            }
-
-            output.flush()
-            output.close()
-        }
-    }
 }

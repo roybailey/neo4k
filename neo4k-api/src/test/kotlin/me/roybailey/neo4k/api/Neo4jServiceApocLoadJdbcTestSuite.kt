@@ -82,7 +82,7 @@ interface Neo4jServiceApocLoadJdbcTestSuite : Neo4jServiceTestSuiteBase {
             batchSize = 100
         }
 
-        logger.info { "Running append:\n\n$cypher\n\n" }
+        logger.info { "Running cypher:\n\n$cypher\n\n" }
 
         val expectedRecords = 1000L
         val expectedProducts = 1000L

@@ -6,6 +6,7 @@ import me.roybailey.neo4k.dsl.CypherDsl.apocLoadJson
 import me.roybailey.neo4k.dsl.CypherDsl.apocPeriodicIterate
 import me.roybailey.neo4k.dsl.escapeDoubleQuotes
 import me.roybailey.neo4k.dsl.quoted
+import me.roybailey.neo4k.dsl.singleQuoted
 import me.roybailey.neo4k.server.TestApiServer
 import me.roybailey.neo4k.testdata.UnitTestBase.Companion.projectTestDataFolder
 import org.assertj.core.api.SoftAssertions
@@ -119,7 +120,7 @@ interface Neo4jServiceApocLoadJsonTestSuite : Neo4jServiceTestSuiteBase {
 
         val cypher = apocPeriodicIterate {
             outer = apocLoadJson {
-                url = "$resolvedTestApiServerUrl/testdata".quoted()
+                url = "$resolvedTestApiServerUrl/testdata".singleQuoted()
                 with = "RETURN value"
             }.escapeDoubleQuotes()
             inner = """
