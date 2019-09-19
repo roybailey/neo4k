@@ -1,0 +1,13 @@
+# neo4k-reporting
+
+A collection of table data reporting utilities to convert database queries into report files.
+
+## Motivation and Design
+
+* Provide quick and simple way to produce reports from Neo4j
+* Support basic formats CSV, PDF and Excel
+
+## Getting Started
+
+_this is still experimental and as yet an untested work-in-progress_
+

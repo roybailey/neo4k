@@ -449,13 +449,13 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_creating_a_remote_bolt_instance_of_neo4j_service">Creating a remote bolt instance of Neo4j Service</a></li>
 <li><a href="#_options_for_configuring_neo4j_service_adaptor">Options for configuring Neo4j Service adaptor</a></li>
 <li><a href="#_connecting_to_the_embedded_instance_from_neo4j_browser">Connecting to the embedded instance from Neo4j Browser</a></li>
+<li><a href="#_code_cypherdsl_code"><code>CypherDsl</code></a></li>
 <li><a href="#_code_querystatement_code_utilities"><code>QueryStatement</code> utilities</a></li>
-<li><a href="#_code_neo4jcypher_code_utilities"><code>Neo4jCypher</code> utilities</a></li>
-<li><a href="#_code_neo4japoc_code_utilities"><code>Neo4jApoc</code> utilities</a></li>
 </ul>
 </li>
 <li><a href="#_developers_guide">Developers Guide</a>
 <ul class="sectlevel2">
+<li><a href="#_installing_and_configuring_neo4j_graph_database">Installing and configuring Neo4j graph database</a></li>
 <li><a href="#_installing_h2_database_plugin">Installing h2 database plugin</a></li>
 <li><a href="#_configuring_the_neo4j_remote_instance_for_testing_bolt_support">Configuring the Neo4j remote instance for testing Bolt support</a></li>
 <li><a href="#_building_the_project">Building the project</a></li>
@@ -540,7 +540,7 @@ or allowing for simple analytics/reporting (i.e. given read access to multiple d
 <pre class="highlight"><code>    &lt;dependency&gt;
         &lt;groupId&gt;me.roybailey&lt;/groupId&gt;
         &lt;artifactId&gt;neo4k-api&lt;/artifactId&gt;
-        &lt;version&gt;0.1.0&lt;/version&gt;
+        &lt;version&gt;0.2.0&lt;/version&gt;
     &lt;/dependency&gt;</code></pre>
 </div>
 </div>
@@ -548,7 +548,7 @@ or allowing for simple analytics/reporting (i.e. given read access to multiple d
 <div class="sect2">
 <h3 id="_gradle">Gradle</h3>
 <div class="paragraph">
-<p><code>implementation("me.roybailey:neo4k-api:0.1.0")</code></p>
+<p><code>implementation("me.roybailey:neo4k-api:0.2.0")</code></p>
 </div>
 </div>
 </div>
@@ -570,24 +570,20 @@ or allowing for simple analytics/reporting (i.e. given read access to multiple d
 </thead>
 <tbody>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>CypherDsl</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">common cypher commands or cypher construction utilities (can be used independently of everything else with dependency <code>neo4k-dsl</code>)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>QueryStatement</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">utility object for loading cypher queries from AsciiDoc/Markdown or regular text files</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Neo4jService</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">the low-level neo4j driver interface, through which all cypher is executed</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Neo4jServiceRecord</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">the low-level neo4j record returned from running cypher queries, standardised for both embedded and bolt responses</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>QueryStatement</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">utility object for loading cypher queries from AsciiDoc/markdown or regular text files</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Neo4jCypher</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">common cypher commands or cypher command construction utilities</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Neo4jApoc</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">common cypher commands or cypher command construction utilities for Apoc library</p></td>
 </tr>
 </tbody>
 </table>
@@ -721,54 +717,41 @@ apoc.import.file.enabled=true</code></pre>
 </div>
 </div>
 <div class="sect2">
+<h3 id="_code_cypherdsl_code"><code>CypherDsl</code></h3>
+<div class="quoteblock">
+<blockquote>
+<div class="paragraph">
+<p><a href="file:///./CypherDsl.adoc">CypherDsl Documentation</a></p>
+</div>
+</blockquote>
+</div>
+</div>
+<div class="sect2">
 <h3 id="_code_querystatement_code_utilities"><code>QueryStatement</code> utilities</h3>
 <div class="paragraph">
 <p>Utility object for loading cypher queries from AsciiDoc/markdown or regular text files.  For example&#8230;&#8203;</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code>QueryStatement.parseQueryScriptStatements(cypherScriptTextWithMultipleStatements)</code></pre>
+<pre class="highlight"><code>        val statements:List&lt;QueryStatement&gt; = QueryStatement.parseQueryScriptStatements("""
+
+            // query movie by title
+            match (m:Movie { title: ${'$'}title }
+
+            // query movie by title since released date
+            match (m:Movie { title: ${'$'}title }
+            where m.released &gt; ${'$'}released
+
+            // Create indexes
+            CREATE INDEX ON :Product(productID);
+            CREATE INDEX ON :Category(categoryID);
+
+        """.trimIndent())</code></pre>
 </div>
 </div>
-</div>
-<div class="sect2">
-<h3 id="_code_neo4jcypher_code_utilities"><code>Neo4jCypher</code> utilities</h3>
 <div class="paragraph">
-<p>Utility object for constructing common cypher queries.  For example&#8230;&#8203;</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code>Neo4jCypher.loadCsvWithHeaders("data.csv","""
-MERGE (c:Country {country: apoc.text.toUpperCase(COALESCE(row.Country, 'unknown'))})
-              SET c.region = row.Region
-            MERGE (p:Product {product: row.`Item Type`})
-            MERGE (o:Order {orderId: row.`Order ID`})
-              SET o.salesChannel = row.`Sales Channel`,
-                  o.orderPriority = row.`Order Priority`,
-                  o.orderDate = row.`Order Date`,
-                  o.shipDate = row.`Ship Date`,
-                  o.quantity = row.`Units Sold`,
-                  o.unitPrice = row.`Unit Price`
-              MERGE (o)-[:FROM]-&gt;(c)
-              MERGE (o)-[:OF]-&gt;(p)
-              RETURN count(p) as totalProducts
-""".trimIndent())</code></pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_code_neo4japoc_code_utilities"><code>Neo4jApoc</code> utilities</h3>
-<div class="paragraph">
-<p>Utility object for constructing common cypher queries from apoc library.  For example&#8230;&#8203;</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code>    val neo4jApoc = Neo4jApoc(myNeo4jService)
-    // save a static value through apoc query
-    neo4jApoc.setStatic("test", "hello apoc")
-    // load a static value through apoc query
-    val value = neo4jApoc.getStatic("test")</code></pre>
-</div>
+<p>Above <code>statements</code> list has 4 entries, one for each cypher statement.
+Parser uses comments (becomes the description) or semi-colons to separate statements.</p>
 </div>
 </div>
 </div>
@@ -776,33 +759,89 @@ MERGE (c:Country {country: apoc.text.toUpperCase(COALESCE(row.Country, 'unknown'
 <div class="sect1">
 <h2 id="_developers_guide">Developers Guide</h2>
 <div class="sectionbody">
+<table class="tableblock frame-all grid-all spread">
+<caption class="title">Table 3. Modules</caption>
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Module</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>neo4k-testdata</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">CSV and JSON test data generator module.
+Generates test data files for loading through Cypher.
+Internal only, outputs files to <code>testdata/generator</code> folder.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>neo4k-dsl</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Cypher DSL.
+Cypher construction kit for loading from AsciiDoc/Markdown/Text files,
+or constructing in code with DSL like blocks.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>neo4k-api</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Main Embedded and Bolt service adaptor and result processing objects.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>neo4k-reporting</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Reporting module for processing results and converting into CSV/PDF/XLS reports.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>neo4k-springboot</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Working example of pulling it all together into a springboot application.</p></td>
+</tr>
+</tbody>
+</table>
 <div class="paragraph">
 <p>Neo4jService adaptor is intended to standardise across Bolt and Embedded drivers
-and therefore the project needs an instance of Neo4j to be running on a specific port.
+and therefore the project needs an instance of Neo4j to be running for the build.
 This is so all the capabilities can be tested against both embedded and bolt instances.</p>
+</div>
+<div class="paragraph">
+<p>The project uses <a href="https://www.testcontainers.org/modules/databases/neo4j/">Neo4j TestContainer</a>
+to create an instance of Neo4j Graph Database during the build, for testing bolt compatibility.</p>
+</div>
+<div class="paragraph">
+<p>Standard test suites are captured in interfaces (with default implementations) so that different
+drivers can be tested to pass the exact same tests.  See <code>neo4k-api</code> test packages.</p>
+</div>
+<div class="sect2">
+<h3 id="_installing_and_configuring_neo4j_graph_database">Installing and configuring Neo4j graph database</h3>
+<div class="paragraph">
+<p>If you wish to play with your own remote instance of Neo4j using some of the tests you&#8217;ll need to configure it correctly.</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>An instance of Neo4j Graph Database (check for compatible version used in project)</p>
+<p>Install your own instance of <a href="https://neo4j.com/download/">Neo4j Graph Database</a> (check for compatible version used in project)</p>
 </li>
 <li>
-<p>The Neo4j Graph Database to be available on port <code>7987</code> (open <code>conf/neo4j.conf</code> or 'Manage' &gt; 'Settings' in your Neo4j Desktop project)</p>
+<p>Suggest changing the Neo4j Graph Database port to something else e.g. <code>7987</code> (open <code>conf/neo4j.conf</code> or <code>Manage &gt; Settings</code> in your Neo4j Desktop project)</p>
 </li>
 <li>
-<p>The h2 database jar installed in the plugins folder</p>
+<p>Add the apoc jar into the neo4j plugins folder (you can get the version from the <code>pom.xml</code> and copy the jar from the local maven repository)</p>
 </li>
 <li>
-<p>The setting to restrict import folder access should be commented out</p>
+<p>Add the h2 database jar into the neo4j plugins folder (you can get the version from the <code>pom.xml</code> and copy the jar from the local maven repository)</p>
+</li>
+<li>
+<p>Comment out the setting to restrict import folder access</p>
 </li>
 </ul>
 </div>
 <div class="quoteblock">
 <blockquote>
 <div class="paragraph">
-<p>Warning : Database will be cleared with every test, hence the project does not use the default port</p>
+<p>Warning : Database will be cleared with every test, hence the project should not use the default port</p>
 </div>
 </blockquote>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_installing_h2_database_plugin">Installing h2 database plugin</h3>
@@ -860,16 +899,13 @@ dbms.connector.https.listen_address=:7973</code></pre>
 </li>
 </ul>
 </div>
-<div class="paragraph">
-<p><em>Note:  please read above for prerequisites to allow the tests to work</em></p>
-</div>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2019-06-27 15:53:22 BST
+Last updated 2019-07-30 15:29:07 BST
 </div>
 </div>
 </body>

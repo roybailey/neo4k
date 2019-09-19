@@ -9,9 +9,6 @@ import java.io.File
 import java.net.InetAddress
 
 
-private val LOG = KotlinLogging.logger("Neo4jBoltTest")
-
-
 /**
  * Direct driver sample code to investigate query/result structure/performance outside the Neo4jService solution
  */
@@ -19,6 +16,8 @@ class Neo4jEmbeddedTest(
         neo4jUri: String,
         boltPort: Int = 7988,
         neo4jConfiguration: String = "/neo4j.conf") {
+
+    private val logger = KotlinLogging.logger {}
 
     lateinit var graphDb: GraphDatabaseService
 
@@ -35,18 +34,18 @@ class Neo4jEmbeddedTest(
                     .setConfig(bolt.enabled, "true")
                     .setConfig(bolt.listen_address, boltListenAddress)
                     .setConfig(bolt.advertised_address, boltAdvertisedAddress)
-            LOG.info("Creating Neo4j Bolt Connector on Port : $boltPort")
-            LOG.info("Creating Neo4j Bolt Listen Address : $boltListenAddress")
-            LOG.info("Creating Neo4j Bolt Advertised Address : $boltAdvertisedAddress")
+            logger.info("Creating Neo4j Bolt Connector on Port : $boltPort")
+            logger.info("Creating Neo4j Bolt Listen Address : $boltListenAddress")
+            logger.info("Creating Neo4j Bolt Advertised Address : $boltAdvertisedAddress")
         }
 
         try {
             graphDb = graphDbBuilder.newGraphDatabase()
         } catch (err: Exception) {
-            LOG.error("########### ########## ########## ########## ##########")
-            LOG.error("!!!!!!!!!! Error creating Neo4j Database !!!!!!!!!!")
-            LOG.error("Error creating Neo4j Database", err)
-            LOG.error("########### ########## ########## ########## ##########")
+            logger.error("########### ########## ########## ########## ##########")
+            logger.error("!!!!!!!!!! Error creating Neo4j Database !!!!!!!!!!")
+            logger.error("Error creating Neo4j Database", err)
+            logger.error("########### ########## ########## ########## ##########")
             System.exit(-1)
         }
 
@@ -65,11 +64,11 @@ class Neo4jEmbeddedTest(
             val result = graphDb.execute("match (m:Movie)-[:DIRECTED]-(d:Person) return m, d", emptyMap())
             while (result.hasNext()) {
                 val record = result.next()
-                LOG.info { record }
+                logger.info { record }
                 val movie = (record["m"] as Node)
                 val director = (record["d"] as Node)
-                LOG.info { "movieId=${movie.id} directorId=${director.id}" }
-                LOG.info { "movie.labels=${movie.labels} director.labels=${director.labels}" }
+                logger.info { "movieId=${movie.id} directorId=${director.id}" }
+                logger.info { "movie.labels=${movie.labels} director.labels=${director.labels}" }
 
                 if (!mapDirectors.containsKey(director.id.toString()))
                     mapDirectors[director.id.toString()] = PersonResult(director.id,
@@ -88,12 +87,12 @@ class Neo4jEmbeddedTest(
             success()
         }
 
-        mapMovies.forEach { LOG.info { it } }
+        mapMovies.forEach { logger.info { it } }
     }
 
     fun shutdown() {
         graphDb.shutdown()
-        LOG.info { "Closed Neo4j connection" }
+        logger.info { "Closed Neo4j connection" }
     }
 }
 

@@ -23,6 +23,7 @@ class Neo4jBoltRecord(val record: Record) : Neo4jServiceRecord {
     override fun size(): Int = record.size()
     override fun asMap(): Map<String, Any> = record.asMap()
     override fun fields(): List<Pair<String, Any>> = record.fields().map { Pair(it.key(), unwrapBoltValue(it.value())) }
+    override fun toString(): String = super.toString() + keys()
 
 
     companion object {

@@ -6,7 +6,7 @@ import org.assertj.core.api.Assertions.assertThat
 
 open class Neo4jRecordTest {
 
-    val LOG = KotlinLogging.logger { this::class.qualifiedName }
+    val logger = KotlinLogging.logger { this::class.qualifiedName }
 
 
     protected fun createNeo4jServiceRecord(template: Map<String, Any>, vararg more: Pair<String, Any>): Neo4jServiceRecord {
@@ -54,7 +54,7 @@ open class Neo4jRecordTest {
         val expectedValues = expected.values()
         assertThat(actualValues.size).isEqualTo(expectedValues.size)
         expectedValues.forEachIndexed { index, any ->
-            LOG.info { "$index actual=[${actualValues[index]::class.qualifiedName}] expected=[${expectedValues[index]::class.qualifiedName}]" }
+            logger.info { "$index actual=[${actualValues[index]::class.qualifiedName}] expected=[${expectedValues[index]::class.qualifiedName}]" }
             when (expectedValues[index]) {
                 is Neo4jServiceRecord -> {
                     assertThat((actualValues[index] as Neo4jServiceRecord).asMap())
@@ -71,7 +71,7 @@ open class Neo4jRecordTest {
             actualKeys.remove(key)
         }
         if (actualKeys.size > 0)
-            LOG.warn { "Actual record has more keys than expected $actualKeys" }
+            logger.warn { "Actual record has more keys than expected $actualKeys" }
         assertThat(actualKeys).isEmpty()
         assertThat(actual.size()).isEqualTo(expected.size())
         val actualFields = actual.fields()
@@ -83,8 +83,8 @@ open class Neo4jRecordTest {
     }
 
     private fun assertNeo4jServiceRecordValue(key:String, actualValue: Any?, expectedValue: Any?) {
-        LOG.warn { "Asserting $key actual=$actualValue expected=$expectedValue" }
-        LOG.warn { "Asserting $key actual=${actualValue!!::class.supertypes} expected=${expectedValue!!::class.supertypes}" }
+        logger.warn { "Asserting $key actual=$actualValue expected=$expectedValue" }
+        logger.warn { "Asserting $key actual=${actualValue!!::class.supertypes} expected=${expectedValue!!::class.supertypes}" }
         when (expectedValue) {
             is Neo4jServiceRecord -> assertThat((actualValue as Neo4jServiceRecord).asMap()).isEqualTo(expectedValue.asMap())
             else -> assertThat(actualValue).isEqualTo(expectedValue)

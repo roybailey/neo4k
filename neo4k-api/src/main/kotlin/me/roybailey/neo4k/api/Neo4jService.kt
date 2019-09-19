@@ -1,6 +1,8 @@
 package me.roybailey.neo4k.api
 
 import me.roybailey.neo4k.bolt.Neo4jBoltService
+import me.roybailey.neo4k.dsl.CypherDsl.apocGetStatic
+import me.roybailey.neo4k.dsl.CypherDsl.apocSetStatic
 import me.roybailey.neo4k.embedded.Neo4jEmbeddedService
 import org.neo4j.procedure.Name
 import org.neo4j.procedure.UserFunction
@@ -50,7 +52,6 @@ interface Neo4jServiceRecord {
 
     fun id() = asLong("id")
     fun labels() = asList<String>("labels")
-
 }
 
 
@@ -69,11 +70,7 @@ val emptyNeo4jServiceRecord = object : Neo4jServiceRecord {
 
 class Neo4jMapRecord(val template: Map<String, Any>, vararg more: Pair<String, Any>) : Neo4jServiceRecord {
 
-    val record: Map<String, Any>
-
-    init {
-        record = mutableMapOf<String, Any>().also { it.putAll(template) }.also { it.putAll(more) }.toMap()
-    }
+    val record: Map<String, Any> = mutableMapOf<String, Any>().also { it.putAll(template) }.also { it.putAll(more) }.toMap()
 
     override fun keys(): List<String> = record.entries.map { it.key }
     override fun values(): List<Any> = record.entries.map { it.value }
@@ -84,6 +81,7 @@ class Neo4jMapRecord(val template: Map<String, Any>, vararg more: Pair<String, A
     override fun size(): Int = record.size
     override fun asMap(): Map<String, Any> = record
     override fun fields(): List<Pair<String, Any>> = record.entries.map { Pair(it.key, it.value) }
+    override fun toString(): String = super.toString() + keys()
 }
 
 
@@ -129,8 +127,8 @@ interface Neo4jService {
     /**
      * Query for a list of records
      *
-     * @param cypher - the cypher query string
-     * @param params - the map of cypher query parameters
+     * @param cypher - the append query string
+     * @param params - the map of append query parameters
      * @param mapper - the record mapper to convert Neo4jServiceRecord objects into <T> objects
      * @return list of <T> objects; otherwise empty list
      */
@@ -147,8 +145,8 @@ interface Neo4jService {
     /**
      * Query for an object
      *
-     * @param cypher - the cypher query string
-     * @param params - the map of cypher query parameters
+     * @param cypher - the append query string
+     * @param params - the map of append query parameters
      * @param mapper - the record mapper to convert the first Neo4jServiceRecord object into <T> object;
      * null to take the singular value returned as a primitive
      * @return the object result
@@ -163,6 +161,38 @@ interface Neo4jService {
             }
         }
         return result
+    }
+
+
+    /**
+     * Sets an apoc static value in the neo4j database, for use in cypher later
+     * @param key the name of the static variable to assign
+     * @param value the value to assign the static variable
+     * @return this service for chaining multiple calls
+     */
+    fun setStatic(key: String, value: Any): Neo4jService {
+        // set static global variables such as sensitive connection values...
+        execute(apocSetStatic(key, value.toString()), emptyMap())
+        val storedValue = getStatic(key, value)
+        if (storedValue != value)
+            throw RuntimeException("Failed to assign static key [$key] with value [$value], came back with [$storedValue] instead")
+        return this
+    }
+
+
+    /**
+     * Gets an apoc static value from the neo4j database
+     * @param key the name of the static variable to assign
+     * @param defaultValue the value to return if no static variable value is found (defaults to null)
+     * @return the static variable value from the database; otherwise the default value provided
+     */
+    fun getStatic(key: String, defaultValue: Any? = null): Any? {
+        var result: Any? = null
+        execute(apocGetStatic(key), emptyMap()) {
+            if (it.hasNext())
+                result = it.single()["value"]
+        }
+        return result?.let { result } ?: defaultValue
     }
 
 

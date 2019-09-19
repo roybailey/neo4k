@@ -26,14 +26,18 @@
         <kotlin-logging.version>1.6.24</kotlin-logging.version>
 
         <!-- testing -->
-        <junit.version>5.3.2</junit.version>
+        <junit.version>5.5.1</junit.version>
         <assertj.version>3.6.1</assertj.version>
         <mokito.version>2.1.0</mokito.version>
+        <testcontainers.version>1.11.4</testcontainers.version>
 
     </properties>
 
     <modules>
+        <module>neo4k-testdata</module>
+        <module>neo4k-dsl</module>
         <module>neo4k-api</module>
+        <module>neo4k-reporting</module>
         <module>neo4k-springboot</module>
     </modules>
 

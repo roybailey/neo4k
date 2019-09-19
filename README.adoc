@@ -39,13 +39,13 @@ _At this time the project is not focused or mature enough to be used for mission
     <dependency>
         <groupId>me.roybailey</groupId>
         <artifactId>neo4k-api</artifactId>
-        <version>0.1.0</version>
+        <version>0.2.0</version>
     </dependency>
 ```
 
 ### Gradle
 
-`implementation("me.roybailey:neo4k-api:0.1.0")`
+`implementation("me.roybailey:neo4k-api:0.2.0")`
 
 
 ## Getting Started
@@ -54,20 +54,17 @@ _At this time the project is not focused or mature enough to be used for mission
 |===
 |Noteworthy Class/Concept |Description
 
+|`CypherDsl`
+|common cypher commands or cypher construction utilities (can be used independently of everything else with dependency `neo4k-dsl`)
+
+|`QueryStatement`
+|utility object for loading cypher queries from AsciiDoc/Markdown or regular text files
+
 |`Neo4jService`
 |the low-level neo4j driver interface, through which all cypher is executed
 
 |`Neo4jServiceRecord`
 |the low-level neo4j record returned from running cypher queries, standardised for both embedded and bolt responses
-
-|`QueryStatement`
-|utility object for loading cypher queries from AsciiDoc/markdown or regular text files
-
-|`Neo4jCypher`
-|common cypher commands or cypher command construction utilities
-
-|`Neo4jApoc`
-|common cypher commands or cypher command construction utilities for Apoc library
 
 |
 |===
@@ -164,62 +161,87 @@ Create a remote bolt instance using the `bolt://` uri
 This should get you connected to your running embedded database and allow you to query it using the browser. 
 
 
+### `CypherDsl`
+
+> file:///./CypherDsl.adoc[CypherDsl Documentation]
+
+
 ### `QueryStatement` utilities
 
 Utility object for loading cypher queries from AsciiDoc/markdown or regular text files.  For example...
 
 ```
-QueryStatement.parseQueryScriptStatements(cypherScriptTextWithMultipleStatements)
+        val statements:List<QueryStatement> = QueryStatement.parseQueryScriptStatements("""
+
+            // query movie by title
+            match (m:Movie { title: ${'$'}title }
+
+            // query movie by title since released date
+            match (m:Movie { title: ${'$'}title }
+            where m.released > ${'$'}released
+
+            // Create indexes
+            CREATE INDEX ON :Product(productID);
+            CREATE INDEX ON :Category(categoryID);
+
+        """.trimIndent())
 ```
 
-### `Neo4jCypher` utilities
-
-Utility object for constructing common cypher queries.  For example...
-
-```
-Neo4jCypher.loadCsvWithHeaders("data.csv","""
-MERGE (c:Country {country: apoc.text.toUpperCase(COALESCE(row.Country, 'unknown'))})
-              SET c.region = row.Region
-            MERGE (p:Product {product: row.`Item Type`})
-            MERGE (o:Order {orderId: row.`Order ID`})
-              SET o.salesChannel = row.`Sales Channel`,
-                  o.orderPriority = row.`Order Priority`,
-                  o.orderDate = row.`Order Date`,
-                  o.shipDate = row.`Ship Date`,
-                  o.quantity = row.`Units Sold`,
-                  o.unitPrice = row.`Unit Price`
-              MERGE (o)-[:FROM]->(c)
-              MERGE (o)-[:OF]->(p)
-              RETURN count(p) as totalProducts
-""".trimIndent())
-```
-
-
-### `Neo4jApoc` utilities
-
-Utility object for constructing common cypher queries from apoc library.  For example...
-
-```
-    val neo4jApoc = Neo4jApoc(myNeo4jService)
-    // save a static value through apoc query
-    neo4jApoc.setStatic("test", "hello apoc")
-    // load a static value through apoc query
-    val value = neo4jApoc.getStatic("test")
-```
+Above `statements` list has 4 entries, one for each cypher statement.
+Parser uses comments (becomes the description) or semi-colons to separate statements.
 
 
 ## Developers Guide
 
+.Modules
+|===
+|Module |Description
+
+|`neo4k-testdata`
+|CSV and JSON test data generator module.
+Generates test data files for loading through Cypher.
+Internal only, outputs files to `testdata/generator` folder.
+
+|`neo4k-dsl`
+|Cypher DSL.
+Cypher construction kit for loading from AsciiDoc/Markdown/Text files,
+or constructing in code with DSL like blocks.
+
+|`neo4k-api`
+|Main Embedded and Bolt service adaptor and result processing objects.
+
+|`neo4k-reporting`
+|Reporting module for processing results and converting into CSV/PDF/XLS reports.
+
+|`neo4k-springboot`
+|Working example of pulling it all together into a springboot application.
+
+|===
+
+
 Neo4jService adaptor is intended to standardise across Bolt and Embedded drivers
-and therefore the project needs an instance of Neo4j to be running on a specific port.
+and therefore the project needs an instance of Neo4j to be running for the build.
 This is so all the capabilities can be tested against both embedded and bolt instances.
 
-* An instance of Neo4j Graph Database (check for compatible version used in project)
-* The Neo4j Graph Database to be available on port `7987` (open `conf/neo4j.conf` or 'Manage' > 'Settings' in your Neo4j Desktop project)  
-* The h2 database jar installed in the plugins folder
-* The setting to restrict import folder access should be commented out  
+The project uses https://www.testcontainers.org/modules/databases/neo4j/[Neo4j TestContainer]
+to create an instance of Neo4j Graph Database during the build, for testing bolt compatibility.
 
-> Warning : Database will be cleared with every test, hence the project does not use the default port
+Standard test suites are captured in interfaces (with default implementations) so that different
+drivers can be tested to pass the exact same tests.  See `neo4k-api` test packages.
+
+
+### Installing and configuring Neo4j graph database
+
+If you wish to play with your own remote instance of Neo4j using some of the tests you'll need to configure it correctly.
+
+* Install your own instance of https://neo4j.com/download/[Neo4j Graph Database] (check for compatible version used in project)
+* Suggest changing the Neo4j Graph Database port to something else e.g. `7987` (open `conf/neo4j.conf` or `Manage > Settings` in your Neo4j Desktop project)
+* Add the apoc jar into the neo4j plugins folder (you can get the version from the `pom.xml` and copy the jar from the local maven repository)
+* Add the h2 database jar into the neo4j plugins folder (you can get the version from the `pom.xml` and copy the jar from the local maven repository)
+* Comment out the setting to restrict import folder access
+
+> Warning : Database will be cleared with every test, hence the project should not use the default port
+
 
 ### Installing h2 database plugin
 
@@ -262,4 +284,3 @@ dbms.connector.https.listen_address=:7973
 
 * `mvn clean install`
 
-__Note:  please read above for prerequisites to allow the tests to work__

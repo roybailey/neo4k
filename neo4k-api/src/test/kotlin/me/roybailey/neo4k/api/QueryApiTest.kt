@@ -1,18 +1,21 @@
 package me.roybailey.neo4k.api
 
-import me.roybailey.neo4k.util.MarkdownProperties
+import me.roybailey.neo4k.dsl.MarkdownProperties
+import me.roybailey.neo4k.dsl.QueryStatement
+import me.roybailey.neo4k.dsl.toNeo4j
+import me.roybailey.neo4k.testdata.UnitTestBase
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 
-class QueryApiTest : BaseTest() {
+class QueryApiTest : UnitTestBase() {
 
 
     @Test
     fun `test parameter parsing regexp`() {
-        Neo4jCypher.toNeo4j("""
+        """
             match (m:Movie { title : __title })
-        """.trimIndent()).let {
+        """.toNeo4j().trimIndent().let {
             val paramSearch = Regex(QueryStatement.REGEX_PARAM)
             val all = paramSearch.findAll(it)
             val matches = all.map {  it.value }.toList()
@@ -20,10 +23,10 @@ class QueryApiTest : BaseTest() {
             assertThat(matches[0]).isEqualTo("${'$'}title")
         }
 
-        Neo4jCypher.toNeo4j("""
+        """
             match (m:Movie)
             where m.title = __title and m.released > __releasedSince
-        """.trimIndent()).let {
+        """.toNeo4j().trimIndent().let {
             val paramSearch = Regex(QueryStatement.REGEX_PARAM)
             val all = paramSearch.findAll(it)
             val matches = all.map {  it.value }.toList()
@@ -81,7 +84,7 @@ class QueryApiTest : BaseTest() {
 
         val script = QueryApiTest::class.java.getResource("/cypher/time-tree-create.cypher").readText()
         val statements = QueryStatement.parseQueryScriptStatements(script)
-        statements.forEachIndexed { index, statement -> LOG.info { "$index) query=$statement" } }
+        statements.forEachIndexed { index, statement -> logger.info { "$index) query=$statement" } }
         assertThat(statements).hasSize(4)
     }
 
@@ -90,11 +93,11 @@ class QueryApiTest : BaseTest() {
     fun `test multiple named cypher statements from adoc`() {
 
         val queries = MarkdownProperties.loadFromClasspath("/queries/time-tree.adoc", this)
-        queries.entries.forEachIndexed { index, query -> LOG.info { "$index) key=${query.key} value=${query.value}" } }
+        queries.entries.forEachIndexed { index, query -> logger.info { "$index) key=${query.key} value=${query.value}" } }
         assertThat(queries).hasSize(2)
 
         val statements = QueryStatement.parseQueryScriptStatements(queries)
-        statements.entries.forEachIndexed { index, entry -> LOG.info { "$index) key=${entry.key} query=${entry.value}" } }
+        statements.entries.forEachIndexed { index, entry -> logger.info { "$index) key=${entry.key} query=${entry.value}" } }
         assertThat(statements["createTimeTree"]).hasSize(4)
         assertThat(statements["deleteTimeTree"]).hasSize(1)
     }

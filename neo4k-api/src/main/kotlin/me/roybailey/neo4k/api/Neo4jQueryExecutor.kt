@@ -1,5 +1,9 @@
 package me.roybailey.neo4k.api
 
+import me.roybailey.neo4k.dsl.QueryParams
+import me.roybailey.neo4k.dsl.QueryResultConsumer
+import me.roybailey.neo4k.dsl.QueryStatement
+import me.roybailey.neo4k.dsl.SimpleQueryResult
 import mu.KotlinLogging
 import org.neo4j.graphdb.Node
 
@@ -9,13 +13,13 @@ import org.neo4j.graphdb.Node
  */
 class Neo4jQueryExecutor(val neo4jService: Neo4jService) {
 
-    val LOG = KotlinLogging.logger {}
+    val logger = KotlinLogging.logger {}
 
 
 
     /**
      * QueryExecutor method
-     * Runs a cypher query and wraps the Neo4j results in a QueryResult interface
+     * Runs a append query and wraps the Neo4j results in a QueryResult interface
      */
     fun run(query: QueryStatement, params: QueryParams, consumer: QueryResultConsumer) {
         neo4jService.execute(query.toQueryString(params), params) {
@@ -28,7 +32,7 @@ class Neo4jQueryExecutor(val neo4jService: Neo4jService) {
 
     /**
      * QueryExecutor method
-     * Runs a cypher query and wraps the Neo4j results in a QueryResult interface
+     * Runs a append query and wraps the Neo4j results in a QueryResult interface
      * Additionally flattening any node or map values into columns
      */
     fun runFlatMap(query: QueryStatement, params: QueryParams, consumer: QueryResultConsumer) {

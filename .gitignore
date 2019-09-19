@@ -1,3 +1,7 @@
+# dont checkin any files from testdata folder as these are large generated data sets for and from tests (but include folder and README.md)
+testdata/**
+!testdata/README.md
+
 *.log
 .gradle
 **/build/

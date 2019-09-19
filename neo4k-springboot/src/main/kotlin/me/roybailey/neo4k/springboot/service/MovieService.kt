@@ -2,18 +2,17 @@ package me.roybailey.neo4k.springboot.service
 
 import me.roybailey.neo4k.api.Neo4jService
 import me.roybailey.neo4k.api.Neo4jServiceRecord
-import me.roybailey.neo4k.api.toNeo4j
+import me.roybailey.neo4k.dsl.toNeo4j
 import me.roybailey.neo4k.springboot.storage.Movie
 import me.roybailey.neo4k.springboot.storage.Person
 import mu.KotlinLogging
 import org.springframework.stereotype.Component
-import java.lang.RuntimeException
 
 
 @Component
 class MovieService(val neo4jService: Neo4jService) {
 
-    val LOG = KotlinLogging.logger {}
+    val logger = KotlinLogging.logger {}
 
 
     fun movies(): List<Movie> {
@@ -110,7 +109,7 @@ class MovieService(val neo4jService: Neo4jService) {
                         title = record["title"] as String,
                         released = (record["released"] as Long).toInt()
                 )
-                LOG.info { "New Movie(${movie!!.id}) created/merged for title '${movie!!.title}'" }
+                logger.info { "New Movie(${movie!!.id}) created/merged for title '${movie!!.title}'" }
             }
         }
 
