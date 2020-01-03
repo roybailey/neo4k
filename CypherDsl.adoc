@@ -31,9 +31,11 @@ RETURN m
 ```
 cypher {
     CREATE("TheMatrix", "Movie") {
-        param("title" to "The Matrix".singleQuoted(),
-                "released" to "1999",
-                "tagline" to "Welcome to the Real World".singleQuoted())
+        param(
+            "title" to "The Matrix".singleQuoted(),
+            "released" to "1999",
+            "tagline" to "Welcome to the Real World".singleQuoted()
+        )
     }
 }
 ```
