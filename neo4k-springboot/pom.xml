@@ -29,11 +29,13 @@
 		<mokito.version>2.1.0</mokito.version>
 
 		<!-- spring -->
-		<spring-boot.version>2.1.4.RELEASE</spring-boot.version>
+		<spring-boot.version>2.2.2.RELEASE</spring-boot.version>
+		<!-- tomcat : downgraded from v9 to v8 to match with springboot v2.x -->
+		<tomcat.version>8.5.37</tomcat.version>
 
 		<!-- graphql -->
-		<graphql-java-kickstart.version>5.9.0</graphql-java-kickstart.version>
-		<graphql-java-tools.version>5.6.0</graphql-java-tools.version>
+		<graphql-java-kickstart.version>6.0.1</graphql-java-kickstart.version>
+		<graphql-java-tools.version>5.7.1</graphql-java-tools.version>
 
 	</properties>
 
