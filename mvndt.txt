@@ -305,8 +305,8 @@
 [INFO] |  +- commons-codec:commons-codec:jar:1.11:compile
 [INFO] |  +- org.apache.commons:commons-collections4:jar:4.2:compile
 [INFO] |  \- org.apache.commons:commons-math3:jar:3.6.1:compile
-[INFO] +- org.apache.pdfbox:pdfbox:jar:2.0.13:compile
-[INFO] |  +- org.apache.pdfbox:fontbox:jar:2.0.13:compile
+[INFO] +- org.apache.pdfbox:pdfbox:jar:2.0.19:compile
+[INFO] |  +- org.apache.pdfbox:fontbox:jar:2.0.19:compile
 [INFO] |  \- commons-logging:commons-logging:jar:1.2:compile
 [INFO] +- com.github.dhorions:boxable:jar:1.5:compile
 [INFO] |  +- org.slf4j:slf4j-api:jar:1.7.10:compile
