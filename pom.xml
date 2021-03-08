@@ -29,7 +29,7 @@
         <junit.version>5.5.1</junit.version>
         <assertj.version>3.6.1</assertj.version>
         <mokito.version>2.1.0</mokito.version>
-        <testcontainers.version>1.11.4</testcontainers.version>
+        <testcontainers.version>1.15.2</testcontainers.version>
 
     </properties>
 
@@ -106,6 +106,32 @@
 
     </dependencies>
 
+
+    <profiles>
+        <profile>
+            <id>Windows</id>
+            <activation>
+                <os>
+                    <family>Windows</family>
+                </os>
+            </activation>
+            <properties>
+                <script.extension>bat</script.extension>
+            </properties>
+        </profile>
+        <profile>
+            <id>unix</id>
+            <activation>
+                <os>
+                    <family>unix</family>
+                </os>
+            </activation>
+            <properties>
+                <script.extension>sh</script.extension>
+            </properties>
+        </profile>
+    </profiles>
+
     <build>
         <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
         <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
@@ -123,7 +149,7 @@
                         </goals>
                         <inherited>false</inherited>
                         <configuration>
-                            <executable>${basedir}/generate.sh</executable>
+                            <executable>${basedir}/generate.${script.extension}</executable>
                         </configuration>
                     </execution>
                 </executions>
