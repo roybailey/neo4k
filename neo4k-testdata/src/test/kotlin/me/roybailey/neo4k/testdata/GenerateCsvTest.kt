@@ -40,9 +40,9 @@ class GenerateCsvTest : UnitTestBase() {
 
             logger.info { "Generating $totalSuppliers suppliers and $productsPerSupplier products into $outputFolder" }
             generate(totalSuppliers, productsPerSupplier).forEachIndexed { supplierIndex, supplier ->
-                suppliers.print(supplierIndex, supplierValues(supplier))
+                suppliers.print(supplierIndex, supplierValues(supplier) as Array<Any>)
                 supplier.products.forEachIndexed { productIndex, product ->
-                    products.print(productIndex, productValues(product))
+                    products.print(productIndex, productValues(product) as Array<Any>)
                 }
             }
             suppliers.close()

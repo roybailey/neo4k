@@ -97,7 +97,7 @@ interface QueryStatement {
                 parameters.clear()
             }
 
-            script.split("\n")
+            script.split("\r", "\n")
                     .filter { it.trim().isNotEmpty() }
                     .forEach { line ->
                         var endOfQuery = false

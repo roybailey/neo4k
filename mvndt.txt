@@ -13,10 +13,10 @@
 [INFO] 
 [INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ neo4k-parent ---
 [INFO] me.roybailey:neo4k-parent:pom:0.2.0-SNAPSHOT
-[INFO] +- org.jetbrains.kotlin:kotlin-stdlib:jar:1.3.21:compile
-[INFO] |  +- org.jetbrains.kotlin:kotlin-stdlib-common:jar:1.3.21:compile
+[INFO] +- org.jetbrains.kotlin:kotlin-stdlib:jar:1.4.31:compile
+[INFO] |  +- org.jetbrains.kotlin:kotlin-stdlib-common:jar:1.4.31:compile
 [INFO] |  \- org.jetbrains:annotations:jar:13.0:compile
-[INFO] +- org.jetbrains.kotlin:kotlin-reflect:jar:1.3.21:compile
+[INFO] +- org.jetbrains.kotlin:kotlin-reflect:jar:1.4.31:compile
 [INFO] +- io.github.microutils:kotlin-logging:jar:1.6.24:compile
 [INFO] |  +- io.github.microutils:kotlin-logging-common:jar:1.6.24:compile
 [INFO] |  \- org.slf4j:slf4j-api:jar:1.7.25:compile
@@ -51,10 +51,10 @@
 [INFO] |  \- com.fasterxml.jackson.core:jackson-annotations:jar:2.9.0:compile
 [INFO] +- com.fasterxml.jackson.datatype:jackson-datatype-jdk8:jar:2.9.8:compile
 [INFO] +- com.fasterxml.jackson.datatype:jackson-datatype-jsr310:jar:2.9.8:compile
-[INFO] +- org.jetbrains.kotlin:kotlin-stdlib:jar:1.3.21:compile
-[INFO] |  +- org.jetbrains.kotlin:kotlin-stdlib-common:jar:1.3.21:compile
+[INFO] +- org.jetbrains.kotlin:kotlin-stdlib:jar:1.4.31:compile
+[INFO] |  +- org.jetbrains.kotlin:kotlin-stdlib-common:jar:1.4.31:compile
 [INFO] |  \- org.jetbrains:annotations:jar:13.0:compile
-[INFO] +- org.jetbrains.kotlin:kotlin-reflect:jar:1.3.21:compile
+[INFO] +- org.jetbrains.kotlin:kotlin-reflect:jar:1.4.31:compile
 [INFO] +- io.github.microutils:kotlin-logging:jar:1.6.24:compile
 [INFO] |  +- io.github.microutils:kotlin-logging-common:jar:1.6.24:compile
 [INFO] |  \- org.slf4j:slf4j-api:jar:1.7.25:compile
@@ -90,10 +90,10 @@
 [INFO] |  |  \- com.fasterxml.jackson.core:jackson-annotations:jar:2.9.0:test
 [INFO] |  +- com.fasterxml.jackson.datatype:jackson-datatype-jdk8:jar:2.9.8:test
 [INFO] |  \- com.fasterxml.jackson.datatype:jackson-datatype-jsr310:jar:2.9.8:test
-[INFO] +- org.jetbrains.kotlin:kotlin-stdlib:jar:1.3.21:compile
-[INFO] |  +- org.jetbrains.kotlin:kotlin-stdlib-common:jar:1.3.21:compile
+[INFO] +- org.jetbrains.kotlin:kotlin-stdlib:jar:1.4.31:compile
+[INFO] |  +- org.jetbrains.kotlin:kotlin-stdlib-common:jar:1.4.31:compile
 [INFO] |  \- org.jetbrains:annotations:jar:13.0:compile
-[INFO] +- org.jetbrains.kotlin:kotlin-reflect:jar:1.3.21:compile
+[INFO] +- org.jetbrains.kotlin:kotlin-reflect:jar:1.4.31:compile
 [INFO] +- io.github.microutils:kotlin-logging:jar:1.6.24:compile
 [INFO] |  +- io.github.microutils:kotlin-logging-common:jar:1.6.24:compile
 [INFO] |  \- org.slf4j:slf4j-api:jar:1.7.25:compile
@@ -264,10 +264,10 @@
 [INFO] |  +- com.fasterxml.jackson.module:jackson-module-kotlin:jar:2.9.8:test
 [INFO] |  +- com.fasterxml.jackson.datatype:jackson-datatype-jdk8:jar:2.9.8:test
 [INFO] |  \- com.fasterxml.jackson.datatype:jackson-datatype-jsr310:jar:2.9.8:test
-[INFO] +- org.jetbrains.kotlin:kotlin-stdlib:jar:1.3.21:compile
-[INFO] |  +- org.jetbrains.kotlin:kotlin-stdlib-common:jar:1.3.21:compile
+[INFO] +- org.jetbrains.kotlin:kotlin-stdlib:jar:1.4.31:compile
+[INFO] |  +- org.jetbrains.kotlin:kotlin-stdlib-common:jar:1.4.31:compile
 [INFO] |  \- org.jetbrains:annotations:jar:13.0:compile
-[INFO] +- org.jetbrains.kotlin:kotlin-reflect:jar:1.3.21:compile
+[INFO] +- org.jetbrains.kotlin:kotlin-reflect:jar:1.4.31:compile
 [INFO] +- io.github.microutils:kotlin-logging:jar:1.6.24:compile
 [INFO] |  \- io.github.microutils:kotlin-logging-common:jar:1.6.24:compile
 [INFO] +- ch.qos.logback:logback-classic:jar:1.2.3:compile
@@ -421,10 +421,10 @@
 [INFO] |  +- com.fasterxml.jackson.datatype:jackson-datatype-jdk8:jar:2.9.8:test
 [INFO] |  \- com.fasterxml.jackson.datatype:jackson-datatype-jsr310:jar:2.9.8:test
 [INFO] +- me.roybailey:neo4k-api:test-jar:tests:0.2.0-SNAPSHOT:test
-[INFO] +- org.jetbrains.kotlin:kotlin-stdlib:jar:1.3.21:compile
-[INFO] |  +- org.jetbrains.kotlin:kotlin-stdlib-common:jar:1.3.21:compile
+[INFO] +- org.jetbrains.kotlin:kotlin-stdlib:jar:1.4.31:compile
+[INFO] |  +- org.jetbrains.kotlin:kotlin-stdlib-common:jar:1.4.31:compile
 [INFO] |  \- org.jetbrains:annotations:jar:13.0:compile
-[INFO] +- org.jetbrains.kotlin:kotlin-reflect:jar:1.3.21:compile
+[INFO] +- org.jetbrains.kotlin:kotlin-reflect:jar:1.4.31:compile
 [INFO] +- io.github.microutils:kotlin-logging:jar:1.6.24:compile
 [INFO] |  \- io.github.microutils:kotlin-logging-common:jar:1.6.24:compile
 [INFO] +- ch.qos.logback:logback-classic:jar:1.2.3:compile

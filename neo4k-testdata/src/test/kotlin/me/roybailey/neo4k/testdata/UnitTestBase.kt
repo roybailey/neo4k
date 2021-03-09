@@ -66,13 +66,13 @@ abstract class UnitTestBase {
         var projectFolder = gitRootFolder!!.absolutePath.also {
             logger.info { "Using projectFolder from $it" }
         }
-        var moduleFolder = cwd.substring(0, cwd.indexOf("/", projectFolder.length + 1)).also {
+        var moduleFolder = cwd.substring(0, cwd.indexOf('/', projectFolder.length + 1)).also {
             logger.info { "Using moduleFolder from $it" }
         }
-        var projectTestDataFolder = "$projectFolder/testdata".also {
+        var projectTestDataFolder = "$projectFolder/testdata".replace('/',File.separatorChar).also {
             logger.info { "Using projectTestDataFolder from $it" }
         }
-        var moduleTestDataFolder = "$moduleFolder/src/test/resources/testdata".also {
+        var moduleTestDataFolder = "$moduleFolder/src/test/resources/testdata".replace('/',File.separatorChar).also {
             logger.info { "Using moduleTestDataFolder from $it" }
         }
     }
