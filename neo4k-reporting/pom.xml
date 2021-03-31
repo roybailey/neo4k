@@ -24,7 +24,7 @@
         <apache-io.version>2.6</apache-io.version>
         <apache-pdfbox.version>2.0.19</apache-pdfbox.version>
         <boxable.version>1.5</boxable.version>
-        <guava.version>27.0.1-jre</guava.version>
+        <guava.version>29.0-jre</guava.version>
     </properties>
 
     <dependencies>
