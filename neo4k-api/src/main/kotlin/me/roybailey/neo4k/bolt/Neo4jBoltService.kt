@@ -7,6 +7,7 @@ import org.neo4j.driver.v1.Driver
 import org.neo4j.driver.v1.GraphDatabase
 import java.net.InetAddress
 import java.util.stream.Stream
+import kotlin.system.exitProcess
 
 
 @Suppress("UNCHECKED_CAST")
@@ -27,7 +28,16 @@ open class Neo4jBoltService(val options: Neo4jServiceOptions) : Neo4jService {
         logger.info("Created Neo4j Database from: $neo4jConfiguration")
 
         val neo4jUri = if (options.neo4jUri.substring(7).contains(":")) options.neo4jUri else options.neo4jUri + ":" + options.boltPort
-        driver = GraphDatabase.driver(neo4jUri, AuthTokens.basic(options.username, options.password))
+
+        try {
+            driver = GraphDatabase.driver(neo4jUri, AuthTokens.basic(options.username, options.password))
+        } catch(err: Exception) {
+            logger.error("########### ########## ########## ########## ##########")
+            logger.error("!!!!!!!!!! Error connecting to Neo4j Database !!!!!!!!!!")
+            logger.error("Error connecting to Neo4j Database", err)
+            logger.error("########### ########## ########## ########## ##########")
+            exitProcess(-1)
+        }
 
         // Registers a shutdown hook for the Neo4j instance so that it
         // shuts down nicely when the VM exits (even if you "Ctrl-C" the

@@ -11,6 +11,7 @@ import java.io.File
 import java.net.InetAddress
 import java.time.Instant.now
 import java.util.stream.Stream
+import kotlin.system.exitProcess
 
 
 @Suppress("UNCHECKED_CAST")
@@ -61,7 +62,7 @@ open class Neo4jEmbeddedService(val options: Neo4jServiceOptions) : Neo4jService
             logger.error("!!!!!!!!!! Error creating Neo4j Database !!!!!!!!!!")
             logger.error("Error creating Neo4j Database", err)
             logger.error("########### ########## ########## ########## ##########")
-            System.exit(-1)
+            exitProcess(-1)
         }
 
         logger.info("Created Neo4j Database from: $neo4jConfiguration")
