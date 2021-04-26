@@ -20,7 +20,7 @@
     <properties>
         <apache-commons.version>3.8.1</apache-commons.version>
         <apache-csv.version>1.6</apache-csv.version>
-        <apache-io.version>2.6</apache-io.version>
+        <apache-io.version>2.7</apache-io.version>
         <jackson.version>2.9.8</jackson.version>
     </properties>
 
