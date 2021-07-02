@@ -1,13 +1,3 @@
-= CypherDSL =
-
-> Auto-generated from code.  DO NOT EDIT
-
-:toc:
-:toc-placement!:
-:toc-title: TABLE OF CONTENTS
-:toclevels: 2
-
-toc::[]
 
 
 === Simple Create Cypher DSL
