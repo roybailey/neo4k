@@ -2,6 +2,8 @@ package me.roybailey.neo4k.embedded
 
 import me.roybailey.neo4k.api.*
 import me.roybailey.neo4k.testdata.UnitTestBase
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.Test
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInfo
@@ -34,7 +36,6 @@ abstract class EmbeddedNeo4jServiceTestBase : UnitTestBase() {
     fun shutdownDatabase(testInfo: TestInfo) {
         neo4jService.shutdown()
     }
-
 }
 
 

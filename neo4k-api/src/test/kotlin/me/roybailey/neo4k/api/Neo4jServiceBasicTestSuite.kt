@@ -1,7 +1,6 @@
 package me.roybailey.neo4k.api
 
 import me.roybailey.neo4k.dsl.toNeo4j
-import mu.KLogger
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.SoftAssertions
 import org.junit.jupiter.api.Test

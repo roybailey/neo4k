@@ -26,7 +26,6 @@ class Neo4jEmbeddedRecord(val record: Map<String, Any>) : Neo4jServiceRecord {
                         override fun getLabels(): MutableIterable<Label> = TODO("not implemented")
                         override fun getAllProperties(): MutableMap<String, Any> = data.asMap().toMutableMap()
                         override fun addLabel(label: Label?) = TODO("not implemented")
-                        override fun getGraphDatabase(): GraphDatabaseService = TODO("not implemented")
                         override fun setProperty(key: String?, value: Any?) = TODO("not implemented")
                         override fun getId(): Long = TODO("not implemented")
                         override fun hasLabel(label: Label?): Boolean = TODO("not implemented")
@@ -38,7 +37,6 @@ class Neo4jEmbeddedRecord(val record: Map<String, Any>) : Neo4jServiceRecord {
                         override fun getRelationships(vararg reltypes: RelationshipType?): MutableIterable<Relationship> = TODO("not implemented")
                         override fun getRelationships(direction: Direction?, vararg reltypes: RelationshipType?): MutableIterable<Relationship> = TODO("not implemented")
                         override fun getRelationships(direction: Direction?): MutableIterable<Relationship> = TODO("not implemented")
-                        override fun getRelationships(reltype: RelationshipType?, direction: Direction?): MutableIterable<Relationship> = TODO("not implemented")
                         override fun removeLabel(label: Label?) = TODO("not implemented")
                         override fun removeProperty(key: String?): Any = TODO("not implemented")
                         override fun getProperties(vararg props: String?): MutableMap<String, Any> = TODO("not implemented")
@@ -52,7 +50,6 @@ class Neo4jEmbeddedRecord(val record: Map<String, Any>) : Neo4jServiceRecord {
                         override fun hasRelationship(vararg reltypes: RelationshipType?): Boolean = TODO("not implemented")
                         override fun hasRelationship(direction: Direction?, vararg reltypes: RelationshipType?): Boolean = TODO("not implemented")
                         override fun hasRelationship(direction: Direction?): Boolean = TODO("not implemented")
-                        override fun hasRelationship(reltype: RelationshipType?, direction: Direction?): Boolean = TODO("not implemented")
                         override fun delete() = TODO("not implemented")
                     }
                     else -> data

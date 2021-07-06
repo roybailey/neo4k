@@ -2,3 +2,9 @@
 
 This module contains the main Neo4j service interface and adaptor implementations.
 
+As of Neo4j v4 not all apoc procedures are included in the maven jar, apoc-<version>-core.jar,
+instead you need to incude the apoc-<version>-all.jar which you can only get from the release page on GitHub.
+
+https://github.com/neo4j-contrib/neo4j-apoc-procedures/releases[neo4j-apoc-procedures]
+
+Hence when upgrading Neo4j you will need to download this jar and place it in the `lib` folder.

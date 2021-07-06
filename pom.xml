@@ -17,13 +17,15 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- language -->
-        <kotlin.version>1.4.31</kotlin.version>
+        <kotlin.version>1.5.20</kotlin.version>
         <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
         <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
         <java.version>1.8</java.version>
 
         <!-- logging -->
-        <kotlin-logging.version>1.6.24</kotlin-logging.version>
+        <kotlin-logging.version>2.0.8</kotlin-logging.version>
+        <slf4j.version>1.7.5</slf4j.version>
+        <logback.version>1.0.13</logback.version>
 
         <!-- testing -->
         <junit.version>5.5.1</junit.version>
@@ -41,14 +43,21 @@
         <module>neo4k-springboot</module>
     </modules>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>5.5.2</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
 
         <!-- kotlin -->
-        <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-stdlib</artifactId>
-            <version>${kotlin.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-stdlib</artifactId>
@@ -63,13 +72,19 @@
         <!-- logging -->
         <dependency>
             <groupId>io.github.microutils</groupId>
-            <artifactId>kotlin-logging</artifactId>
+            <artifactId>kotlin-logging-jvm</artifactId>
             <version>${kotlin-logging.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.31</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>1.2.3</version>
+            <scope>test</scope>
         </dependency>
 
         <!-- testing -->
@@ -91,6 +106,17 @@
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!--Optional: Supports running Junit4 along with Junit5 -->
+<!--        <dependency>-->
+<!--            <groupId>org.junit.vintage</groupId>-->
+<!--            <artifactId>junit-vintage-engine</artifactId>-->
+<!--            <scope>test</scope>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>org.assertj</groupId>
@@ -190,6 +216,12 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.22.2</version>
+<!--                <configuration>-->
+<!--                    <argLine>-Xmx2048m -XX:MaxPermSize=256m</argLine>-->
+<!--                    <forkCount>3</forkCount>-->
+<!--                    <reuseForks>true</reuseForks>-->
+<!--                    <runOrder>alphabetical</runOrder>-->
+<!--                </configuration>-->
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

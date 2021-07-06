@@ -1,7 +1,6 @@
 package me.roybailey.neo4k.server
 
 import io.javalin.Javalin
-import org.testcontainers.Testcontainers
 import java.net.ServerSocket
 import java.util.concurrent.ConcurrentHashMap
 

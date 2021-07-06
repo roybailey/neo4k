@@ -6,9 +6,9 @@ import me.roybailey.neo4k.bolt.KNeo4jContainer
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
-import org.neo4j.driver.v1.AuthTokens
-import org.neo4j.driver.v1.Driver
-import org.neo4j.driver.v1.GraphDatabase
+import org.neo4j.driver.AuthTokens
+import org.neo4j.driver.Driver
+import org.neo4j.driver.GraphDatabase
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 

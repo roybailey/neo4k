@@ -2,13 +2,17 @@ package me.roybailey.neo4k.embedded
 
 import me.roybailey.neo4k.api.*
 import mu.KotlinLogging
+import org.neo4j.configuration.GraphDatabaseSettings.DEFAULT_DATABASE_NAME
+import org.neo4j.configuration.connectors.BoltConnector
+import org.neo4j.configuration.helpers.SocketAddress
+import org.neo4j.dbms.api.DatabaseManagementService
+import org.neo4j.dbms.api.DatabaseManagementServiceBuilder
 import org.neo4j.graphdb.GraphDatabaseService
-import org.neo4j.graphdb.factory.GraphDatabaseFactory
-import org.neo4j.kernel.configuration.BoltConnector
-import org.neo4j.kernel.impl.proc.Procedures
 import org.neo4j.kernel.internal.GraphDatabaseAPI
 import java.io.File
 import java.net.InetAddress
+import java.nio.file.Path
+import java.nio.file.Paths
 import java.time.Instant.now
 import java.util.stream.Stream
 import kotlin.system.exitProcess
@@ -22,7 +26,8 @@ open class Neo4jEmbeddedService(val options: Neo4jServiceOptions) : Neo4jService
 
     private val neo4jConfiguration = Neo4jService::class.java.getResource("/neo4j.conf")
 
-    private var neo4jDatabaseFolder: File
+    lateinit private var neo4jDatabaseFolder: File
+    lateinit var graphDbService: DatabaseManagementService
     lateinit var graphDb: GraphDatabaseService
 
     init {
@@ -38,25 +43,32 @@ open class Neo4jEmbeddedService(val options: Neo4jServiceOptions) : Neo4jService
         }.replace("{timestamp}", now().toString()) + "/graph.db")
         logger.info("Creating Neo4j Database at $neo4jDatabaseFolder")
 
-        val graphDbBuilder = GraphDatabaseFactory()
-                .newEmbeddedDatabaseBuilder(neo4jDatabaseFolder)
-                .loadPropertiesFromURL(neo4jConfiguration)
+        val graphDbBuilder = DatabaseManagementServiceBuilder(neo4jDatabaseFolder.toPath())
+            .loadPropertiesFromFile(Paths.get(neo4jConfiguration.toURI()))
+//        val graphDbBuilderOld = GraphDatabaseFactory()
+//                .newEmbeddedDatabaseBuilder(neo4jDatabaseFolder)
+//                .loadPropertiesFromURL(neo4jConfiguration)
 
         if (boltPort > 0) {
-            val bolt = BoltConnector("0")
-            val boltListenAddress = "0.0.0.0:$boltPort"
-            val boltAdvertisedAddress = InetAddress.getLocalHost().hostName + ":" + boltPort
-            graphDbBuilder.setConfig(bolt.type, "BOLT")
-                    .setConfig(bolt.enabled, "true")
-                    .setConfig(bolt.listen_address, boltListenAddress)
-                    .setConfig(bolt.advertised_address, boltAdvertisedAddress)
+            val bolt = BoltConnector()
+            val boltListenAddress = "0.0.0.0"
+            val boltAdvertisedAddress = InetAddress.getLocalHost().hostName
+            graphDbBuilder
+                .setConfig( BoltConnector.enabled, true )
+                .setConfig( BoltConnector.listen_address, SocketAddress( boltListenAddress, boltPort ))
+                .setConfig( BoltConnector.advertised_address, SocketAddress( InetAddress.getLocalHost().hostName, boltPort ))
+//                    .setConfig(bolt.type, "BOLT")
+//                    .setConfig(bolt.enabled, "true")
+//                    .setConfig(bolt.listen_address, boltListenAddress)
+//                    .setConfig(bolt.advertised_address, boltAdvertisedAddress)
             logger.info("Creating Neo4j Bolt Connector on Port : $boltPort")
             logger.info("Creating Neo4j Bolt Listen Address : $boltListenAddress")
             logger.info("Creating Neo4j Bolt Advertised Address : $boltAdvertisedAddress")
         }
 
         try {
-            graphDb = graphDbBuilder.newGraphDatabase()
+            graphDbService = graphDbBuilder.build()
+            graphDb = graphDbService.database(DEFAULT_DATABASE_NAME);
         } catch (err: Exception) {
             logger.error("########### ########## ########## ########## ##########")
             logger.error("!!!!!!!!!! Error creating Neo4j Database !!!!!!!!!!")
@@ -86,7 +98,7 @@ open class Neo4jEmbeddedService(val options: Neo4jServiceOptions) : Neo4jService
             logger.info("########### ########## ########## ########## ##########")
             logger.info("Shutdown Neo4j Database options=$options instance=${hashCode()}")
             logger.info("########### ########## ########## ########## ##########")
-            graphDb.shutdown()
+            graphDbService.shutdown()
         } catch (err: Exception) {
             logger.warn("Unable to shutdown Neo4j embedded database: $err")
         }
@@ -98,12 +110,16 @@ open class Neo4jEmbeddedService(val options: Neo4jServiceOptions) : Neo4jService
 
     override fun registerProcedures(toRegister: List<Class<*>>): Neo4jService {
         if (isEmbedded()) {
-            // todo replace this deprecated method with selection strategy
-            val procedures = (graphDb as GraphDatabaseAPI).dependencyResolver.resolveDependency(Procedures::class.java)
+            val procedures = graphDb
+                .let { it as GraphDatabaseAPI }
+                .dependencyResolver
+                .resolveDependency(org.neo4j.kernel.api.procedure.GlobalProcedures::class.java)
+
             toRegister.forEach { proc ->
                 try {
                     procedures.registerProcedure(proc, true)
                     procedures.registerFunction(proc, true)
+
                 } catch (e: Exception) {
                     throw RuntimeException("Error registering $proc", e)
                 }
@@ -114,10 +130,10 @@ open class Neo4jEmbeddedService(val options: Neo4jServiceOptions) : Neo4jService
 
 
     override fun execute(cypher: String, params: Map<String, Any>, code: Neo4jResultMapper): Neo4jService {
+
         graphDb.beginTx().run {
             try {
-                val result = graphDb.execute(cypher, params)
-                success()
+                val result = execute(cypher, params)
                 code(object : Neo4jServiceStatementResult {
                     override fun address(): String = neo4jDatabaseFolder.toString()
                     override fun statement(): String = cypher

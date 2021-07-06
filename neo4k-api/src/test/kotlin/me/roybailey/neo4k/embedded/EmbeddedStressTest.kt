@@ -1,9 +1,6 @@
 package me.roybailey.neo4k.embedded
 
 import me.roybailey.neo4k.api.Neo4jServiceStressTest
-import me.roybailey.neo4k.api.Neo4jTestQueries.Companion.CSV_50000_TESTDATA
-import me.roybailey.neo4k.api.Neo4jTestQueries.Companion.CSV_TESTDATA_MERGE_APOC
-import java.io.File
 
 
 /**

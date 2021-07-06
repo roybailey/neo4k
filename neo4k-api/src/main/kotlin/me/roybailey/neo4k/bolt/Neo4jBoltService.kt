@@ -2,9 +2,9 @@ package me.roybailey.neo4k.bolt
 
 import me.roybailey.neo4k.api.*
 import mu.KotlinLogging
-import org.neo4j.driver.v1.AuthTokens
-import org.neo4j.driver.v1.Driver
-import org.neo4j.driver.v1.GraphDatabase
+import org.neo4j.driver.AuthTokens
+import org.neo4j.driver.Driver
+import org.neo4j.driver.GraphDatabase
 import java.net.InetAddress
 import java.util.stream.Stream
 import kotlin.system.exitProcess

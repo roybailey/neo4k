@@ -173,7 +173,7 @@ interface Neo4jService {
     fun setStatic(key: String, value: Any): Neo4jService {
         // set static global variables such as sensitive connection values...
         execute(apocSetStatic(key, value.toString()), emptyMap())
-        val storedValue = getStatic(key, value)
+        val storedValue = getStatic(key)
         if (storedValue != value)
             throw RuntimeException("Failed to assign static key [$key] with value [$value], came back with [$storedValue] instead")
         return this
@@ -213,7 +213,6 @@ interface Neo4jService {
                     apoc.help.Help::class.java,
                     apoc.coll.Coll::class.java,
                     apoc.create.Create::class.java,
-                    apoc.index.FulltextIndex::class.java,
                     apoc.path.PathExplorer::class.java,
                     apoc.meta.Meta::class.java,
                     apoc.refactor.GraphRefactoring::class.java,

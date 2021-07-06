@@ -2,10 +2,10 @@ package me.roybailey.neo4k.bolt
 
 import me.roybailey.neo4k.dsl.CypherDsl.cypherMatchAndDeleteAll
 import mu.KotlinLogging
-import org.neo4j.driver.v1.AuthTokens
-import org.neo4j.driver.v1.GraphDatabase
-import org.neo4j.driver.v1.Session
-import org.neo4j.driver.v1.Value
+import org.neo4j.driver.AuthTokens
+import org.neo4j.driver.GraphDatabase
+import org.neo4j.driver.Session
+import org.neo4j.driver.Value
 
 
 /**
