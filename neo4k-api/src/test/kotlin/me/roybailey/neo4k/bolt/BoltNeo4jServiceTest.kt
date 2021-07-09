@@ -13,7 +13,7 @@ import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.MountableFile
 
 
-class KNeo4jContainer : Neo4jContainer<KNeo4jContainer>()
+class KNeo4jContainer : Neo4jContainer<KNeo4jContainer>("neo4j:4.0.12-community")
 
 object BoltNeo4jServiceFactory {
 
@@ -52,7 +52,7 @@ abstract class BoltNeo4jServiceTestContainerBase : UnitTestBase() {
             .withNeo4jConfig("dbms.directories.import", "/")
             .withFileSystemBind(
                 "$projectTestDataFolder", "/var/lib/neo4j/import",
-                BindMode.READ_ONLY
+                BindMode.READ_WRITE
             )
         //.withNetwork(Network.newNetwork())
         //.withExtraHost("host.testcontainers.localhost", InetAddress.getLocalHost().hostAddress)

@@ -19,9 +19,9 @@
 
     <properties>
         <!-- neo4j -->
-        <neo4j.version>4.2.9</neo4j.version>
-        <neo4j-apoc.version>4.2.0.5</neo4j-apoc.version>
-        <neo4j-java-driver.version>4.2.7</neo4j-java-driver.version>
+        <neo4j.version>4.0.11</neo4j.version>
+        <neo4j-apoc.version>4.0.0.18</neo4j-apoc.version>
+        <neo4j-java-driver.version>4.0.3</neo4j-java-driver.version>
         <!-- h2 for SQL testing -->
         <h2.version>1.4.197</h2.version>
         <ktor.version>1.2.2</ktor.version>
@@ -64,28 +64,22 @@
             <artifactId>neo4j-java-driver</artifactId>
             <version>${neo4j-java-driver.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.eclipse.collections</groupId>
-            <artifactId>eclipse-collections-api</artifactId>
-            <version>10.4.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.collections</groupId>
-            <artifactId>eclipse-collections</artifactId>
-            <version>10.4.0</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.eclipse.collections</groupId>-->
+<!--            <artifactId>eclipse-collections-api</artifactId>-->
+<!--            <version>10.4.0</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>org.eclipse.collections</groupId>-->
+<!--            <artifactId>eclipse-collections</artifactId>-->
+<!--            <version>10.4.0</version>-->
+<!--        </dependency>-->
 <!--        <dependency>-->
 <!--            <groupId>org.scala-lang</groupId>-->
-<!--            <artifactId>scala-dist</artifactId>-->
-<!--            <version>2.12.10</version>-->
+<!--            <artifactId>scala-library-all</artifactId>-->
+<!--            <version>2.12.14</version>-->
 <!--            <type>pom</type>-->
 <!--        </dependency>-->
-        <dependency>
-            <groupId>org.scala-lang</groupId>
-            <artifactId>scala-library-all</artifactId>
-            <version>2.12.14</version>
-            <type>pom</type>
-        </dependency>
 
 <!--        <dependency>-->
 <!--            <groupId>com.fasterxml.jackson.core</groupId>-->
@@ -99,21 +93,21 @@
 <!--            <scope>compile</scope>-->
 <!--        </dependency>-->
 
-<!--        <dependency>-->
-<!--            <groupId>com.fasterxml.jackson.datatype</groupId>-->
-<!--            <artifactId>jackson-datatype-jsr310</artifactId>-->
-<!--            <version>${jackson.version}</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>com.fasterxml.jackson.datatype</groupId>-->
-<!--            <artifactId>jackson-datatype-jdk8</artifactId>-->
-<!--            <version>${jackson.version}</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>com.fasterxml.jackson.module</groupId>-->
-<!--            <artifactId>jackson-module-kotlin</artifactId>-->
-<!--            <version>${jackson.version}</version>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jdk8</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-kotlin</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>com.h2database</groupId>
@@ -215,18 +209,18 @@
 <!--                <artifactId>maven-failsafe-plugin</artifactId>-->
 <!--                <version>2.22.2</version>-->
 <!--            </plugin>-->
-<!--            <plugin>-->
-<!--                <groupId>org.apache.maven.plugins</groupId>-->
-<!--                <artifactId>maven-jar-plugin</artifactId>-->
-<!--                <version>3.1.2</version>-->
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <goals>-->
-<!--                            <goal>test-jar</goal>-->
-<!--                        </goals>-->
-<!--                    </execution>-->
-<!--                </executions>-->
-<!--            </plugin>-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.1.2</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-install-plugin</artifactId>
@@ -236,7 +230,7 @@
                     <artifactId>apoc</artifactId>
                     <version>${neo4j-apoc.version}</version>
                     <packaging>jar</packaging>
-                    <file>${basedir}/lib/apoc-4.2.0.5-all.jar</file>
+                    <file>${basedir}/lib/apoc-${neo4j-apoc.version}-all.jar</file>
                     <generatePom>true</generatePom>
                 </configuration>
                 <executions>

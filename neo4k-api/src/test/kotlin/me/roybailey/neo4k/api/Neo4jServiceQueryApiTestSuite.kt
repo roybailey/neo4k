@@ -13,10 +13,10 @@ interface Neo4jServiceQueryApiTestSuite : Neo4jServiceTestSuiteBase {
     @Test
     fun `should load time tree from script files`() {
 
-        val script = QueryApiTest::class.java.getResource("/cypher/time-tree-create.cypher").readText()
-        val statements = QueryStatement.parseQueryScriptStatements(script)
-        Assertions.assertThat(statements).hasSize(4)
-        statements.forEachIndexed { index, statement ->
+        val createScript = QueryApiTest::class.java.getResource("/cypher/time-tree-create.cypher").readText()
+        val createStatements = QueryStatement.parseQueryScriptStatements(createScript)
+        assertThat(createStatements).hasSize(4)
+        createStatements.forEachIndexed { index, statement ->
             logger.info { "------------------------------------------------------------" }
             logger.info { "$index) query=$statement (params=${statement.defaultParams.keys})" }
             val parameters = mutableMapOf<String, Any>()
@@ -35,6 +35,16 @@ interface Neo4jServiceQueryApiTestSuite : Neo4jServiceTestSuiteBase {
         assertThat(months).isEqualTo(60L)
         val days = neo4jService.queryForObject<Long>("match (d:Day) return count(d) as days")
         assertThat(days).isEqualTo(1825L)
+
+        val deleteScript = QueryApiTest::class.java.getResource("/cypher/time-tree-delete.cypher").readText()
+        val deleteStatements = QueryStatement.parseQueryScriptStatements(deleteScript)
+        assertThat(deleteStatements).hasSize(4)
+        deleteStatements.forEachIndexed { index, statement ->
+            logger.info { "------------------------------------------------------------" }
+            logger.info { "$index) query=$statement (params=${statement.defaultParams.keys})" }
+            neo4jService.execute(statement.query, emptyMap())
+        }
+
     }
 
     @Test
@@ -47,7 +57,7 @@ interface Neo4jServiceQueryApiTestSuite : Neo4jServiceTestSuiteBase {
         val statements = QueryStatement.parseQueryScriptStatements(queries)
         statements.entries.forEachIndexed { index, entry -> logger.info { "$index) key=${entry.key} query=${entry.value}" } }
         assertThat(statements["createTimeTree"]).hasSize(4)
-        assertThat(statements["deleteTimeTree"]).hasSize(1)
+        assertThat(statements["deleteTimeTree"]).hasSize(4)
 
         statements["createTimeTree"]?.forEachIndexed { index, statement ->
             logger.info { "------------------------------------------------------------" }
@@ -68,6 +78,13 @@ interface Neo4jServiceQueryApiTestSuite : Neo4jServiceTestSuiteBase {
         assertThat(months).isEqualTo(60L)
         val days = neo4jService.queryForObject<Long>("match (d:Day) return count(d) as days")
         assertThat(days).isEqualTo(1825L)
+
+        statements["deleteTimeTree"]?.forEachIndexed { index, statement ->
+            logger.info { "------------------------------------------------------------" }
+            logger.info { "$index) query=$statement" }
+            neo4jService.execute(statement.query, emptyMap())
+        }
+
     }
 
 }

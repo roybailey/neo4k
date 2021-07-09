@@ -99,7 +99,7 @@ class QueryApiTest : UnitTestBase() {
         val statements = QueryStatement.parseQueryScriptStatements(queries)
         statements.entries.forEachIndexed { index, entry -> logger.info { "$index) key=${entry.key} query=${entry.value}" } }
         assertThat(statements["createTimeTree"]).hasSize(4)
-        assertThat(statements["deleteTimeTree"]).hasSize(1)
+        assertThat(statements["deleteTimeTree"]).hasSize(4)
     }
 
 }

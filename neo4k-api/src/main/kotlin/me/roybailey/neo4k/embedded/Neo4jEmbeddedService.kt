@@ -1,6 +1,8 @@
 package me.roybailey.neo4k.embedded
 
 import me.roybailey.neo4k.api.*
+import me.roybailey.neo4k.bolt.Neo4jBoltService
+import me.roybailey.neo4k.dsl.CypherDsl
 import mu.KotlinLogging
 import org.neo4j.configuration.GraphDatabaseSettings.DEFAULT_DATABASE_NAME
 import org.neo4j.configuration.connectors.BoltConnector
@@ -11,8 +13,6 @@ import org.neo4j.graphdb.GraphDatabaseService
 import org.neo4j.kernel.internal.GraphDatabaseAPI
 import java.io.File
 import java.net.InetAddress
-import java.nio.file.Path
-import java.nio.file.Paths
 import java.time.Instant.now
 import java.util.stream.Stream
 import kotlin.system.exitProcess
@@ -29,6 +29,7 @@ open class Neo4jEmbeddedService(val options: Neo4jServiceOptions) : Neo4jService
     lateinit private var neo4jDatabaseFolder: File
     lateinit var graphDbService: DatabaseManagementService
     lateinit var graphDb: GraphDatabaseService
+    lateinit var neo4jBoltService: Neo4jBoltService
 
     init {
         val (neo4jUri, boltPort) = options
@@ -36,27 +37,35 @@ open class Neo4jEmbeddedService(val options: Neo4jServiceOptions) : Neo4jService
         logger.info("Creating Neo4j Database with neo4jUri=$neo4jUri instance=$instanceSignature")
         logger.info("########### ########## ########## ########## ##########")
 
-        neo4jDatabaseFolder = File(when {
-            neo4jUri.trim().isEmpty() -> createTempDir("${Neo4jService::class.simpleName}-", "-$instanceSignature").canonicalPath
-            neo4jUri.startsWith("file://") -> File(neo4jUri.substring("file://".length)).canonicalPath
-            else -> throw IllegalArgumentException("neo4jUri must be file:// based as only embedded instance supported")
-        }.replace("{timestamp}", now().toString()) + "/graph.db")
+        neo4jDatabaseFolder = File(
+            when {
+                neo4jUri.trim().isEmpty() -> createTempDir(
+                    "${Neo4jService::class.simpleName}-",
+                    "-$instanceSignature"
+                ).canonicalPath
+                neo4jUri.startsWith("file://") -> File(neo4jUri.substring("file://".length)).canonicalPath
+                else -> throw IllegalArgumentException("neo4jUri must be file:// based as only embedded instance supported")
+            }.replace("{timestamp}", now().toString()) + "/graph.db"
+        )
         logger.info("Creating Neo4j Database at $neo4jDatabaseFolder")
 
-        val graphDbBuilder = DatabaseManagementServiceBuilder(neo4jDatabaseFolder.toPath())
-            .loadPropertiesFromFile(Paths.get(neo4jConfiguration.toURI()))
+        val graphDbBuilder = DatabaseManagementServiceBuilder(neo4jDatabaseFolder)
+            .loadPropertiesFromFile(neo4jConfiguration.toURI().toString())
 //        val graphDbBuilderOld = GraphDatabaseFactory()
 //                .newEmbeddedDatabaseBuilder(neo4jDatabaseFolder)
 //                .loadPropertiesFromURL(neo4jConfiguration)
 
         if (boltPort > 0) {
-            val bolt = BoltConnector()
+            // val bolt = BoltConnector()
             val boltListenAddress = "0.0.0.0"
             val boltAdvertisedAddress = InetAddress.getLocalHost().hostName
             graphDbBuilder
-                .setConfig( BoltConnector.enabled, true )
-                .setConfig( BoltConnector.listen_address, SocketAddress( boltListenAddress, boltPort ))
-                .setConfig( BoltConnector.advertised_address, SocketAddress( InetAddress.getLocalHost().hostName, boltPort ))
+                .setConfig(BoltConnector.enabled, true)
+                .setConfig(BoltConnector.listen_address, SocketAddress(boltListenAddress, boltPort))
+                .setConfig(
+                    BoltConnector.advertised_address,
+                    SocketAddress(InetAddress.getLocalHost().hostName, boltPort)
+                )
 //                    .setConfig(bolt.type, "BOLT")
 //                    .setConfig(bolt.enabled, "true")
 //                    .setConfig(bolt.listen_address, boltListenAddress)
@@ -79,6 +88,13 @@ open class Neo4jEmbeddedService(val options: Neo4jServiceOptions) : Neo4jService
 
         logger.info("Created Neo4j Database from: $neo4jConfiguration")
 
+        neo4jBoltService = Neo4jBoltService(
+            Neo4jServiceOptions(
+                "bolt://0.0.0.0", boltPort, "neo4j", "", emptyList()
+            )
+        )
+        logger.info("Created Neo4j Bolt Connection: $neo4jBoltService")
+
         // Registers a shutdown hook for the Neo4j instance so that it
         // shuts down nicely when the VM exits (even if you "Ctrl-C" the
         // running application).
@@ -90,7 +106,8 @@ open class Neo4jEmbeddedService(val options: Neo4jServiceOptions) : Neo4jService
     }
 
 
-    override fun toString(): String = "Neo4jEmbeddedService{ options=$options, neo4jDatabaseFolder=$neo4jDatabaseFolder }"
+    override fun toString(): String =
+        "Neo4jEmbeddedService{ options=$options, neo4jDatabaseFolder=$neo4jDatabaseFolder }"
 
 
     override fun shutdown() {
@@ -117,6 +134,7 @@ open class Neo4jEmbeddedService(val options: Neo4jServiceOptions) : Neo4jService
 
             toRegister.forEach { proc ->
                 try {
+                    logger.info { "Registering Procedures $proc" }
                     procedures.registerProcedure(proc, true)
                     procedures.registerFunction(proc, true)
 
@@ -125,15 +143,69 @@ open class Neo4jEmbeddedService(val options: Neo4jServiceOptions) : Neo4jService
                 }
             }
         }
+
+        val name = "registerProcedures"
+        val value = "aaahhhhh!!!!!!" // toRegister.map { it.name }.reduce { acc, nxt -> "$acc,$nxt" }
+        graphDb.beginTx().run {
+            try {
+                // save a static value through apoc query
+                val resultSetApoc = this.execute(CypherDsl.apocSetStatic(name, value), emptyMap())
+                logger.info { "apoc.static.set($name,$value)\n"+resultSetApoc.resultAsString() }
+            } catch (err: Exception) {
+                throw err
+            } finally {
+                this.commit()
+                this.close()
+            }
+        }
+        graphDb.beginTx().run {
+            try {
+                // save a static value through apoc query
+                val resultSetApoc = this.execute(CypherDsl.apocSetStatic(name, value), emptyMap())
+                logger.info { "apoc.static.set($name,$value)\n"+resultSetApoc.resultAsString() }
+            } catch (err: Exception) {
+                throw err
+            } finally {
+                this.commit()
+                this.close()
+            }
+        }
+        graphDb.beginTx().run {
+            try {
+                val resultGetApoc = this.execute("call apoc.static.list('')", emptyMap())
+                logger.info { "apoc.static.list('')\n"+resultGetApoc.resultAsString() }
+            } catch (err: Exception) {
+                throw err
+            } finally {
+                this.close()
+            }
+        }
+        graphDb.beginTx().run {
+            try {
+                val resultGetApoc = this.execute(CypherDsl.apocGetStatic(name), emptyMap())
+                logger.info { "apoc.static.get($name)\n"+resultGetApoc.hasNext()+":"+resultGetApoc.next() }
+                //logger.info { "apoc.static.get($name)\n"+resultGetApoc.resultAsString() }
+            } catch (err: Exception) {
+                throw err
+            } finally {
+                this.close()
+            }
+        }
+        neo4jBoltService.execute(CypherDsl.apocSetStatic(name, value), emptyMap())
+        neo4jBoltService.execute(CypherDsl.apocGetStatic(name), emptyMap()) { record: Neo4jServiceStatementResult ->
+            logger.info { record.next().get("value") }
+        }
         return this
     }
 
 
     override fun execute(cypher: String, params: Map<String, Any>, code: Neo4jResultMapper): Neo4jService {
 
+        neo4jBoltService.execute(cypher, params, code)
+        /*
         graphDb.beginTx().run {
             try {
-                val result = execute(cypher, params)
+                val result = this.execute(cypher, params)
                 code(object : Neo4jServiceStatementResult {
                     override fun address(): String = neo4jDatabaseFolder.toString()
                     override fun statement(): String = cypher
@@ -157,7 +229,8 @@ open class Neo4jEmbeddedService(val options: Neo4jServiceOptions) : Neo4jService
             } catch (err: Exception) {
                 // don't throw errors on append drop commands
                 if (options.ignoreErrorOnDrop && cypher.trim().startsWith("drop", ignoreCase = true) &&
-                        err.toString().toLowerCase().contains("no such index"))
+                    err.toString().toLowerCase().contains("no such index")
+                )
                     logger.warn { "Ignoring failed drop error on : $cypher\n${err.message}" }
                 else
                     throw err
@@ -165,6 +238,7 @@ open class Neo4jEmbeddedService(val options: Neo4jServiceOptions) : Neo4jService
                 this.close()
             }
         }
+        */
         return this
     }
 
