@@ -49,7 +49,7 @@ abstract class BoltNeo4jServiceTestContainerBase : UnitTestBase() {
             .withPlugins(MountableFile.forClasspathResource("/neo4j/plugins"))
             .withNeo4jConfig("dbms.security.procedures.unrestricted", "apoc.*")
             .withNeo4jConfig("apoc.import.file.enabled", "true")
-            .withNeo4jConfig("dbms.directories.import", "/")
+            .withNeo4jConfig("dbms.directories.import", "/var/lib/neo4j/import")
             .withFileSystemBind(
                 "$projectTestDataFolder", "/var/lib/neo4j/import",
                 BindMode.READ_WRITE

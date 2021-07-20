@@ -12,8 +12,11 @@ interface Neo4jServiceLoadCsvTestSuite : Neo4jServiceTestSuiteBase {
     @Test
     fun `should load csv file without errors`() {
 
-        val csvUrl = "file://$neo4jImportFolder/$CSV_100_TESTDATA"
-        val csvUrltest = "file:///$CSV_100_TESTDATA"
+        val csvUrl = when(neo4jService.isEmbedded()) {
+            true -> "file://$neo4jImportFolder/$CSV_100_TESTDATA"
+            false -> "file:///$CSV_100_TESTDATA"
+        }
+
         val cypher = loadCsvWithHeaders(fileUrl = csvUrl) {
             cypher = CSV_TESTDATA_MERGE_NEO4J
         }
