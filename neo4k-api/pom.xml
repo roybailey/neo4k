@@ -23,7 +23,7 @@
         <neo4j-apoc.version>3.5.0.1</neo4j-apoc.version>
         <neo4j-java-driver.version>1.7.2</neo4j-java-driver.version>
         <!-- h2 for SQL testing -->
-        <h2.version>1.4.197</h2.version>
+        <h2.version>2.1.210</h2.version>
         <ktor.version>1.2.2</ktor.version>
         <sparkjava.version>2.5.4</sparkjava.version>
         <javalin.version>3.1.0</javalin.version>
