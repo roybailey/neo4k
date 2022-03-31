@@ -29,7 +29,7 @@
 		<mokito.version>2.1.0</mokito.version>
 
 		<!-- spring -->
-		<spring-boot.version>2.2.2.RELEASE</spring-boot.version>
+		<spring-boot.version>2.5.12</spring-boot.version>
 		<!-- tomcat : downgraded from v9 to v8 to match with springboot v2.x -->
 		<tomcat.version>8.5.37</tomcat.version>
 
