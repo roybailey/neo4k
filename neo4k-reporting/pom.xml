@@ -20,7 +20,7 @@
     <properties>
         <apache-commons.version>3.8.1</apache-commons.version>
         <apache-csv.version>1.6</apache-csv.version>
-        <apache-poi.version>4.0.1</apache-poi.version>
+        <apache-poi.version>4.1.1</apache-poi.version>
         <apache-io.version>2.6</apache-io.version>
         <apache-pdfbox.version>2.0.19</apache-pdfbox.version>
         <boxable.version>1.5</boxable.version>
