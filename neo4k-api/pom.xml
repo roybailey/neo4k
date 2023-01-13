@@ -20,7 +20,7 @@
     <properties>
         <!-- neo4j -->
         <neo4j.version>3.5.3</neo4j.version>
-        <neo4j-apoc.version>3.5.0.1</neo4j-apoc.version>
+        <neo4j-apoc.version>4.3.0.12</neo4j-apoc.version>
         <neo4j-java-driver.version>1.7.2</neo4j-java-driver.version>
         <!-- h2 for SQL testing -->
         <h2.version>1.4.197</h2.version>
